@@ -5,6 +5,11 @@
    <p>
      <img src="https://raw.githubusercontent.com/tyvekzhang/fast-web/main/docs/source/_static/img/fast_web.svg" alt="logo" style="vertical-align:middle; margin: 0.5%"/>
    </p>
+   <p>
+     <img alt="GitHub License" src="https://img.shields.io/github/license/tyvekzhang/fast-web">
+     <img alt="CI" src="https://github.com/tyvekzhang/fast-web/actions/workflows/ci.yaml/badge.svg">
+     <img alt="Read the Docs" src="https://img.shields.io/readthedocs/fast-web">
+   </p>
    <h4>
       <p>
         <b>English</b> |
