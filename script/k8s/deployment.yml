@@ -18,6 +18,6 @@ spec:
       containers:
       - name: src-server
         image: tyvek2zhang/fast-web:v1.1.1
-        command: ["sh", "-c", "cd src && alembic upgrade head && python apiserver.py"]
+        command: ["sh", "-c", "uv run alembic upgrade head && uv run apiserver.py"]
         ports:
         - containerPort: 9010

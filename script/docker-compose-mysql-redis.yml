@@ -35,11 +35,11 @@ services:
     container_name: fast_web_server
     image: tyvek2zhang/fast-web:1.1.1
     restart: always
-    command: "sh -c 'cd src && alembic upgrade head && python apiserver.py'"
+    command: "sh -c 'uv run alembic upgrade head && uv run apiserver.py'"
     depends_on:
       - db
       - redis
     ports:
       - 9010:9010
     volumes:
-      - ./volumes/app/log:/app/log
+      - ./volumes/app/log:/var/log/fast_web

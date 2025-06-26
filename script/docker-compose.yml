@@ -3,8 +3,8 @@ version: '3.8'
 services:
   fast_web_server:
     container_name: fast_web_server
-    image: tyvek2zhang/fast-web:1.1.1
+    image: tyvek2zhang/fast-web:2.0.0
     restart: always
-    command: "sh -c 'cd src && alembic upgrade head && python apiserver.py'"
+    command: "sh -c 'uv run alembic upgrade head && uv run apiserver.py'"
     ports:
       - 9010:9010

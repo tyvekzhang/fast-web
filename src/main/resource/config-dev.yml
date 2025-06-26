@@ -1,3 +1,9 @@
 server:
   name: Fast web
   host: 127.0.0.1
+  workers: 1
+  debug: True
+
+security:
+  enable: True
+  enable_swagger: True

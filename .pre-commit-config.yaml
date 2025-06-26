@@ -16,11 +16,11 @@ repos:
         additional_dependencies: ["tomli>=2.0.1"]
         exclude: ^src/main/resource/static/.*$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.11.10"
+    rev: v0.11.12
     hooks:
-      - id: ruff-format
       - id: ruff
-        args: ["--fix"]
+        args: [ --fix ]
+      - id: ruff-format
   - repo: https://github.com/tox-dev/pyproject-fmt
     rev: "v2.5.1"
     hooks:

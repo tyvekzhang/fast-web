@@ -1,0 +1,2 @@
+security:
+  white_list_routes: /v1/probe/liveness, /v1/probe/readiness, /v1/user/login, /v1/user/refreshTokens
