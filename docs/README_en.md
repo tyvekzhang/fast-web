@@ -64,11 +64,11 @@ alembic upgrade head
 ```shell
 python apiserver.py
 ```
-5. Interactive documentation address: http://127.0.0.1:9010/docs
+5. Interactive documentation address: http://127.0.0.1:13000/docs
 6. Congratulations, you've successfully started the server! You need to create a user and authenticate before
    accessing the API.
 7. You can stop the server at any time by pressing CTRL+C.
 
 ## License
 
-FastWebis open-sourced under the [MIT License](https://opensource.org/licenses/MIT).
+FastWeb is open-sourced under the [MIT License](https://opensource.org/licenses/MIT).
