@@ -16,7 +16,7 @@ database:
   # sqlite+aiosqlite:///your/absolute/path/xxx.db
   # postgresql+asyncpg://user:pass@localhost:port/dbname
   # mysql+aiomysql://user:pass@localhost:port/dbname
-  url: mysql+aiomysql://root:123456@localhost:3306/fast_web
+  url: ""
   pool_size: 10
   max_overflow: 20
   pool_recycle: 1800

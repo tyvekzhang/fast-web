@@ -711,7 +711,7 @@ dev = [
 ]
 docs = [
     { name = "sphinx", specifier = ">=7.2.6" },
-    { name = "sphinx-rtd-theme", specifier = ">=2.0.0" },
+    { name = "sphinx-rtd-theme", specifier = ">=2" },
 ]
 
 [[package]]

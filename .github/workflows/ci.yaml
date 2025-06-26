@@ -55,6 +55,7 @@ jobs:
       - name: Test with pytest
         run: |
           alembic upgrade head
+          cd src
           coverage run -m pytest
           coverage xml
       - name: Upload coverage reports to Codecov

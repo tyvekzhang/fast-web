@@ -3,9 +3,11 @@
 Automatically discovers and includes all controller routers from the controller directory.
 Each controller file should be named '*_controller.py' and contain a corresponding '*_router' variable."""
 
-from fastapi import APIRouter
 import importlib
+import os
 from pathlib import Path
+
+from fastapi import APIRouter
 from loguru import logger
 
 
@@ -25,7 +27,11 @@ def register_router(
         controller_dir = Path(controller_item).resolve()
         for controller_file in controller_dir.glob(f"*_{controller_flag}.py"):
             module_name = controller_file.stem
-            module_path = f"{controller_item}.{module_name}".replace("/", ".")
+            controller_item_str = str(controller_item)
+            relative_path = controller_item_str.split("src")[1]
+            module_path = f"src{relative_path}.{module_name}".replace(
+                "/", "."
+            ).replace(os.sep, ".")
 
             try:
                 module = importlib.import_module(module_path)

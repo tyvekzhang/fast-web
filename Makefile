@@ -1,13 +1,13 @@
 .PHONY: help install db dp dev start lint test image push docker-compose-start deploy-k8s doc pypi clean
 
 # Variables
-TAG ?= v1.1.1
+TAG ?= v2.1.1
 RELEASE_NAME = fast-web
 DOCKERHUB_USER = tyvek2zhang
 SOURCE_DIR = src
-SCRIPT_DIR = script
+BUILD_DIR = build
 DOCS_DIR = docs
-SERVER_LOG = server.log
+SERVER_LOG = fast-web.log
 
 help:
 	@echo "Available make targets:"
@@ -52,18 +52,26 @@ lint:
 test: clean
 	uv sync --group dev && \
 	uv run alembic upgrade head && \
-	uv run coverage run -m pytest $(SOURCE_DIR)/tests && \
-	uv run coverage report
+	cd $(SOURCE_DIR) && \
+	uv run coverage run -m pytest tests && \
+	uv run coverage html
 
 ifeq ($(OS),Windows_NT)
 clean:
-	-rmdir /s /q dist 2>nul
-	-rmdir /s /q $(DOCS_DIR)/build 2>nul
+	@echo "Cleaning on Windows..."
+	@if exist dist rmdir /s /q dist 2>nul || echo "dist not found, skipping"
+	@if exist $(DOCS_DIR)\build rmdir /s /q $(DOCS_DIR)\build 2>nul
+	@if exist $(SOURCE_DIR)\htmlcov rmdir /s /q $(SOURCE_DIR)\htmlcov 2>nul
+	@if exist $(SOURCE_DIR)\.coverage del /q $(SOURCE_DIR)\.coverage 2>nul
+	@if exist $(SOURCE_DIR)\log rmdir /s /q $(SOURCE_DIR)\log 2>nul
+	@if exist $(SOURCE_DIR)\tests\log rmdir /s /q $(SOURCE_DIR)\tests\log 2>nul
 
 else
 clean:
 	rm -rf dist \
-	    $(DOCS_DIR)/build
+	    $(DOCS_DIR)/build \
+	    $(SOURCE_DIR)/htmlcov \
+	    $(SOURCE_DIR)/.coverage \
 
 endif
 
@@ -74,10 +82,10 @@ push: image
 	docker push $(DOCKERHUB_USER)/$(RELEASE_NAME):$(TAG)
 
 docker-compose-start:
-	cd $(SCRIPT_DIR) && docker-compose up -d
+	cd $(BUILD_DIR) && docker-compose up -d
 
 deploy-k8s:
-	kubectl apply -f $(SCRIPT_DIR)/k8s
+	kubectl apply -f $(BUILD_DIR)/k8s
 
 doc:
 	uv add -r $(DOCS_DIR)/requirements.txt --group docs

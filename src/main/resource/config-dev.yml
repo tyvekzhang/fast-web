@@ -5,8 +5,6 @@ server:
   debug: True
   log_file_path: ./log/fast_web.log
 
-database:
-  url: sqlite+aiosqlite:///src/main/resource/alembic/db/fast_web.db
 
 security:
   enable: True

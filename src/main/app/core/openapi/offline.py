@@ -29,7 +29,7 @@ def register_offline_openapi(app, resource_dir):
     @app.get("/docs", include_in_schema=False)
     async def custom_swagger_ui_html():
         return get_swagger_ui_html(
-            swagger_favicon_url="/static/favicon.png",
+            swagger_favicon_url="/static/favicon.ico",
             openapi_url=app.openapi_url,
             title=app.title,
             oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
