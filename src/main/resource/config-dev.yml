@@ -4,6 +4,9 @@ server:
   workers: 1
   debug: True
 
+database:
+  url: sqlite+aiosqlite:///src/main/resource/alembic/db/fast_web.db
+
 security:
   enable: True
   enable_swagger: True
