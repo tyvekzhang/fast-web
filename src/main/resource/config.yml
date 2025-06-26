@@ -1,7 +1,7 @@
 server:
   name: Fast web
   host: 0.0.0.0
-  port: 19000
+  port: 13000
   version: 2.0.0
   app_desc: Fast web aims to one of the best scaffolding in the PyWeb field.
   api_version: /v1
@@ -36,5 +36,5 @@ security:
   access_token_expire_minutes: 30
   refresh_token_expire_minutes: 43200
   white_list_routes: /v1/probe/liveness, /v1/probe/readiness, /v1/user/register, /v1/user/login, /v1/user/refreshTokens
-  backend_cors_origins: http://127.0.0.1:8200, http://localhost:8200, http://localhost
+  backend_cors_origins: http://127.0.0.1:7000, http://localhost:7000, http://localhost
   black_ip_list: ""

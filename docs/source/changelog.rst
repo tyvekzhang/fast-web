@@ -1,6 +1,16 @@
 Release History
 ================
 
+v2.0.0 (2025-06-30)
+--------------------
+
+Features - 2.0.0
+~~~~~~~~~~~~~~~~~
+* ⚡ Project refactoring
+   - Change to use uv package manage
+   - Optimize logic and process
+
+
 v1.0.0 (2024-04-20)
 --------------------
 

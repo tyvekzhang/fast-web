@@ -1,17 +1,3 @@
-# Copyright (c) 2025 Fast web and/or its affiliates. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
 """User domain service impl"""
 
 from __future__ import annotations
@@ -104,10 +90,10 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
 
         return Token(
             access_token=access_token,
-            expired_at=access_token_expires_at,
+            expired_time=access_token_expires_at,
             token_type=TokenTypeEnum.bearer,
             refresh_token=refresh_token,
-            re_expired_at=refresh_token_expires_at,
+            re_expired_time=refresh_token_expires_at,
         )
 
     async def login(self, *, login_form: LoginForm) -> Token:
@@ -234,7 +220,7 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
             UserModel(**user_create.model_dump())
             for user_create in user_create_list
         ]
-        await self.batch_save(datas=user_list)
+        await self.batch_save(data_list=user_list)
         return [user.id for user in user_list]
 
     @staticmethod

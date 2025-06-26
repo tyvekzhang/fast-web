@@ -19,9 +19,9 @@ sys.path.insert(0, project_dir)
 sys.path.insert(0, root_dir)
 
 project = "fast-web"
-copyright = "2024, src group"
-author = "tyvekZhang"
-release = "1.0.0-beta.2"
+copyright = "2025, fast-web group"
+author = "tyvekzhang"
+release = "2.0.0-beta.1"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

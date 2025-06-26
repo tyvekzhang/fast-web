@@ -53,7 +53,7 @@ test: clean
 	uv sync --group dev && \
 	uv run alembic upgrade head && \
 	uv run coverage run -m pytest $(SOURCE_DIR)/tests && \
-	uv run coverage html
+	uv run coverage report
 
 ifeq ($(OS),Windows_NT)
 clean:

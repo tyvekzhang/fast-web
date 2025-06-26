@@ -1,8 +1,7 @@
 """Routing of the application.
 
 Automatically discovers and includes all controller routers from the controller directory.
-Each controller file should be named '*_controller.py' and contain a corresponding '*_router' variable.
-"""
+Each controller file should be named '*_controller.py' and contain a corresponding '*_router' variable."""
 
 from fastapi import APIRouter
 import importlib
