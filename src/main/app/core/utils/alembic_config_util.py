@@ -1,17 +1,3 @@
-# Copyright (c) 2025 Fast web and/or its affiliates. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
 """Alembic configuration parser"""
 
 import configparser
@@ -21,7 +7,7 @@ from urllib.parse import urlparse
 
 from src.main.app.core.enums.enum import DBTypeEnum
 from src.main.app.core.utils import file_util
-from src.main.app.core.utils.file_util import get_file_path
+from src.main.app.core.utils.file_util import get_resource_dir
 
 
 class DbConnectionInfo(NamedTuple):
@@ -103,8 +89,10 @@ def get_sqlite_db_path() -> str:
     db_url = get_db_url()
     if db_url.strip() == "":
         raise ValueError("Invalid database URL")
-    db_name = db_url.split(os.sep)[-1]
-    return get_file_path(db_name)
+    db_name = db_url.split(os.sep)[-1].split("/")[-1]
+    raw_path = os.path.join(get_resource_dir(), "alembic", "db", db_name)
+    db_url = "sqlite+aiosqlite:///" + raw_path.replace("\\", "/")
+    return db_url
 
 
 def get_db_dialect() -> str:

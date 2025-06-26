@@ -5,13 +5,6 @@
    <p>
      <img src="https://raw.githubusercontent.com/tyvekzhang/fast-web/main/docs/source/_static/img/fast_web.svg" alt="logo" style="vertical-align:middle; margin: 0.5%"/>
    </p>
-   <p>
-     <img alt="GitHub License" src="https://img.shields.io/github/license/tyvekzhang/fast-web">
-     <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/fast-web">
-     <img alt="CI" src="https://github.com/tyvekzhang/fast-web/actions/workflows/ci.yaml/badge.svg">
-     <img alt="Codecov" src="https://img.shields.io/codecov/c/github/tyvekzhang/fast-web">
-     <img alt="Read the Docs" src="https://img.shields.io/readthedocs/fast-web">
-   </p>
    <h4>
       <p>
         <b>简体中文</b> |
@@ -56,10 +49,10 @@ git clone https://github.com/tyvekzhang/fast-web.git
 cd fast-web
 ```
 2. 下载依赖
-- 通过[uv](https://docs.astral.sh/uv)创建环境并下载依赖
-  ```shell
-  uv sync
-  ```
+通过[uv](https://docs.astral.sh/uv)创建环境并下载依赖
+```shell
+uv sync
+```
 3. 数据库迁移
 ```shell
 alembic upgrade head
@@ -68,7 +61,7 @@ alembic upgrade head
 ```shell
 python apiserver.py
 ```
-5. 交互式文档地址: http://127.0.0.1:9010/docs
+5. 交互式文档地址: http://127.0.0.1:13000/docs
 6. 恭喜你, 运行成功. 接口访问前需创建用户, 并进行认证
 7. 可以随时按CTRL+C停止运行
 

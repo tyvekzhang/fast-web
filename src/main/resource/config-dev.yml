@@ -3,6 +3,8 @@ server:
   host: 127.0.0.1
   workers: 1
   debug: True
+  log_file_path: ./log/fast_web.log
+
 
 security:
   enable: True

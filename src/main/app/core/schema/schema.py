@@ -1,17 +1,3 @@
-# Copyright (c) 2025 Fast web and/or its affiliates. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
 """Common schema with data validation."""
 
 from typing import List, Any, Optional
@@ -37,16 +23,16 @@ class Token(BaseModel):
     Attributes:
         access_token: JWT access token string.
         token_type: Type of token (e.g., 'Bearer').
-        expired_at: Unix timestamp when token expires.
+        expired_time: Unix timestamp when token expires.
         refresh_token: Token used to refresh access.
-        re_expired_at: Unix timestamp when refresh token expires.
+        re_expired_time: Unix timestamp when refresh token expires.
     """
 
     access_token: str
     token_type: str
-    expired_at: int
+    expired_time: int
     refresh_token: str
-    re_expired_at: int
+    re_expired_time: int
 
 
 class CurrentUser(BaseModel):

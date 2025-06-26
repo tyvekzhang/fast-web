@@ -1,26 +1,14 @@
-# Copyright (c) 2025 Fast web and/or its affiliates. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
 """Database configuration for the application."""
 
+from typing import Optional
+
 from src.main.app.core.utils import alembic_config_util
+from src.main.app.core.utils.alembic_config_util import get_sqlite_db_path
 
 
 class DatabaseConfig:
     def __init__(
         self,
-        url: str,
         pool_size: int,
         max_overflow: int,
         pool_recycle: int,
@@ -32,6 +20,7 @@ class DatabaseConfig:
         cache_pass: str,
         db_num: int,
         dialect: str = None,
+        url: Optional[str] = None,
     ) -> None:
         """
         Initializes database configuration.
@@ -54,7 +43,10 @@ class DatabaseConfig:
             dialect = alembic_config_util.get_db_dialect()
         self.dialect = dialect
         if url is None or len(url.strip()) == 0:
-            url = alembic_config_util.get_db_url()
+            if dialect == "sqlite" or dialect is None:
+                url = get_sqlite_db_path()
+            else:
+                url = alembic_config_util.get_db_url()
         self.url = url
         self.pool_size = pool_size
         self.max_overflow = max_overflow

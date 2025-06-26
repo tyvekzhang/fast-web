@@ -54,8 +54,8 @@ jobs:
           python -m pip install pytest httpx coverage
       - name: Test with pytest
         run: |
-          cd src
           alembic upgrade head
+          cd src
           coverage run -m pytest
           coverage xml
       - name: Upload coverage reports to Codecov

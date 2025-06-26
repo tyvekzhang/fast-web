@@ -10,8 +10,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License.
-"""Authentication utilities for FastAPI application."""
+# limitations under the License."""Authentication utilities for FastAPI application."""
 
 from functools import wraps
 from datetime import datetime, timedelta
@@ -200,9 +199,10 @@ def role_required(required_role: str):
         @wraps(func)
         async def wrapper(current_user: CurrentUser, *args, **kwargs):
             # Get the current user
-            user_id = current_user.user_id
-
-            # Get user role info or permission info
+            pass
+            # user_id = current_user.user_id
+            #
+            # # Get user role info or permission info
             # if user.get("role") != required_role:
             #     raise HTTPException(
             #         status_code=status.HTTP_403_FORBIDDEN,
