@@ -22,17 +22,13 @@ class Token(BaseModel):
 
     Attributes:
         access_token: JWT access token string.
-        token_type: Type of token (e.g., 'Bearer').
-        expired_time: Unix timestamp when token expires.
+        expired_in: Access token expiration time, second.
         refresh_token: Token used to refresh access.
-        re_expired_time: Unix timestamp when refresh token expires.
     """
 
     access_token: str
-    token_type: str
-    expired_time: int
+    expired_in: int = 7200
     refresh_token: str
-    re_expired_time: int
 
 
 class CurrentUser(BaseModel):

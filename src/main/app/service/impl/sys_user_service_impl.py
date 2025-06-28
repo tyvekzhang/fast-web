@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import io
 import json
-from datetime import timedelta, datetime
+from datetime import timedelta
 from typing import Optional, List, Set, Tuple
 from typing import Union
 
@@ -63,10 +63,6 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
     async def generate_tokens(cls, user_id: int) -> Token:
         security_config = config_manager.load_security_config()
 
-        # generate access token
-        access_token_expires = timedelta(
-            minutes=security_config.access_token_expire_minutes
-        )
         access_token = security.create_token(
             subject=user_id, token_type=TokenTypeEnum.access
         )
@@ -81,19 +77,9 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
             expires_delta=refresh_token_expires,
         )
 
-        access_token_expires_at = int(
-            (datetime.now() + access_token_expires).timestamp()
-        )
-        refresh_token_expires_at = int(
-            (datetime.now() + refresh_token_expires).timestamp()
-        )
-
         return Token(
             access_token=access_token,
-            expired_time=access_token_expires_at,
-            token_type=TokenTypeEnum.bearer,
             refresh_token=refresh_token,
-            re_expired_time=refresh_token_expires_at,
         )
 
     async def login(self, *, login_form: LoginForm) -> Token:
@@ -268,9 +254,9 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
             roles.add("admin")
         else:
             # Get roles from database for non-admin users
-            user_roles: List[UserRoleModel] = userRoleMapper.select_by_userid(
-                user_id=id
-            )
+            user_roles: List[
+                UserRoleModel
+            ] = await userRoleMapper.select_by_userid(user_id=id)
             if not user_roles:
                 return roles, role_models
 

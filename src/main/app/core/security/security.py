@@ -82,7 +82,7 @@ def get_current_user() -> Callable[[], CurrentUser]:
     ) -> CurrentUser:
         security = load_config().security
         if not security.enable:
-            user_id = 1
+            user_id = 9
             return CurrentUser(user_id=user_id)
         try:
             user_id = get_user_id(access_token)

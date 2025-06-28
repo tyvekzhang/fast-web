@@ -10,6 +10,8 @@ from src.main.app.core.schema import HttpResponse, Token, CurrentUser
 from src.main.app.core.schema import PageResult
 from src.main.app.core.security import get_current_user
 from src.main.app.core.utils import excel_util
+from src.main.app.core.utils.tree_util import list_to_tree
+from src.main.app.mapper.sys_menu_mapper import menuMapper
 from src.main.app.mapper.sys_user_mapper import userMapper
 from src.main.app.model.sys_user_model import UserModel
 from src.main.app.schema.sys_menu_schema import MenuPage
@@ -23,11 +25,26 @@ from src.main.app.schema.sys_user_schema import (
     UserPage,
     UserInfo,
 )
+from src.main.app.service.impl.sys_menu_service_impl import MenuServiceImpl
 from src.main.app.service.impl.sys_user_service_impl import UserServiceImpl
+from src.main.app.service.sys_menu_service import MenuService
 from src.main.app.service.sys_user_service import UserService
 
 user_router = APIRouter()
 user_service: UserService = UserServiceImpl(mapper=userMapper)
+menu_service: MenuService = MenuServiceImpl(mapper=menuMapper)
+
+
+@user_router.get("/menus")
+async def get_menus(current_user: CurrentUser = Depends(get_current_user())):
+    records, _ = await menu_service.retrieve_ordered_data_list(
+        current=1, page_size=1000
+    )
+    records = [MenuPage(**record.model_dump()) for record in records]
+    records = [record.model_dump() for record in records if record.visible == 1]
+    records.sort(key=lambda x: x["sort"])
+    result = list_to_tree(records)
+    return HttpResponse(data=result)
 
 
 @user_router.post("/login")

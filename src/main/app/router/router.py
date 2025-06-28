@@ -48,7 +48,9 @@ def register_router(
                         f"/{module_name.replace(f'_{controller_flag}', '')}"
                     )
                     for remove_prefix in remove_prefix_set:
-                        prefix = prefix.replace(f"{remove_prefix}_", "")
+                        prefix = prefix.replace(
+                            f"{remove_prefix}_", ""
+                        ).replace("_", "-")
                     router_instance = getattr(module, router_var_name)
                     router.include_router(
                         router_instance,

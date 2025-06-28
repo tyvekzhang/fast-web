@@ -25,6 +25,11 @@ dict_data_router = APIRouter()
 dict_data_service: DictDataService = DictDataServiceImpl(mapper=dictDataMapper)
 
 
+@dict_data_router.get("/all")
+async def get_all_dict_data():
+    return HttpResponse.success()
+
+
 @dict_data_router.get("/page")
 async def get_dict_data_by_page(
     dict_data_query: Annotated[DictDataQuery, Query()],

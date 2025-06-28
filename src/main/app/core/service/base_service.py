@@ -35,14 +35,14 @@ class BaseService(Generic[T], ABC):
         ...
 
     @abstractmethod
-    async def retrieve_data(
+    async def retrieve_data_list(
         self, *, current: int, page_size: int, **kwargs
     ) -> Tuple[List[T], int]:
-        """Return paginated data with optional filters and total count."""
+        """Return paginated records with optional filters and total count."""
         ...
 
     @abstractmethod
-    async def retrieve_ordered_data(
+    async def retrieve_ordered_data_list(
         self,
         *,
         current: int,
@@ -50,7 +50,7 @@ class BaseService(Generic[T], ABC):
         sort: List[SortItem] = None,
         **kwargs,
     ) -> Tuple[List[T], int]:
-        """Return paginated and sorted record with total count."""
+        """Return paginated and sorted records with total count."""
         ...
 
     @abstractmethod

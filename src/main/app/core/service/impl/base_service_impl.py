@@ -28,7 +28,7 @@ class BaseServiceImpl(Generic[M, T], BaseService[T]):
     async def retrieve_by_ids(self, *, ids: List[IDType]) -> List[T]:
         return await self.mapper.select_by_ids(ids=ids)
 
-    async def retrieve_data(
+    async def retrieve_data_list(
         self, *, current: int, page_size: int, **kwargs
     ) -> Tuple[
         List[T],
@@ -38,7 +38,7 @@ class BaseServiceImpl(Generic[M, T], BaseService[T]):
             current=current, page_size=page_size, **kwargs
         )
 
-    async def retrieve_ordered_data(
+    async def retrieve_ordered_data_list(
         self,
         *,
         current: int,
