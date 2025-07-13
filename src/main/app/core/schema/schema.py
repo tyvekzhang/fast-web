@@ -1,19 +1,21 @@
 """Common schema with data validation."""
 
-from typing import List, Any, Optional
+from typing import List, Optional, TypeVar, Generic
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+T = TypeVar('T')
 
 
-class PageResult(BaseModel):
+class PageResult(BaseModel, Generic[T]):
     """Paginated query result container.
 
     Attributes:
-        records: List of items in current page (default: None)
-        total: Total number of items across all pages (default: 0)
+        records: List of items in current page
+        total: Total number of items across all pages
     """
 
-    records: List[Any] = None
+    records: List[T] = Field(default_factory=list)
     total: int = 0
 
 
@@ -64,5 +66,5 @@ class BasePage(BaseModel):
 
     current: int = 1
     page_size: int = 10
-    count: bool = False
+    count: bool = True
     sort_str: Optional[str] = None

@@ -14,8 +14,8 @@ from src.main.app.mapper.sys_menu_mapper import MenuMapper
 from src.main.app.model.sys_menu_model import MenuModel
 from src.main.app.core.schema import PageResult, CurrentUser
 from src.main.app.schema.sys_menu_schema import (
-    MenuQuery,
-    MenuPage,
+    ListMenuRequest,
+    Menu,
     MenuDetail,
     MenuCreate,
 )
@@ -38,9 +38,9 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
         super().__init__(mapper=mapper)
         self.mapper = mapper
 
-    async def get_menu_by_page(
-        self, menu_query: MenuQuery, current_user: CurrentUser
-    ) -> PageResult:
+    async def list_menus(
+        self, req: ListMenuRequest
+    ) -> PageResult[Menu]:
         eq = {}
         ne = {}
         gt = {}
@@ -49,30 +49,32 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
         le = {}
         between = {}
         like = {}
-        if menu_query.id is not None and menu_query.id != "":
-            eq["id"] = menu_query.id
-        if menu_query.name is not None and menu_query.name != "":
-            like["name"] = menu_query.name
-        if menu_query.icon is not None and menu_query.icon != "":
-            eq["icon"] = menu_query.icon
-        if menu_query.permission is not None and menu_query.permission != "":
-            eq["permission"] = menu_query.permission
-        if menu_query.sort is not None and menu_query.sort != "":
-            eq["sort"] = menu_query.sort
-        if menu_query.path is not None and menu_query.path != "":
-            eq["path"] = menu_query.path
-        if menu_query.component is not None and menu_query.component != "":
-            eq["component"] = menu_query.component
-        if menu_query.type is not None and menu_query.type != "":
-            eq["type"] = menu_query.type
-        if menu_query.cacheable is not None and menu_query.cacheable != "":
-            eq["cacheable"] = menu_query.cacheable
-        if menu_query.visible is not None and menu_query.visible != "":
-            eq["visible"] = menu_query.visible
-        if menu_query.status is not None and menu_query.status != "":
-            eq["status"] = menu_query.status
-        if menu_query.create_time is not None and menu_query.create_time != "":
-            eq["create_time"] = menu_query.create_time
+        if req.parent_id is not None and req.parent_id != "":
+            eq["parent_id"] = req.parent_id
+        if req.id is not None and req.id != "":
+            eq["id"] = req.id
+        if req.name is not None and req.name != "":
+            like["name"] = req.name
+        if req.icon is not None and req.icon != "":
+            eq["icon"] = req.icon
+        if req.permission is not None and req.permission != "":
+            eq["permission"] = req.permission
+        if req.sort is not None and req.sort != "":
+            eq["sort"] = req.sort
+        if req.path is not None and req.path != "":
+            eq["path"] = req.path
+        if req.component is not None and req.component != "":
+            eq["component"] = req.component
+        if req.type is not None and req.type != "":
+            eq["type"] = req.type
+        if req.cacheable is not None and req.cacheable != "":
+            eq["cacheable"] = req.cacheable
+        if req.visible is not None and req.visible != "":
+            eq["visible"] = req.visible
+        if req.status is not None and req.status != "":
+            eq["status"] = req.status
+        if req.create_time is not None and req.create_time != "":
+            eq["create_time"] = req.create_time
         filters = {
             FilterOperators.EQ: eq,
             FilterOperators.NE: ne,
@@ -84,13 +86,11 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
             FilterOperators.LIKE: like,
         }
         records, total = await self.mapper.select_by_ordered_page(
-            current=menu_query.current, pageSize=menu_query.pageSize, **filters
+            current=req.current, page_size=req.page_size, **filters
         )
-        if total == 0:
+        if records is None or len(records) == 0:
             return PageResult(records=[], total=total)
-        if "sort" in MenuModel.model_fields and total > 1:
-            records.sort(key=lambda x: x["sort"])
-        records = [MenuPage(**record.model_dump()) for record in records]
+        records = [Menu(**record.model_dump()) for record in records]
         return PageResult(records=records, total=total)
 
     async def get_menu_detail(
@@ -109,9 +109,9 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
         menu_list: List[MenuModel] = await self.retrieve_by_ids(ids=ids)
         if menu_list is None or len(menu_list) == 0:
             return None
-        menu_page_list = [MenuPage(**menu.model_dump()) for menu in menu_list]
+        menu_page_list = [Menu(**menu.model_dump()) for menu in menu_list]
         return await excel_util.export_excel(
-            schema=MenuPage,
+            schema=Menu,
             file_name="menu_data_export",
             data_list=menu_page_list,
         )

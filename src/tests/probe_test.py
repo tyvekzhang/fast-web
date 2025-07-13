@@ -13,10 +13,10 @@ client = TestClient(app)
 @pytest.mark.parametrize(
     "endpoint,expected_json",
     [
-        ("liveness", {"code": 0, "msg": "Hi"}),
+        ("liveness", {"code": 0, "message": "Hi"}),
     ],
 )
 def test_probe(endpoint, expected_json):
-    response = client.get(f"{server_config.api_version}/probe/{endpoint}")
+    response = client.get(f"{server_config.api_prefix}/probe/{endpoint}")
     assert response.status_code == 200
     assert response.json() == expected_json

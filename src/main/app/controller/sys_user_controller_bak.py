@@ -6,6 +6,7 @@ from fastapi import APIRouter, Query, UploadFile, Form, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.responses import StreamingResponse
 
+from src.main.app.core.context.contextvars import current_user_id
 from src.main.app.core.schema import HttpResponse, Token, CurrentUser
 from src.main.app.core.schema import PageResult
 from src.main.app.core.security import get_current_user
@@ -14,11 +15,11 @@ from src.main.app.core.utils.tree_util import list_to_tree
 from src.main.app.mapper.sys_menu_mapper import menuMapper
 from src.main.app.mapper.sys_user_mapper import userMapper
 from src.main.app.model.sys_user_model import UserModel
-from src.main.app.schema.sys_menu_schema import MenuPage
+from src.main.app.schema.sys_menu_schema import Menu
 from src.main.app.schema.sys_user_schema import (
     UserQuery,
     UserModify,
-    UserCreate,
+    CreateUserRequest,
     UserBatchModify,
     UserDetail,
     LoginForm,
@@ -35,12 +36,36 @@ user_service: UserService = UserServiceImpl(mapper=userMapper)
 menu_service: MenuService = MenuServiceImpl(mapper=menuMapper)
 
 
+@user_router.post("")
+async def create_user(
+    req: CreateUserRequest,
+) -> UserModel:
+    """
+    Create a new user
+
+    Args:
+        req: Request object containing user creation data
+
+    Returns:
+         UserModel: The newly created user object
+
+    Raises:
+        CustomException(409 Conflict): If the creation data already exists.
+        CustomException(403 Forbidden): If the current user don't have access rights.
+    """
+    user: UserModel = await user_service.create_user(
+        create_user=req,
+    )
+    result = user.copy()
+    result.password = None
+    return result
+
 @user_router.get("/menus")
 async def get_menus(current_user: CurrentUser = Depends(get_current_user())):
     records, _ = await menu_service.retrieve_ordered_data_list(
         current=1, page_size=1000
     )
-    records = [MenuPage(**record.model_dump()) for record in records]
+    records = [Menu(**record.model_dump()) for record in records]
     records = [record.model_dump() for record in records if record.visible == 1]
     records.sort(key=lambda x: x["sort"])
     result = list_to_tree(records)
@@ -83,7 +108,7 @@ async def get_me_info(
     user_id = current_user.user_id
     user_page: UserPage = await user_service.find_by_id(id=user_id)
     roles, role_models = await user_service.get_roles(id=user_id)
-    menus: List[MenuPage] = await user_service.get_menus(
+    menus: List[Menu] = await user_service.get_menus(
         id=user_id, role_models=role_models
     )
     if UserInfo.is_admin(user_id):
@@ -128,7 +153,7 @@ async def export_template(
     current_user: CurrentUser = Depends(get_current_user()),
 ) -> StreamingResponse:
     return await excel_util.export_excel(
-        schema=UserCreate, file_name="user_import_tpl"
+        schema=CreateUserRequest, file_name="user_import_tpl"
     )
 
 
@@ -142,20 +167,10 @@ async def export_user_page(
     )
 
 
-@user_router.post("/create")
-async def create_user(
-    user_create: UserCreate,
-    current_user: CurrentUser = Depends(get_current_user()),
-) -> HttpResponse[int]:
-    user: UserModel = await user_service.create_user(
-        user_create=user_create, current_user=current_user
-    )
-    return HttpResponse.success(user.id)
-
 
 @user_router.post("/batch-create")
 async def batch_create_user(
-    user_create_list: List[UserCreate],
+    user_create_list: List[CreateUserRequest],
     current_user: CurrentUser = Depends(get_current_user()),
 ) -> HttpResponse[List[int]]:
     ids: List[int] = await user_service.batch_create_user(
@@ -168,8 +183,8 @@ async def batch_create_user(
 async def import_user(
     current_user: CurrentUser = Depends(get_current_user()),
     file: UploadFile = Form(),
-) -> HttpResponse[List[UserCreate]]:
-    user_create_list: List[UserCreate] = await user_service.import_user(
+) -> HttpResponse[List[CreateUserRequest]]:
+    user_create_list: List[CreateUserRequest] = await user_service.import_user(
         file=file, current_user=current_user
     )
     return HttpResponse.success(user_create_list)

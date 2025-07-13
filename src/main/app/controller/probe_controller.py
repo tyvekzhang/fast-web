@@ -16,4 +16,4 @@ async def liveness() -> HttpResponse[str]:
         HttpResponse[str]: An HTTP response containing a success message
         with the string "Hi".
     """
-    return HttpResponse.success(msg="Hi")
+    return HttpResponse.success(message="Hi")

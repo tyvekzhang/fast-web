@@ -49,6 +49,6 @@ class ValidateService:
         err_msg = []
         for error in e.errors():
             field = " -> ".join(map(str, error["loc"]))  # Field path
-            message = error["msg"]  # Error description
+            message = error["message"]  # Error description
             err_msg.append(f"Error in field '{field}': {message}")
         return ",".join(err_msg)

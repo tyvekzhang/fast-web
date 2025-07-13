@@ -142,7 +142,7 @@ def build_error_response(
     return JSONResponse(
         {
             "code": CommonErrorCode.INTERNAL_SERVER_ERROR.code,
-            "msg": error_message,
+            "message": error_message,
         },
         status_code=status_code,
         headers=headers,
@@ -208,7 +208,7 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
     return JSONResponse(
         {
             "code": CommonErrorCode.INTERNAL_SERVER_ERROR.code,
-            "msg": str(exc).split("For further")[0],
+            "message": str(exc).split("For further")[0],
         },
         status_code=status_code,
     )
@@ -227,10 +227,10 @@ async def custom_exception_handler(request: Request, exc: CustomException):
     if is_auth_errors_code(exc):
         return JSONResponse(
             status_code=http.HTTPStatus.UNAUTHORIZED,
-            content={"code": exc.code, "msg": exc.msg},
+            content={"code": exc.code, "message": exc.message},
         )
     return JSONResponse(
-        {"code": exc.code, "msg": exc.msg},
+        {"code": exc.code, "message": exc.message},
     )
 
 
@@ -267,7 +267,7 @@ async def request_validation_exception_handler(
     return JSONResponse(
         {
             "code": http.HTTPStatus.UNPROCESSABLE_ENTITY,
-            "msg": str(exc.errors()),
+            "message": str(exc.errors()),
         },
     )
 
@@ -283,6 +283,6 @@ async def jwt_exception_handler() -> JSONResponse:
         status_code=http.HTTPStatus.UNAUTHORIZED,
         content={
             "code": http.HTTPStatus.UNAUTHORIZED,
-            "msg": "Your token has expired. Please log in again.",
+            "message": "Your token has expired. Please log in again.",
         },
     )

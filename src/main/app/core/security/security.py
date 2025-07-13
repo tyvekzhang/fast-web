@@ -64,7 +64,7 @@ def decode_jwt_token(token: str) -> dict[str, Any]:
 
 def get_oauth2_scheme() -> OAuth2PasswordBearer:
     oauth2_scheme = OAuth2PasswordBearer(
-        tokenUrl=f"{server_config.api_version}/user/login"
+        tokenUrl=f"{server_config.api_prefix}/user/login"
     )
     return oauth2_scheme
 

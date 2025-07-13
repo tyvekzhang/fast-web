@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from src.main.app.core.schema import BasePage
 
 
-class MenuPage(BaseModel):
+class Menu(BaseModel):
     """
     系统菜单分页信息
     """
@@ -41,7 +41,7 @@ class MenuPage(BaseModel):
     comment: Optional[str] = None
 
 
-class MenuQuery(BasePage):
+class ListMenuRequest(BasePage):
     """
     系统菜单查询参数
     """
@@ -64,13 +64,14 @@ class MenuQuery(BasePage):
     type: Optional[int] = None
     # 是否缓存（1缓存 0不缓存）
     cacheable: Optional[int] = None
+    # 父ID
+    parent_id: Optional[int] = None
     # 是否显示（1显示 0隐藏）
     visible: Optional[int] = None
     # 状态（1正常 0停用）
     status: Optional[int] = None
     # 创建时间
     create_time: Optional[datetime] = None
-    sort: Optional[str] = None
 
 
 class MenuCreate(BaseModel):
@@ -171,36 +172,8 @@ class MenuBatchModify(BaseModel):
     comment: Optional[str] = None
 
 
-class MenuDetail(BaseModel):
+class MenuDetail(Menu):
     """
     系统菜单详情
     """
-
-    # 主键
-    id: int
-    # 名称
-    name: str
-    # 图标
-    icon: Optional[str] = None
-    # 权限标识
-    permission: Optional[str] = None
-    # 排序
-    sort: Optional[int] = None
-    # 路由地址
-    path: Optional[str] = None
-    # 组件路径
-    component: Optional[str] = None
-    # 类型（1目录 2菜单 3按钮）
-    type: Optional[int] = None
-    # 是否缓存（1缓存 0不缓存）
-    cacheable: Optional[int] = None
-    # 是否显示（1显示 0隐藏）
-    visible: Optional[int] = None
-    # 父ID
-    parent_id: Optional[int] = None
-    # 状态（1正常 0停用）
-    status: Optional[int] = None
-    # 创建时间
-    create_time: Optional[datetime] = None
-    # 备注信息
-    comment: Optional[str] = None
+    pass

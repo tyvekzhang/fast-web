@@ -2,7 +2,7 @@
 
 from enum import Enum
 
-from src.main.app.core.enums import CustomExceptionCode
+from src.main.app.core.enums import ExceptionCode
 
 
 class SortEnum(str, Enum):
@@ -34,7 +34,7 @@ class MediaTypeEnum(str, Enum):
     JSON = ".json"
 
 
-class CommonErrorCode(CustomExceptionCode):
+class CommonErrorCode(ExceptionCode):
     """Error codes for core domain."""
 
     INTERNAL_SERVER_ERROR = (-1, "Internal server exception")

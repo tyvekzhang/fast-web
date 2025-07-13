@@ -21,7 +21,7 @@ from src.main.app.core.middleware.db_session_middleware import (
 from src.main.app.core.middleware.jwt_middleware import jwt_middleware
 from src.main.app.core.openapi import offline
 from src.main.app.core.session.db_engine import get_async_engine
-from src.main.app import router
+from src.main.app.core import router
 
 # Load config
 server_config = config_manager.load_server_config()
@@ -62,7 +62,7 @@ origins = [
 ]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -77,7 +77,7 @@ current_dir = Path(__file__).parent.absolute()
 controller_path = os.path.join(current_dir, "controller")
 app.include_router(
     router.register_router([controller_path]),
-    prefix=server_config.api_version,
+    prefix=server_config.api_prefix,
 )
 
 # Register offline openapi

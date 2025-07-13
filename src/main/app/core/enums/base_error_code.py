@@ -3,7 +3,7 @@
 from enum import Enum
 
 
-class CustomExceptionCode(Enum):
+class ExceptionCode(Enum):
     """Base class for error code enumerations.
 
     Provides common interface for all error codes where each enum member is defined as a tuple of
@@ -17,10 +17,10 @@ class CustomExceptionCode(Enum):
         return self.value[0]
 
     @property
-    def msg(self) -> str:
+    def message(self) -> str:
         """Retrieves the human-readable error message."""
 
         return self.value[1]
 
     def __str__(self) -> str:
-        return f"{self.code}: {self.msg}"
+        return f"{self.code}: {self.message}"

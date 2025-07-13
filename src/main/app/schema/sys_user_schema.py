@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Optional, List, Set
 from pydantic import BaseModel, Field
 from src.main.app.core.schema import BasePage
-from src.main.app.schema.sys_menu_schema import MenuPage
+from src.main.app.schema.sys_menu_schema import Menu
 
 
 class LoginForm(BaseModel):
@@ -61,7 +61,7 @@ class UserInfo(BaseModel):
     # 权限集合
     permissions: Optional[List[str]] = None
     # 菜单集合
-    menus: Optional[List[MenuPage]] = None
+    menus: Optional[List[Menu]] = None
 
     @staticmethod
     def is_admin(user_id: int) -> bool:
@@ -93,7 +93,7 @@ class UserQuery(BasePage):
     create_time: Optional[datetime] = None
 
 
-class UserCreate(BaseModel):
+class CreateUserRequest(BaseModel):
     """
     用户信息新增
     """

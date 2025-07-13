@@ -1,9 +1,9 @@
 """Authentication and authorization error codes (20000-29999)."""
 
-from src.main.app.core.enums.base_error_code import CustomExceptionCode
+from src.main.app.core.enums.base_error_code import ExceptionCode
 
 
-class AuthErrorCode(CustomExceptionCode):
+class AuthErrorCode(ExceptionCode):
     """Authentication and authorization error codes."""
 
     AUTH_FAILED = (20001, "Username or password error")

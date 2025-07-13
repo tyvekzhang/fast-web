@@ -74,7 +74,7 @@ class RoleServiceImpl(BaseServiceImpl[RoleMapper, RoleModel], RoleService):
             FilterOperators.LIKE: like,
         }
         records, total = await self.mapper.select_by_ordered_page(
-            current=role_query.current, pageSize=role_query.pageSize, **filters
+            current=role_query.current, page_size=role_query.page_size, **filters
         )
         if total == 0:
             return PageResult(records=[], total=total)

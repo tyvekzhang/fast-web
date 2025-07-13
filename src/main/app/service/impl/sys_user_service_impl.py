@@ -32,12 +32,12 @@ from src.main.app.model.sys_role_menu_model import RoleMenuModel
 from src.main.app.model.sys_role_model import RoleModel
 from src.main.app.model.sys_user_model import UserModel
 from src.main.app.model.sys_user_role_model import UserRoleModel
-from src.main.app.schema.sys_menu_schema import MenuPage
+from src.main.app.schema.sys_menu_schema import Menu
 from src.main.app.schema.sys_user_schema import (
     UserQuery,
     UserPage,
     UserDetail,
-    UserCreate,
+    CreateUserRequest,
     LoginForm,
     UserInfo,
 )
@@ -58,6 +58,12 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
         """
         super().__init__(mapper=mapper)
         self.mapper = mapper
+
+    async def create_user(
+        self, create_user: CreateUserRequest,
+    ) -> UserModel:
+        user: UserModel = UserModel(**create_user.model_dump())
+        return await self.save(data=user)
 
     @classmethod
     async def generate_tokens(cls, user_id: int) -> Token:
@@ -192,15 +198,9 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
             data_list=user_page_list,
         )
 
-    async def create_user(
-        self, user_create: UserCreate, current_user: CurrentUser
-    ) -> UserModel:
-        user: UserModel = UserModel(**user_create.model_dump())
-        # user.user_id = request.state.user_id
-        return await self.save(data=user)
 
     async def batch_create_user(
-        self, *, user_create_list: List[UserCreate], current_user: CurrentUser
+        self, *, user_create_list: List[CreateUserRequest], current_user: CurrentUser
     ) -> List[int]:
         user_list: List[UserModel] = [
             UserModel(**user_create.model_dump())
@@ -212,7 +212,7 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
     @staticmethod
     async def import_user(
         *, file: UploadFile, current_user: CurrentUser
-    ) -> Union[List[UserCreate], None]:
+    ) -> Union[List[CreateUserRequest], None]:
         contents = await file.read()
         import_df = pd.read_excel(io.BytesIO(contents))
         import_df = import_df.fillna("")
@@ -226,15 +226,15 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
         user_create_list = []
         for user_record in user_records:
             try:
-                user_create = UserCreate(**user_record)
+                user_create = CreateUserRequest(**user_record)
                 user_create_list.append(user_create)
             except Exception as e:
                 valid_data = {
                     k: v
                     for k, v in user_record.items()
-                    if k in UserCreate.model_fields
+                    if k in CreateUserRequest.model_fields
                 }
-                user_create = UserCreate.model_construct(**valid_data)
+                user_create = CreateUserRequest.model_construct(**valid_data)
                 user_create.err_msg = ValidateService.get_validate_err_msg(e)
                 user_create_list.append(user_create)
                 return user_create_list
@@ -273,19 +273,19 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
 
     async def get_menus(
         self, id: int, role_models: List[RoleModel] = None
-    ) -> List[MenuPage]:
+    ) -> List[Menu]:
         """
         Get accessible menus for user based on their roles.
         Returns a list of menu pages.
         """
-        menus: List[MenuPage] = []
+        menus: List[Menu] = []
 
         # Admin gets all menus
         if UserInfo.is_admin(id):
             menu_list, total_count = await menuMapper.select_by_parent_id()
             if total_count == 0:
                 return menus
-            menus = [MenuPage(**menu.model_dump()) for menu in menu_list]
+            menus = [Menu(**menu.model_dump()) for menu in menu_list]
             return menus
 
         # Return empty if no roles provided for non-admin
@@ -305,5 +305,5 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
             role_menu_record.menu_id for role_menu_record in role_menu_records
         ]
         menu_list: List[MenuModel] = menuMapper.select_by_ids(ids=menu_id_list)
-        menus = [MenuPage(**menu.model_dump()) for menu in menu_list]
+        menus = [Menu(**menu.model_dump()) for menu in menu_list]
         return menus

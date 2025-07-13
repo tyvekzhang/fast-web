@@ -28,7 +28,7 @@ def client():
     ],
 )
 def test_user_login_error(client, endpoint, test_data, expected_status_code):
-    url = f"{configs.api_version}/user/{endpoint}"
+    url = f"{configs.api_prefix}/user/{endpoint}"
     response = client.post(
         url,
         data=test_data,

@@ -95,7 +95,7 @@ class DictDataServiceImpl(
         }
         records, total = await self.mapper.select_by_ordered_page(
             current=dict_data_query.current,
-            pageSize=dict_data_query.pageSize,
+            page_size=dict_data_query.page_size,
             **filters,
         )
         if total == 0:

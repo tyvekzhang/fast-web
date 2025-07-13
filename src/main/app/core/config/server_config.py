@@ -9,7 +9,7 @@ class ServerConfig:
         port: int,
         version: str,
         app_desc: str,
-        api_version: str,
+        api_prefix: str,
         workers: int,
         debug: bool,
         log_file_path: str,
@@ -27,7 +27,7 @@ class ServerConfig:
             port: The server port number.
             version: The server version.
             app_desc: The server app_desc.
-            api_version: The server api_version.
+            api_prefix: The server api_prefix.
             debug: Whether to enable debug mode.
             workers: The server worker numbers.
             log_file_path: Path to the log file.
@@ -41,7 +41,7 @@ class ServerConfig:
         self.port = port
         self.version = version
         self.app_desc = app_desc
-        self.api_version = api_version
+        self.api_prefix = api_prefix
         self.debug = debug
         self.workers = workers
         self.log_file_path = log_file_path

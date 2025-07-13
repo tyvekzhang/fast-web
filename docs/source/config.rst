@@ -12,7 +12,7 @@ Server Configuration
     port: 13000
     version: 2.0.0
     app_desc: Fast web aims to one of the best scaffolding in the PyWeb field.
-    api_version: /v1
+    api_prefix: /v1
     workers: 1
     log_file_path: /var/log/fast_web/fast_web.log
     win_tz: china standard time

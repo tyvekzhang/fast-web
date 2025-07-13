@@ -8,18 +8,18 @@ from starlette.responses import StreamingResponse
 from src.main.app.model.sys_menu_model import MenuModel
 from src.main.app.core.schema import PageResult, CurrentUser
 from src.main.app.schema.sys_menu_schema import (
-    MenuQuery,
+    ListMenuRequest,
     MenuDetail,
-    MenuCreate,
+    MenuCreate, Menu,
 )
 from src.main.app.core.service.base_service import BaseService
 
 
 class MenuService(BaseService[MenuModel], ABC):
     @abstractmethod
-    async def get_menu_by_page(
-        self, *, menu_query: MenuQuery, current_user: CurrentUser
-    ) -> PageResult: ...
+    async def list_menus(
+        self, *, req: ListMenuRequest
+    ) -> PageResult[Menu]: ...
 
     @abstractmethod
     async def get_menu_detail(
