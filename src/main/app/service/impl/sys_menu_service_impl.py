@@ -91,7 +91,7 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
             FilterOperators.LIKE: like,
         }
         records, total = await self.mapper.select_by_ordered_page(
-            current=req.current, page_size=req.page_size, **filters
+            current=req.current, page_size=req.page_size, count = req.count, **filters
         )
         if records is None or len(records) == 0:
             return PageResult(records=[], total=total)
