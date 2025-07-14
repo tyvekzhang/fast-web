@@ -1,25 +1,28 @@
 """Menu domain service impl"""
 
 from __future__ import annotations
+
 import io
 from typing import Optional, List
 from typing import Union
+
 import pandas as pd
 from fastapi import UploadFile
 from starlette.responses import StreamingResponse
+
 from src.main.app.core.constant import FilterOperators
+from src.main.app.core.schema import PageResult, CurrentUser
+from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.core.utils import excel_util
 from src.main.app.core.utils.validate_util import ValidateService
 from src.main.app.mapper.sys_menu_mapper import MenuMapper
 from src.main.app.model.sys_menu_model import MenuModel
-from src.main.app.core.schema import PageResult, CurrentUser
 from src.main.app.schema.sys_menu_schema import (
     ListMenuRequest,
     Menu,
     MenuDetail,
     MenuCreate,
 )
-from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.service.sys_menu_service import MenuService
 
 
@@ -51,6 +54,8 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
         like = {}
         if req.parent_id is not None and req.parent_id != "":
             eq["parent_id"] = req.parent_id
+        else:
+            eq["parent_id"] = 0
         if req.id is not None and req.id != "":
             eq["id"] = req.id
         if req.name is not None and req.name != "":
@@ -91,7 +96,8 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
         if records is None or len(records) == 0:
             return PageResult(records=[], total=total)
         records = [Menu(**record.model_dump()) for record in records]
-        return PageResult(records=records, total=total)
+        records_with_children = await self.mapper.get_children_recursively(parent_data=records, schema_class=MenuDetail)
+        return PageResult(records=records_with_children, total=total)
 
     async def get_menu_detail(
         self, *, id: int, current_user: CurrentUser

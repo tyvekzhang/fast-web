@@ -39,6 +39,8 @@ class Menu(BaseModel):
     create_time: Optional[datetime] = None
     # 备注信息
     comment: Optional[str] = None
+    # 子节点
+    children: Optional[List["Menu"]] = None
 
 
 class ListMenuRequest(BasePage):

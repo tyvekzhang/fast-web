@@ -2,6 +2,7 @@
 
 from typing import Generic, TypeVar, List, Type, Tuple, Optional
 
+from pydantic import BaseModel
 from sqlmodel import SQLModel, select, insert, update, delete, func
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -13,6 +14,7 @@ from src.main.app.core.schema import SortItem
 
 IDType = TypeVar("IDType", int, str)
 ModelType = TypeVar("ModelType", bound=SQLModel)
+SchemaType = TypeVar("SchemaType", bound=BaseModel)
 
 
 class SqlModelMapper(BaseMapper, Generic[ModelType]):
@@ -388,3 +390,60 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         statement = delete(self.model).where(self.model.id.in_(ids))
         exec_response = await db_session.exec(statement)
         return exec_response.rowcount
+
+    async def get_children_recursively(
+        self,
+        *,
+        parent_data: List[SchemaType],
+        schema_class: Type[SchemaType],
+        level: int = 1,
+        max_level: int = 5,
+        db_session: Optional[AsyncSession] = None
+    ) -> List[SchemaType]:
+        """
+        Recursively fetch children of given parent items up to 5 levels.
+
+        Args:
+            parent_data: A list of parent items with at least 'id' field
+            schema_class: The Pydantic schema class used to serialize ORM objects
+            level: Current recursion depth (starts from 1)
+            max_level: Max recursion depth
+            db_session: Optional async database session
+
+        Returns:
+            A list of parent items, each with a `children` attribute (list)
+        """
+        db_session = db_session or self.db.session
+        if level > max_level or not parent_data or len(parent_data) == 0:
+            return parent_data
+
+        parent_ids = [item.id for item in parent_data]
+        if not parent_ids:
+            return parent_data
+
+        # Query children for the current level
+        stmt = select(self.model).where(self.model.parent_id.in_(parent_ids))
+        result = await db_session.execute(stmt)
+        children = result.scalars().all()
+
+        # Convert ORM children to SchemaType instances
+        children_schema = [schema_class(**child.model_dump()) for child in children]  # 假设使用 Pydantic 的 from_orm
+
+        # Group children by parent_id
+        children_by_parent = {}
+        for child in children_schema:
+            children_by_parent.setdefault(child.parent_id, []).append(child)
+
+        # Assign children and recursively fetch deeper children
+        for parent in parent_data:
+            children = children_by_parent.get(parent.id, [])
+            nested_children = await self.get_children_recursively(
+                parent_data=children,
+                schema_class=schema_class,
+                level=level + 1,
+                max_level=max_level,
+                db_session=db_session
+            )
+            parent.children = nested_children if nested_children else None
+
+        return parent_data

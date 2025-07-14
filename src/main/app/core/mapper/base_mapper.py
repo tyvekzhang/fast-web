@@ -1,14 +1,16 @@
 """BaseMapper defines the database operations to be implemented"""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar
+from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar, Type
 
+from pydantic import BaseModel
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.main.app.core.schema import SortItem
 
 ModelType = TypeVar("ModelType", bound=SQLModel)
+SchemaType = TypeVar("SchemaType", bound=BaseModel)
 IDType = TypeVar("IDType", int, str)
 
 
@@ -208,5 +210,30 @@ class BaseMapper(ABC, Generic[ModelType]):
 
         Returns:
             Number of data_list deleted
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    async def get_children_recursively(
+        self,
+        *,
+        parent_data: List[SchemaType],
+        schema_class: Type[SchemaType],
+        level: int = 1,
+        max_level: int = 5,
+        db_session: Optional[AsyncSession] = None
+    ) -> List[SchemaType]:
+        """
+        Recursively fetch children of given parent items up to 5 levels.
+
+        Args:
+            parent_data: A list of parent items with at least 'id' field
+            schema_class: The Pydantic schema class used to serialize ORM objects
+            level: Current recursion depth (starts from 1)
+            max_level: Max recursion depth
+            db_session: Optional async database session
+
+        Returns:
+            A list of parent items, each with a `children` attribute (list)
         """
         raise NotImplementedError
