@@ -1,7 +1,7 @@
 """Abstract service with common database operations."""
 
 from abc import ABC, abstractmethod
-from typing import List, TypeVar, Generic, Tuple, Dict
+from typing import TypeVar, Generic, Dict
 
 from sqlmodel import SQLModel
 
@@ -20,7 +20,7 @@ class BaseService(Generic[T], ABC):
         ...
 
     @abstractmethod
-    async def batch_save(self, *, data_list: List[T]) -> int:
+    async def batch_save(self, *, data_list: list[T]) -> int:
         """Save multiple data and return the count saved."""
         ...
 
@@ -30,14 +30,14 @@ class BaseService(Generic[T], ABC):
         ...
 
     @abstractmethod
-    async def retrieve_by_ids(self, *, ids: List[IDType]) -> List[T]:
+    async def retrieve_by_ids(self, *, ids: list[IDType]) -> list[T]:
         """Return multiple records by their IDs."""
         ...
 
     @abstractmethod
     async def retrieve_data_list(
         self, *, current: int, page_size: int, **kwargs
-    ) -> Tuple[List[T], int]:
+    ) -> tuple[list[T], int]:
         """Return paginated records with optional filters and total count."""
         ...
 
@@ -47,9 +47,9 @@ class BaseService(Generic[T], ABC):
         *,
         current: int,
         page_size: int,
-        sort: List[SortItem] = None,
+        sort: list[SortItem] = None,
         **kwargs,
-    ) -> Tuple[List[T], int]:
+    ) -> tuple[list[T], int]:
         """Return paginated and sorted records with total count."""
         ...
 
@@ -60,7 +60,7 @@ class BaseService(Generic[T], ABC):
 
     @abstractmethod
     async def batch_modify_by_ids(
-        self, *, ids: List[IDType], data: Dict
+        self, *, ids: list[IDType], data: Dict
     ) -> None:
         """Update multiple records by their IDs."""
         ...
@@ -71,6 +71,6 @@ class BaseService(Generic[T], ABC):
         ...
 
     @abstractmethod
-    async def batch_remove_by_ids(self, *, ids: List[IDType]) -> None:
+    async def batch_remove_by_ids(self, *, ids: list[IDType]) -> None:
         """Delete multiple records by their IDs."""
         ...

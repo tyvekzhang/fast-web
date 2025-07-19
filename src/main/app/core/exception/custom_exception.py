@@ -1,4 +1,5 @@
 """Base exception class for the application."""
+
 from dataclasses import dataclass
 from typing import Optional, Any
 
@@ -6,7 +7,7 @@ from src.main.app.core.enums import ExceptionCode
 
 
 @dataclass
-class CustomException(Exception):
+class HttpException(Exception):
     """
     Base exception class for all custom exception in the application.
 

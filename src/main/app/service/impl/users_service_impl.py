@@ -5,7 +5,7 @@ from __future__ import annotations
 import io
 import json
 from datetime import timedelta
-from typing import Optional, List, Set, Tuple
+from typing import Optional, Set
 from typing import Union
 
 import pandas as pd
@@ -22,18 +22,18 @@ from src.main.app.core.utils import excel_util
 from src.main.app.core.utils.validate_util import ValidateService
 from src.main.app.enums import AuthErrorCode
 from src.main.app.exception import AuthException
-from src.main.app.mapper.sys_menu_mapper import menuMapper
+from src.main.app.mapper.menus_mapper import menuMapper
 from src.main.app.mapper.sys_role_mapper import roleMapper
 from src.main.app.mapper.sys_role_menu_mapper import roleMenuMapper
-from src.main.app.mapper.sys_user_mapper import UserMapper
+from src.main.app.mapper.users_mapper import UserMapper
 from src.main.app.mapper.sys_user_role_mapper import userRoleMapper
-from src.main.app.model.sys_menu_model import MenuModel
+from src.main.app.model.menus_model import MenuModel
 from src.main.app.model.sys_role_menu_model import RoleMenuModel
 from src.main.app.model.sys_role_model import RoleModel
-from src.main.app.model.sys_user_model import UserModel
+from src.main.app.model.users_model import UserModel
 from src.main.app.model.sys_user_role_model import UserRoleModel
-from src.main.app.schema.sys_menu_schema import Menu
-from src.main.app.schema.sys_user_schema import (
+from src.main.app.schema.menus_schema import Menu
+from src.main.app.schema.users_schema import (
     UserQuery,
     UserPage,
     UserDetail,
@@ -41,7 +41,7 @@ from src.main.app.schema.sys_user_schema import (
     LoginForm,
     UserInfo,
 )
-from src.main.app.service.sys_user_service import UserService
+from src.main.app.service.users_service import UserService
 
 
 class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
@@ -60,7 +60,8 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
         self.mapper = mapper
 
     async def create_user(
-        self, create_user: CreateUserRequest,
+        self,
+        create_user: CreateUserRequest,
     ) -> UserModel:
         user: UserModel = UserModel(**create_user.model_dump())
         return await self.save(data=user)
@@ -184,11 +185,11 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
         return UserDetail(**user_do.model_dump())
 
     async def export_user_page(
-        self, *, ids: List[int], current_user: CurrentUser
+        self, *, ids: list[int], current_user: CurrentUser
     ) -> Optional[StreamingResponse]:
         if ids is None or len(ids) == 0:
             return None
-        user_list: List[UserModel] = await self.retrieve_by_ids(ids=ids)
+        user_list: list[UserModel] = await self.retrieve_by_ids(ids=ids)
         if user_list is None or len(user_list) == 0:
             return None
         user_page_list = [UserPage(**user.model_dump()) for user in user_list]
@@ -198,11 +199,13 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
             data_list=user_page_list,
         )
 
-
     async def batch_create_user(
-        self, *, user_create_list: List[CreateUserRequest], current_user: CurrentUser
-    ) -> List[int]:
-        user_list: List[UserModel] = [
+        self,
+        *,
+        user_create_list: list[CreateUserRequest],
+        current_user: CurrentUser,
+    ) -> list[int]:
+        user_list: list[UserModel] = [
             UserModel(**user_create.model_dump())
             for user_create in user_create_list
         ]
@@ -212,7 +215,7 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
     @staticmethod
     async def import_user(
         *, file: UploadFile, current_user: CurrentUser
-    ) -> Union[List[CreateUserRequest], None]:
+    ) -> Union[list[CreateUserRequest], None]:
         contents = await file.read()
         import_df = pd.read_excel(io.BytesIO(contents))
         import_df = import_df.fillna("")
@@ -241,20 +244,20 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
 
         return user_create_list
 
-    async def get_roles(self, id: int) -> Tuple[Set[str], List[RoleModel]]:
+    async def get_roles(self, id: int) -> tuple[Set[str], list[RoleModel]]:
         """
         Get user's roles by user ID.
         Returns a set of role names and a list of role models.
         """
         roles: Set[str] = set()
-        role_models: List[RoleModel] = []
+        role_models: list[RoleModel] = []
 
         # Admin gets automatic 'admin' role
         if UserInfo.is_admin(id):
             roles.add("admin")
         else:
             # Get roles from database for non-admin users
-            user_roles: List[
+            user_roles: list[
                 UserRoleModel
             ] = await userRoleMapper.select_by_userid(user_id=id)
             if not user_roles:
@@ -272,13 +275,13 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
         return roles, role_models
 
     async def get_menus(
-        self, id: int, role_models: List[RoleModel] = None
-    ) -> List[Menu]:
+        self, id: int, role_models: list[RoleModel] = None
+    ) -> list[Menu]:
         """
         Get accessible menus for user based on their roles.
         Returns a list of menu pages.
         """
-        menus: List[Menu] = []
+        menus: list[Menu] = []
 
         # Admin gets all menus
         if UserInfo.is_admin(id):
@@ -294,7 +297,7 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
 
         # Get menus associated with user's roles
         role_ids = [role_model.id for role_model in role_models]
-        role_menu_records: List[RoleMenuModel] = (
+        role_menu_records: list[RoleMenuModel] = (
             roleMenuMapper.select_by_role_ids(role_ids=role_ids)
         )
         if not role_menu_records:
@@ -304,6 +307,6 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
         menu_id_list = [
             role_menu_record.menu_id for role_menu_record in role_menu_records
         ]
-        menu_list: List[MenuModel] = menuMapper.select_by_ids(ids=menu_id_list)
+        menu_list: list[MenuModel] = menuMapper.select_by_ids(ids=menu_id_list)
         menus = [Menu(**menu.model_dump()) for menu in menu_list]
         return menus

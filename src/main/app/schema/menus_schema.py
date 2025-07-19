@@ -1,9 +1,17 @@
 """Menu schema"""
 
+from __future__ import annotations
+
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional
+
 from pydantic import BaseModel, Field
+
 from src.main.app.core.schema import BasePage
+
+
+class GetMenuRequest(BaseModel):
+    id: int = Field(gt=0)
 
 
 class Menu(BaseModel):
@@ -40,7 +48,7 @@ class Menu(BaseModel):
     # 备注信息
     comment: Optional[str] = None
     # 子节点
-    children: Optional[List["Menu"]] = None
+    children: Optional[list[Menu]] = None
 
 
 class ListMenuRequest(BasePage):
@@ -76,11 +84,7 @@ class ListMenuRequest(BasePage):
     create_time: Optional[datetime] = None
 
 
-class MenuCreate(BaseModel):
-    """
-    系统菜单新增
-    """
-
+class CreateMenu(BaseModel):
     # 名称
     name: str
     # 图标
@@ -105,11 +109,17 @@ class MenuCreate(BaseModel):
     status: Optional[int] = None
     # 备注信息
     comment: Optional[str] = None
-    # 错误信息
-    err_msg: Optional[str] = Field(None, alias="errMsg")
 
 
-class MenuModify(BaseModel):
+class CreateMenuRequest(BaseModel):
+    """
+    系统菜单新增
+    """
+
+    menu: CreateMenu
+
+
+class UpdateMenu(BaseModel):
     """
     系统菜单更新
     """
@@ -142,12 +152,20 @@ class MenuModify(BaseModel):
     comment: Optional[str] = None
 
 
+class UpdateMenuRequest(BaseModel):
+    """
+    系统菜单更新请求
+    """
+
+    menu: UpdateMenu
+
+
 class MenuBatchModify(BaseModel):
     """
     系统菜单批量更新
     """
 
-    ids: List[int]
+    ids: list[int]
     # 名称
     name: str
     # 图标
@@ -178,4 +196,38 @@ class MenuDetail(Menu):
     """
     系统菜单详情
     """
+
     pass
+
+
+class BatchGetMenusResponse(BaseModel):
+    menus: list[MenuDetail]
+
+
+class BatchCreateMenuRequest(BaseModel):
+    menus: list[CreateMenu]
+
+
+class BatchCreateMenuResponse(BaseModel):
+    menus: list[Menu]
+
+
+class BatchUpdateMenusRequest(BaseModel):
+    pass
+
+
+class BatchUpdateMenusResponse(BaseModel):
+    pass
+
+
+class BatchDeleteMenusRequest(BaseModel):
+    ids: list[int] = Field(..., min_items=1)
+
+
+class ExportMenusRequest(BaseModel):
+    pass
+
+
+class ImportMenusResponse(BaseModel):
+    # 错误信息
+    err_msg: Optional[str] = Field(None, alias="errMsg")

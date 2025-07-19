@@ -1,7 +1,7 @@
 """BaseMapper defines the database operations to be implemented"""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar, Type
+from typing import Any, Dict, Generic, Optional, TypeVar
 
 from pydantic import BaseModel
 from sqlmodel import SQLModel
@@ -34,7 +34,7 @@ class BaseMapper(ABC, Generic[ModelType]):
     async def batch_insert(
         self,
         *,
-        data_list: List[ModelType],
+        data_list: list[ModelType],
         db_session: Optional[AsyncSession] = None,
     ) -> int:
         """Insert data list into the database in a single operation.
@@ -65,8 +65,8 @@ class BaseMapper(ABC, Generic[ModelType]):
 
     @abstractmethod
     async def select_by_ids(
-        self, *, ids: List[IDType], db_session: Optional[AsyncSession] = None
-    ) -> List[ModelType]:
+        self, *, ids: list[IDType], db_session: Optional[AsyncSession] = None
+    ) -> list[ModelType]:
         """Select record list by their IDs.
 
         Args:
@@ -86,7 +86,7 @@ class BaseMapper(ABC, Generic[ModelType]):
         page_size: int,
         db_session: Optional[AsyncSession] = None,
         **kwargs,
-    ) -> Tuple[List[ModelType], int]:
+    ) -> tuple[list[ModelType], int]:
         """Select record list with pagination.
 
         Args:
@@ -106,10 +106,10 @@ class BaseMapper(ABC, Generic[ModelType]):
         *,
         current: IDType,
         page_size: int,
-        sort: List[SortItem] = None,
+        sort: list[SortItem] = None,
         db_session: Optional[AsyncSession] = None,
         **kwargs,
-    ) -> Tuple[List[ModelType], int]:
+    ) -> tuple[list[ModelType], int]:
         """Select record list with pagination and sorting.
 
         Args:
@@ -130,10 +130,10 @@ class BaseMapper(ABC, Generic[ModelType]):
         *,
         current: IDType,
         page_size: int,
-        sort: List[SortItem] = None,
+        sort: list[SortItem] = None,
         db_session: Optional[AsyncSession] = None,
         **kwargs,
-    ) -> Tuple[List[ModelType], int]:
+    ) -> tuple[list[ModelType], int]:
         """Select record list with pagination and sorting by parent ID.
 
         Args:
@@ -167,7 +167,7 @@ class BaseMapper(ABC, Generic[ModelType]):
     async def batch_update_by_ids(
         self,
         *,
-        ids: List[IDType],
+        ids: list[IDType],
         data: Dict[str, Any],
         db_session: Optional[AsyncSession] = None,
     ) -> int:
@@ -200,7 +200,7 @@ class BaseMapper(ABC, Generic[ModelType]):
 
     @abstractmethod
     async def batch_delete_by_ids(
-        self, *, ids: List[IDType], db_session: Optional[AsyncSession] = None
+        self, *, ids: list[IDType], db_session: Optional[AsyncSession] = None
     ) -> int:
         """Delete multiple data_list by their IDs.
 
@@ -217,12 +217,12 @@ class BaseMapper(ABC, Generic[ModelType]):
     async def get_children_recursively(
         self,
         *,
-        parent_data: List[SchemaType],
-        schema_class: Type[SchemaType],
+        parent_data: list[SchemaType],
+        schema_class: SchemaType,
         level: int = 1,
         max_level: int = 5,
-        db_session: Optional[AsyncSession] = None
-    ) -> List[SchemaType]:
+        db_session: Optional[AsyncSession] = None,
+    ) -> list[SchemaType]:
         """
         Recursively fetch children of given parent items up to 5 levels.
 

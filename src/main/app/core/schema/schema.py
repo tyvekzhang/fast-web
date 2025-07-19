@@ -1,10 +1,10 @@
 """Common schema with data validation."""
 
-from typing import List, Optional, TypeVar, Generic
+from typing import Optional, TypeVar, Generic
 
 from pydantic import BaseModel, Field
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class PageResult(BaseModel, Generic[T]):
@@ -15,7 +15,7 @@ class PageResult(BaseModel, Generic[T]):
         total: Total number of items across all pages
     """
 
-    records: List[T] = Field(default_factory=list)
+    records: list[T] = Field(default_factory=list)
     total: int = 0
 
 
@@ -56,15 +56,28 @@ class SortItem(BaseModel):
 
 
 class BasePage(BaseModel):
-    """Pagination parameters for API endpoints.
+    """
+    Pagination parameters for API endpoints.
 
     Attributes:
+
         current: Current page number (1-based).
         page_size: Number of items per page.
         count: Flag to request total count of items.
     """
 
-    current: int = 1
-    page_size: int = 10
-    count: bool = True
-    sort_str: Optional[str] = None
+    current: int = Field(
+        default=1, gt=0, description="Current page number (1-based)"
+    )
+    page_size: int = Field(
+        default=10,
+        ge=1,
+        le=1000,
+        description="Number of items per page (1-1000)",
+    )
+    count: bool = Field(
+        default=True, description="Flag to request total count of items"
+    )
+    sort_str: Optional[str] = Field(
+        default=None, description="Optional sorting string, eg:"
+    )

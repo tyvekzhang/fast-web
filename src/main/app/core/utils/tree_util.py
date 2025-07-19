@@ -1,12 +1,12 @@
-from typing import List, Any, Dict
+from typing import Any, Dict
 
 
 def list_to_tree(
-    data_list: List[Dict[str, Any]],
+    data_list: list[Dict[str, Any]],
     id_field: str = "id",
     parent_id_field: str = "parent_id",
     children_field: str = "children",
-) -> List[Dict[str, Any]]:
+) -> list[Dict[str, Any]]:
     """
     将列表数据转换为树形结构
 
@@ -19,7 +19,7 @@ def list_to_tree(
     # 创建一个字典，用于存储每个节点的引用
     node_map: Dict[Any, Dict[str, Any]] = {}
     # 存储根节点
-    roots: List[Dict[str, Any]] = []
+    roots: list[Dict[str, Any]] = []
 
     # 第一次遍历：初始化每个节点的引用，并添加 children 属性
     for item in data_list:

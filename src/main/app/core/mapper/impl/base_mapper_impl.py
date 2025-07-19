@@ -1,6 +1,6 @@
 """Sqlmodel impl that handle database operation"""
 
-from typing import Generic, TypeVar, List, Type, Tuple, Optional
+from typing import Generic, TypeVar, Type, Optional
 
 from pydantic import BaseModel
 from sqlmodel import SQLModel, select, insert, update, delete, func
@@ -40,7 +40,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
     async def batch_insert(
         self,
         *,
-        data_list: List[ModelType],
+        data_list: list[ModelType],
         db_session: Optional[AsyncSession] = None,
     ) -> int:
         """
@@ -68,8 +68,8 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         return db_response.one_or_none()
 
     async def select_by_ids(
-        self, *, ids: List[IDType], db_session: Optional[AsyncSession] = None
-    ) -> List[ModelType]:
+        self, *, ids: list[IDType], db_session: Optional[AsyncSession] = None
+    ) -> list[ModelType]:
         """
         Select record list by their IDs.
         """
@@ -86,7 +86,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         count: bool = False,
         db_session: Optional[AsyncSession] = None,
         **kwargs,
-    ) -> Tuple[List[ModelType], int]:
+    ) -> tuple[list[ModelType], int]:
         """
         Select a list of record, with optional filtering, pagination, and ordering.
 
@@ -147,7 +147,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         query = query.offset((current - 1) * page_size).limit(page_size)
 
         exec_response = await db_session.exec(query)
-        record_list: List[ModelType] = exec_response.all()
+        record_list: list[ModelType] = exec_response.all()
 
         return record_list, total_count
 
@@ -157,10 +157,10 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         current: int = 1,
         page_size: int = 100,
         count: bool = False,
-        sort_list: List[SortItem] = None,
+        sort_list: list[SortItem] = None,
         db_session: Optional[AsyncSession] = None,
         **kwargs,
-    ) -> Tuple[List[ModelType], int]:
+    ) -> tuple[list[ModelType], int]:
         """
         Select a list of data_list, with optional filtering, pagination, and ordering.
 
@@ -235,7 +235,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         query = query.offset((current - 1) * page_size).limit(page_size)
 
         exec_response = await db_session.exec(query)
-        data_list: List[ModelType] = exec_response.all()
+        data_list: list[ModelType] = exec_response.all()
 
         return data_list, total_count
 
@@ -245,10 +245,10 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         current: int = 1,
         page_size: int = constant.MAX_PAGE_SIZE,
         count: bool = True,
-        sort_list: List[SortItem] = None,
+        sort_list: list[SortItem] = None,
         db_session: Optional[AsyncSession] = None,
         **kwargs,
-    ) -> Tuple[List[ModelType], int]:
+    ) -> tuple[list[ModelType], int]:
         """
         Select record list with pagination and sorting by parent ID.
 
@@ -335,7 +335,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         query = query.offset((current - 1) * page_size).limit(page_size)
 
         exec_response = await db_session.exec(query)
-        data_list: List[ModelType] = exec_response.all()
+        data_list: list[ModelType] = exec_response.all()
 
         return data_list, total_count
 
@@ -355,7 +355,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
     async def batch_update_by_ids(
         self,
         *,
-        ids: List[IDType],
+        ids: list[IDType],
         data: dict,
         db_session: Optional[AsyncSession] = None,
     ) -> int:
@@ -381,7 +381,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         return exec_response.rowcount
 
     async def batch_delete_by_ids(
-        self, *, ids: List[IDType], db_session: Optional[AsyncSession] = None
+        self, *, ids: list[IDType], db_session: Optional[AsyncSession] = None
     ) -> int:
         """
         Delete record list by their IDs.
@@ -394,12 +394,12 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
     async def get_children_recursively(
         self,
         *,
-        parent_data: List[SchemaType],
-        schema_class: Type[SchemaType],
+        parent_data: list[SchemaType],
+        schema_class: SchemaType,
         level: int = 1,
         max_level: int = 5,
-        db_session: Optional[AsyncSession] = None
-    ) -> List[SchemaType]:
+        db_session: Optional[AsyncSession] = None,
+    ) -> list[SchemaType]:
         """
         Recursively fetch children of given parent items up to 5 levels.
 
@@ -427,7 +427,9 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         children = result.scalars().all()
 
         # Convert ORM children to SchemaType instances
-        children_schema = [schema_class(**child.model_dump()) for child in children]  # 假设使用 Pydantic 的 from_orm
+        children_schema = [
+            schema_class(**child.model_dump()) for child in children
+        ]  # 假设使用 Pydantic 的 from_orm
 
         # Group children by parent_id
         children_by_parent = {}
@@ -442,7 +444,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
                 schema_class=schema_class,
                 level=level + 1,
                 max_level=max_level,
-                db_session=db_session
+                db_session=db_session,
             )
             parent.children = nested_children if nested_children else None
 

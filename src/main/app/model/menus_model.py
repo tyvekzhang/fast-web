@@ -2,16 +2,19 @@
 
 from datetime import datetime
 from typing import Optional
+
 from sqlmodel import (
     SQLModel,
     Field,
     Column,
     Index,
+    UniqueConstraint,
     BigInteger,
     Integer,
     DateTime,
     String,
 )
+
 from src.main.app.core.utils.snowflake_util import snowflake_id
 
 
@@ -103,8 +106,9 @@ class MenuBase(SQLModel):
 
 
 class MenuModel(MenuBase, table=True):
-    __tablename__ = "sys_menu"
+    __tablename__ = "menus"
     __table_args__ = (
         Index("idx_parent_id", "parent_id"),
+        UniqueConstraint("name", name="udx_name"),
         {"comment": "系统菜单表"},
     )

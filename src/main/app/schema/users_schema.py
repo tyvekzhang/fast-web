@@ -1,10 +1,10 @@
 """User schema"""
 
 from datetime import datetime
-from typing import Optional, List, Set
+from typing import Optional, Set
 from pydantic import BaseModel, Field
 from src.main.app.core.schema import BasePage
-from src.main.app.schema.sys_menu_schema import Menu
+from src.main.app.schema.menus_schema import Menu
 
 
 class LoginForm(BaseModel):
@@ -59,9 +59,9 @@ class UserInfo(BaseModel):
     # 角色集合
     roles: Optional[Set[str]] = None
     # 权限集合
-    permissions: Optional[List[str]] = None
+    permissions: Optional[list[str]] = None
     # 菜单集合
-    menus: Optional[List[Menu]] = None
+    menus: Optional[list[Menu]] = None
 
     @staticmethod
     def is_admin(user_id: int) -> bool:
@@ -140,7 +140,7 @@ class UserBatchModify(BaseModel):
     用户信息批量更新
     """
 
-    ids: List[int]
+    ids: list[int]
     # 用户名
     username: str
     # 密码

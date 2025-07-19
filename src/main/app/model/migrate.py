@@ -3,7 +3,7 @@
 import importlib
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 # List of directories to scan for model files
 MODEL_PACKAGES = [
@@ -12,7 +12,7 @@ MODEL_PACKAGES = [
 
 
 def import_sql_models(
-    packages: Optional[List[str]] = None,
+    packages: Optional[list[str]] = None,
 ) -> None:
     """Dynamically import all model classes from specified packages.
 
@@ -35,6 +35,7 @@ def import_sql_models(
             continue
 
         for model_file in package_dir.glob("*_model.py"):
+            print(model_file)
             try:
                 # Convert path to module import format (e.g., "src/main/app/models/file_model")
                 module_path = (

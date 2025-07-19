@@ -15,7 +15,9 @@ def snake_to_pascal(snake_str: str) -> str:
     """
     if not isinstance(snake_str, str):
         raise TypeError("Input must be a string")
-    return ''.join(word.capitalize() for word in snake_str.strip('_').split('_') if word)
+    return "".join(
+        word.capitalize() for word in snake_str.strip("_").split("_") if word
+    )
 
 
 def snake_to_title(snake_str: str) -> str:
@@ -32,4 +34,9 @@ def snake_to_title(snake_str: str) -> str:
     """
     if not isinstance(snake_str, str):
         raise TypeError("Input must be a string")
-    return ' '.join(word for word in snake_str.strip('_').split('_') if word).capitalize()
+    return " ".join(
+        word for word in snake_str.strip("_").split("_") if word
+    ).capitalize()
+
+
+# from pattern.en import pluralize

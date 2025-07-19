@@ -2,11 +2,11 @@
 
 from typing import Optional, Any
 
-from src.main.app.core.exception import CustomException
+from src.main.app.core.exception import HttpException
 from src.main.app.enums.sys_error_code import SystemErrorCode
 
 
-class SystemException(CustomException):
+class SystemException(HttpException):
     """Exception class for system-level errors in the application.
 
     This class should be used for errors related to system operations,
