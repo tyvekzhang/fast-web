@@ -217,7 +217,7 @@ class BatchUpdateMenusRequest(BaseModel):
 
 
 class BatchUpdateMenusResponse(BaseModel):
-    pass
+    menus: list[UpdateMenu]
 
 
 class BatchDeleteMenusRequest(BaseModel):

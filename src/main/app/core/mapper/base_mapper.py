@@ -1,7 +1,7 @@
 """BaseMapper defines the database operations to be implemented"""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generic, Optional, TypeVar
+from typing import Any, Dict, Generic, Optional, TypeVar, Sequence
 
 from pydantic import BaseModel
 from sqlmodel import SQLModel
@@ -160,6 +160,25 @@ class BaseMapper(ABC, Generic[ModelType]):
 
         Returns:
             Number of data updated (0 or 1)
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    async def batch_update(
+        self,
+        *,
+        data: Sequence[Dict[str, Any]],
+        db_session: Optional[AsyncSession] = None,
+    ) -> int:
+        """
+        Update multiple records.
+
+        Args:
+            data: List of dictionaries with primary key(s) and fields to update.
+            db_session: Optional async database session.
+
+        Returns:
+            Number of records updated.
         """
         raise NotImplementedError
 

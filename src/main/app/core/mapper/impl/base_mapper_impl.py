@@ -1,9 +1,9 @@
 """Sqlmodel impl that handle database operation"""
 
-from typing import Generic, TypeVar, Type, Optional
+from typing import Generic, TypeVar, Type, Optional, Sequence, Dict, Any
 
 from pydantic import BaseModel
-from sqlmodel import SQLModel, select, insert, update, delete, func
+from sqlmodel import SQLModel, select, insert, update, delete, func, and_
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.main.app.core.constant import FilterOperators, constant
@@ -351,6 +351,50 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         update_statement = update_statement.values(**update_values)
         exec_response = await db_session.exec(update_statement)
         return exec_response.rowcount
+
+    async def batch_update(
+        self,
+        *,
+        items: Sequence[Dict[str, Any]],
+        db_session: Optional[AsyncSession] = None,
+    ) -> int:
+        """
+        Update multiple records with possibly different values.
+        Supports both single and composite primary keys.
+
+        Example:
+            items = [
+                {"user_id": 1, "role_id": 2, "status": "active"},
+                {"user_id": 3, "role_id": 4, "status": "disabled"},
+            ]
+        """
+        db_session = db_session or self.db.session
+        updated_count = 0
+
+        # Extract primary key column names
+        pk_fields = list(self.model.__table__.primary_key.columns.keys())
+
+        for item in items:
+            # Skip if any primary key is missing
+            if not all(k in item for k in pk_fields):
+                continue
+
+            # Build WHERE clause for composite keys
+            where_clause = and_(*[
+                getattr(self.model, pk) == item[pk] for pk in pk_fields
+            ])
+
+            # Extract update fields
+            update_data = {k: v for k, v in item.items() if k not in pk_fields}
+            if not update_data:
+                continue
+
+            # Execute update
+            stmt = update(self.model).where(where_clause).values(**update_data)
+            result = await db_session.exec(stmt)
+            updated_count += result.rowcount
+
+        return updated_count
 
     async def batch_update_by_ids(
         self,
