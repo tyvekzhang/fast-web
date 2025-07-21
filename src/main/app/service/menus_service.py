@@ -20,6 +20,7 @@ from src.main.app.schema.menus_schema import (
     ImportMenusResponse,
     ExportMenusRequest,
     BatchCreateMenuRequest,
+    BatchUpdateMenusRequest,
 )
 
 
@@ -78,3 +79,8 @@ class MenuService(BaseService[MenuModel], ABC):
     async def export_menus(
         self, req: ExportMenusRequest
     ) -> StreamingResponse: ...
+
+    @abstractmethod
+    def batch_update_menus(
+        self, req: BatchUpdateMenusRequest
+    ) -> list[MenuModel]: ...

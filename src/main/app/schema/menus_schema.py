@@ -213,15 +213,15 @@ class BatchCreateMenuResponse(BaseModel):
 
 
 class BatchUpdateMenusRequest(BaseModel):
-    pass
-
-
-class BatchUpdateMenusResponse(BaseModel):
     menus: list[UpdateMenu]
 
 
+class BatchUpdateMenusResponse(BaseModel):
+    menus: list[Menu]
+
+
 class BatchDeleteMenusRequest(BaseModel):
-    ids: list[int] = Field(..., min_items=1)
+    ids: list[int]
 
 
 class ExportMenusRequest(BaseModel):

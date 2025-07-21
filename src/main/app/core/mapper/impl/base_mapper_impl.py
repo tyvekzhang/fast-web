@@ -380,9 +380,9 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
                 continue
 
             # Build WHERE clause for composite keys
-            where_clause = and_(*[
-                getattr(self.model, pk) == item[pk] for pk in pk_fields
-            ])
+            where_clause = and_(
+                *[getattr(self.model, pk) == item[pk] for pk in pk_fields]
+            )
 
             # Extract update fields
             update_data = {k: v for k, v in item.items() if k not in pk_fields}

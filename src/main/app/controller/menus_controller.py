@@ -222,8 +222,9 @@ async def batch_update_menus(
         HTTPException 403 (Forbidden): If user lacks permission to modify menus
         HTTPException 404 (Not Found): If any specified menu ID doesn't exist
     """
-    resp = menu_service.batch_update_menus(req=req)
-    return resp
+    menu_records: list[MenuModel] = menu_service.batch_update_menus(req=req)
+    menu_list: list[Menu] = [Menu(**menu.model_dump()) for menu in menu_records]
+    return BatchUpdateMenusResponse(menus=menu_list)
 
 
 @menus_router.post("/menus:batchDelete")
