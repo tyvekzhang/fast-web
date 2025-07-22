@@ -25,8 +25,8 @@ from src.main.app.schema.menus_schema import (
     ImportMenusRequest,
     ImportMenu,
 )
-from src.main.app.service.impl.menus_service_impl import MenuServiceImpl
-from src.main.app.service.menus_service import MenuService
+from src.main.app.service.impl.menu_service_impl import MenuServiceImpl
+from src.main.app.service.menu_service import MenuService
 
 menu_router = APIRouter()
 menu_service: MenuService = MenuServiceImpl(mapper=menuMapper)

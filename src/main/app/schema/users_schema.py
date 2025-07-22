@@ -7,11 +7,7 @@ from src.main.app.core.schema import BasePage
 from src.main.app.schema.menus_schema import Menu
 
 
-class LoginForm(BaseModel):
-    """
-    Login form schema
-    """
-
+class SignInWithEmailAndPasswordRequest(BaseModel):
     username: str
     password: str
 

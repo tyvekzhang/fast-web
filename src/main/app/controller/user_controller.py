@@ -6,7 +6,7 @@ from fastapi import APIRouter, Query, UploadFile, Form, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.responses import StreamingResponse
 
-from src.main.app.core.schema import HttpResponse, Token, CurrentUser
+from src.main.app.core.schema import HttpResponse, UserCredential, CurrentUser
 from src.main.app.core.schema import PageResult
 from src.main.app.core.security import get_current_user
 from src.main.app.core.utils import excel_util
@@ -21,14 +21,14 @@ from src.main.app.schema.users_schema import (
     CreateUserRequest,
     UserBatchModify,
     UserDetail,
-    LoginForm,
+    SignInWithEmailAndPasswordRequest,
     UserPage,
     UserInfo,
 )
-from src.main.app.service.impl.menus_service_impl import MenuServiceImpl
-from src.main.app.service.impl.users_service_impl import UserServiceImpl
-from src.main.app.service.menus_service import MenuService
-from src.main.app.service.users_service import UserService
+from src.main.app.service.impl.menu_service_impl import MenuServiceImpl
+from src.main.app.service.impl.user_service_impl import UserServiceImpl
+from src.main.app.service.menu_service import MenuService
+from src.main.app.service.user_service import UserService
 
 user_router = APIRouter()
 user_service: UserService = UserServiceImpl(mapper=userMapper)
@@ -75,7 +75,7 @@ async def get_menus(current_user: CurrentUser = Depends(get_current_user())):
 @user_router.post("/users:login")
 async def login(
     login_form_data: OAuth2PasswordRequestForm = Depends(),
-) -> Token:
+) -> UserCredential:
     """
     Authenticates user and provides an access token.
 
@@ -85,11 +85,11 @@ async def login(
     Returns:
         Token object with access token.
     """
-    login_form = LoginForm(
+    login_form = SignInWithEmailAndPasswordRequest(
         username=login_form_data.username, password=login_form_data.password
     )
 
-    return await user_service.login(login_form=login_form)
+    return await user_service.signin_email_password(login_form=login_form)
 
 
 @user_router.get("/users:me")

@@ -11,7 +11,7 @@ from src.main.app.core import security, constant
 from src.main.app.core.config import config_manager
 from src.main.app.core.context.contextvars import current_user_id
 from src.main.app.core.enums.enum import MediaTypeEnum
-from src.main.app.core.schema import Token
+from src.main.app.core.schema import UserCredential
 from src.main.app.enums.auth_error_code import AuthErrorCode
 
 # Load configuration
@@ -20,7 +20,7 @@ security_config = config_manager.load_security_config()
 
 
 async def jwt_middleware(request: Request, call_next):
-    ctx_token: Token | None = None
+    ctx_token: UserCredential | None = None
     try:
         raw_url_path = request.url.path
         if not raw_url_path.__contains__(

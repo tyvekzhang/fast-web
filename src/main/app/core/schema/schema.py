@@ -19,8 +19,8 @@ class PageResult(BaseModel, Generic[T]):
     total: int = 0
 
 
-class Token(BaseModel):
-    """Represents an authentication token with metadata.
+class UserCredential(BaseModel):
+    """Represents an authentication user credential with metadata.
 
     Attributes:
         access_token: JWT access token string.

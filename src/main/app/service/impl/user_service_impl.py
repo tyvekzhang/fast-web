@@ -5,7 +5,7 @@ from __future__ import annotations
 import io
 import json
 from datetime import timedelta
-from typing import Optional, Set
+from typing import Optional
 from typing import Union
 
 import pandas as pd
@@ -16,32 +16,19 @@ from src.main.app.core import security
 from src.main.app.core.config import config_manager
 from src.main.app.core.constant import FilterOperators
 from src.main.app.core.enums import TokenTypeEnum
-from src.main.app.core.schema import PageResult, Token, CurrentUser
+from src.main.app.core.schema import PageResult, UserCredential, CurrentUser
 from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.core.utils import excel_util
 from src.main.app.core.utils.validate_util import ValidateService
-from src.main.app.enums import AuthErrorCode
-from src.main.app.exception import AuthException
-from src.main.app.mapper.menu_mapper import menuMapper
-from src.main.app.mapper.role_mapper import roleMapper
-from src.main.app.mapper.role_menu_mapper import roleMenuMapper
 from src.main.app.mapper.user_mapper import UserMapper
-from src.main.app.mapper.user_role_mapper import userRoleMapper
-from src.main.app.model.menus_model import MenuModel
-from src.main.app.model.role_menu_model import RoleMenuModel
-from src.main.app.model.role_model import RoleModel
 from src.main.app.model.user_model import UserModel
-from src.main.app.model.user_role_model import UserRoleModel
-from src.main.app.schema.menus_schema import Menu
 from src.main.app.schema.users_schema import (
     UserQuery,
     UserPage,
     UserDetail,
     CreateUserRequest,
-    LoginForm,
-    UserInfo,
 )
-from src.main.app.service.users_service import UserService
+from src.main.app.service.user_service import UserService
 
 
 class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
@@ -67,7 +54,7 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
         return await self.save(data=user)
 
     @classmethod
-    async def generate_tokens(cls, user_id: int) -> Token:
+    async def generate_tokens(cls, user_id: int) -> UserCredential:
         security_config = config_manager.load_security_config()
 
         access_token = security.create_token(
@@ -84,31 +71,10 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
             expires_delta=refresh_token_expires,
         )
 
-        return Token(
+        return UserCredential(
             access_token=access_token,
             refresh_token=refresh_token,
         )
-
-    async def login(self, *, login_form: LoginForm) -> Token:
-        """
-        Perform login and return an access token and refresh token.
-
-        Args:
-            login_form (LoginCmd): The login command containing username and password.
-
-        Returns:
-            Token: The access token and refresh token.
-        """
-        # verify username and password
-        username: str = login_form.username
-
-        user_record = await self.mapper.get_user_by_username(username=username)
-        if user_record is None or not security.verify_password(
-            login_form.password, user_record.password
-        ):
-            raise AuthException(AuthErrorCode.AUTH_FAILED)
-        user_record.status
-        return await self.generate_tokens(user_id=user_record.id)
 
     async def find_by_id(self, id: int) -> Optional[UserPage]:
         """
@@ -243,70 +209,3 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
                 return user_create_list
 
         return user_create_list
-
-    async def get_roles(self, id: int) -> tuple[Set[str], list[RoleModel]]:
-        """
-        Get user's roles by user ID.
-        Returns a set of role names and a list of role models.
-        """
-        roles: Set[str] = set()
-        role_models: list[RoleModel] = []
-
-        # Admin gets automatic 'admin' role
-        if UserInfo.is_admin(id):
-            roles.add("admin")
-        else:
-            # Get roles from database for non-admin users
-            user_roles: list[
-                UserRoleModel
-            ] = await userRoleMapper.select_by_userid(user_id=id)
-            if not user_roles:
-                return roles, role_models
-
-            role_ids = [user_role.role_id for user_role in user_roles]
-            role_models = roleMapper.select_by_role_ids(role_ids=role_ids)
-            if not role_models:
-                return roles, role_models
-
-            # Extract role names from role models
-            role_names = [role.name for role in role_models]
-            roles.update(role_names)
-
-        return roles, role_models
-
-    async def get_menus(
-        self, id: int, role_models: list[RoleModel] = None
-    ) -> list[Menu]:
-        """
-        Get accessible menus for user based on their roles.
-        Returns a list of menu pages.
-        """
-        menus: list[Menu] = []
-
-        # Admin gets all menus
-        if UserInfo.is_admin(id):
-            menu_list, total_count = await menuMapper.select_by_parent_id()
-            if total_count == 0:
-                return menus
-            menus = [Menu(**menu.model_dump()) for menu in menu_list]
-            return menus
-
-        # Return empty if no roles provided for non-admin
-        if not role_models:
-            return menus
-
-        # Get menus associated with user's roles
-        role_ids = [role_model.id for role_model in role_models]
-        role_menu_records: list[RoleMenuModel] = (
-            roleMenuMapper.select_by_role_ids(role_ids=role_ids)
-        )
-        if not role_menu_records:
-            return menus
-
-        # Convert menu models to menu pages
-        menu_id_list = [
-            role_menu_record.menu_id for role_menu_record in role_menu_records
-        ]
-        menu_list: list[MenuModel] = menuMapper.select_by_ids(ids=menu_id_list)
-        menus = [Menu(**menu.model_dump()) for menu in menu_list]
-        return menus

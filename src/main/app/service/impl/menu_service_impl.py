@@ -38,7 +38,7 @@ from src.main.app.schema.menus_schema import (
     ImportMenu,
     ExportMenu,
 )
-from src.main.app.service.menus_service import MenuService
+from src.main.app.service.menu_service import MenuService
 
 
 class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
