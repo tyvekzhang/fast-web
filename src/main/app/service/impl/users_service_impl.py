@@ -22,16 +22,16 @@ from src.main.app.core.utils import excel_util
 from src.main.app.core.utils.validate_util import ValidateService
 from src.main.app.enums import AuthErrorCode
 from src.main.app.exception import AuthException
-from src.main.app.mapper.menus_mapper import menuMapper
-from src.main.app.mapper.sys_role_mapper import roleMapper
-from src.main.app.mapper.sys_role_menu_mapper import roleMenuMapper
-from src.main.app.mapper.users_mapper import UserMapper
-from src.main.app.mapper.sys_user_role_mapper import userRoleMapper
+from src.main.app.mapper.menu_mapper import menuMapper
+from src.main.app.mapper.role_mapper import roleMapper
+from src.main.app.mapper.role_menu_mapper import roleMenuMapper
+from src.main.app.mapper.user_mapper import UserMapper
+from src.main.app.mapper.user_role_mapper import userRoleMapper
 from src.main.app.model.menus_model import MenuModel
-from src.main.app.model.sys_role_menu_model import RoleMenuModel
-from src.main.app.model.sys_role_model import RoleModel
-from src.main.app.model.users_model import UserModel
-from src.main.app.model.sys_user_role_model import UserRoleModel
+from src.main.app.model.role_menu_model import RoleMenuModel
+from src.main.app.model.role_model import RoleModel
+from src.main.app.model.user_model import UserModel
+from src.main.app.model.user_role_model import UserRoleModel
 from src.main.app.schema.menus_schema import Menu
 from src.main.app.schema.users_schema import (
     UserQuery,

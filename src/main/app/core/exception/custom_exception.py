@@ -7,7 +7,7 @@ from src.main.app.core.enums import ExceptionCode
 
 
 @dataclass
-class HttpException(Exception):
+class HTTPException(Exception):
     """
     Base exception class for all custom exception in the application.
 

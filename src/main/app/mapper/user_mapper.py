@@ -6,7 +6,7 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.main.app.core.mapper.impl.base_mapper_impl import SqlModelMapper
-from src.main.app.model.users_model import UserModel
+from src.main.app.model.user_model import UserModel
 
 
 class UserMapper(SqlModelMapper[UserModel]):

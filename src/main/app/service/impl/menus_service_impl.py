@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import io
 import json
-from typing import Optional
+from datetime import datetime
+from typing import Optional, Type, Any
 from typing import Union
 
 import pandas as pd
 from fastapi import UploadFile
+from loguru import logger
+from pydantic import ValidationError
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.constant import FilterOperators
@@ -18,7 +21,7 @@ from src.main.app.core.utils import excel_util
 from src.main.app.core.utils.validate_util import ValidateService
 from src.main.app.enums import BusinessErrorCode
 from src.main.app.exception.biz_exception import BusinessException
-from src.main.app.mapper.menus_mapper import MenuMapper
+from src.main.app.mapper.menu_mapper import MenuMapper
 from src.main.app.model.menus_model import MenuModel
 from src.main.app.schema.menus_schema import (
     ListMenuRequest,
@@ -26,11 +29,14 @@ from src.main.app.schema.menus_schema import (
     CreateMenuRequest,
     UpdateMenuRequest,
     BatchDeleteMenusRequest,
-    ImportMenusResponse,
     ExportMenusRequest,
     BatchCreateMenuRequest,
     CreateMenu,
     BatchUpdateMenusRequest,
+    UpdateMenu,
+    ImportMenusRequest,
+    ImportMenu,
+    ExportMenu,
 )
 from src.main.app.service.menus_service import MenuService
 
@@ -114,7 +120,7 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
         )
 
     async def get_children_recursively(
-        self, *, parent_data: list[MenuModel], schema_class: Menu
+        self, *, parent_data: list[MenuModel], schema_class: Type[Menu]
     ) -> list[Menu]:
         if not parent_data:
             return []
@@ -245,16 +251,64 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
         ids: list[int] = req.ids
         await self.delete_by_ids(ids=ids)
 
-    async def import_menus(self, req: UploadFile) -> ImportMenusResponse:
-        pass
+    async def import_menus(self, req: ImportMenusRequest) -> list[ImportMenu]:
+        file = req.file
+        contents = await file.read()
+        import_df = pd.read_excel(io.BytesIO(contents))
+        import_df = import_df.fillna("")
+        menu_records = import_df.to_dict(orient="records")
+        if menu_records is None or len(menu_records) == 0:
+            raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
+        for record in menu_records:
+            for key, value in record.items():
+                if value == "":
+                    record[key] = None
+        menu_import_list = []
+        for menu_record in menu_records:
+            try:
+                menu_create = ImportMenu(**menu_record)
+                menu_import_list.append(menu_create)
+            except ValidationError as e:
+                valid_data = {
+                    k: v
+                    for k, v in menu_record.items()
+                    if k in ImportMenu.model_fields
+                }
+                menu_create = ImportMenu.model_construct(**valid_data)
+                menu_create.err_msg = ValidateService.get_validate_err_msg(e)
+                menu_import_list.append(menu_create)
+                return menu_import_list
+
+        return menu_import_list
 
     async def export_menus_template(self) -> StreamingResponse:
-        pass
-
-    async def export_menus(self, req: ExportMenusRequest) -> StreamingResponse:
-        pass
+        timestamp = datetime.now().strftime("%Y%m%d%H%M")
+        file_name = f"menu_import_tpl_{timestamp}"
+        return await excel_util.export_excel(
+            schema=CreateMenu, file_name=file_name
+        )
 
     async def batch_update_menus(
         self, req: BatchUpdateMenusRequest
     ) -> list[MenuModel]:
-        pass
+        menus: list[UpdateMenu] = req.menus
+        if not menus:
+            raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
+        update_data: list[dict[str, Any]] = [
+            menu.model_dump(exclude_unset=True) for menu in menus
+        ]
+        await self.mapper.batch_update(items=update_data)
+        menu_ids: list[int] = [menu.id for menu in menus]
+        return await self.mapper.select_by_ids(ids=menu_ids)
+
+    async def export_menus(self, req: ExportMenusRequest) -> StreamingResponse:
+        ids: list[int] = req.ids
+        menu_list: list[MenuModel] = await self.mapper.select_by_ids(ids=ids)
+        if menu_list is None or len(menu_list) == 0:
+            logger.error(f"No menus found with ids {ids}")
+            raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
+        menu_page_list = [ExportMenu(**menu.model_dump()) for menu in menu_list]
+        file_name = "menu_data_export"
+        return await excel_util.export_excel(
+            schema=ExportMenu, file_name=file_name, data_list=menu_page_list
+        )

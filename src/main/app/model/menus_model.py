@@ -1,4 +1,4 @@
-"""Menu data object"""
+"""Menus data object"""
 
 from datetime import datetime
 from typing import Optional

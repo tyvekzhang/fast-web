@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Type
 
-from fastapi import UploadFile
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.schema import CurrentUser
@@ -17,10 +16,11 @@ from src.main.app.schema.menus_schema import (
     Menu,
     UpdateMenuRequest,
     BatchDeleteMenusRequest,
-    ImportMenusResponse,
     ExportMenusRequest,
     BatchCreateMenuRequest,
     BatchUpdateMenusRequest,
+    ImportMenusRequest,
+    ImportMenu,
 )
 
 
@@ -39,7 +39,7 @@ class MenuService(BaseService[MenuModel], ABC):
 
     @abstractmethod
     async def get_children_recursively(
-        self, *, parent_data: list[MenuModel], schema_class: Menu
+        self, *, parent_data: list[MenuModel], schema_class: Type[Menu]
     ) -> list[Menu]: ...
 
     @abstractmethod
@@ -70,17 +70,19 @@ class MenuService(BaseService[MenuModel], ABC):
     async def batch_remove_menus(self, req: BatchDeleteMenusRequest): ...
 
     @abstractmethod
-    async def import_menus(self, req: UploadFile) -> ImportMenusResponse: ...
+    async def import_menus(
+        self, req: ImportMenusRequest
+    ) -> list[ImportMenu]: ...
 
     @abstractmethod
     async def export_menus_template(self) -> StreamingResponse: ...
 
     @abstractmethod
-    async def export_menus(
-        self, req: ExportMenusRequest
-    ) -> StreamingResponse: ...
-
-    @abstractmethod
     def batch_update_menus(
         self, req: BatchUpdateMenusRequest
     ) -> list[MenuModel]: ...
+
+    @abstractmethod
+    async def export_menus(
+        self, req: ExportMenusRequest
+    ) -> StreamingResponse: ...

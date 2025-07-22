@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional
 
+from fastapi import UploadFile
 from pydantic import BaseModel, Field
 
 from src.main.app.core.schema import BasePage
@@ -109,6 +110,10 @@ class CreateMenu(BaseModel):
     status: Optional[int] = None
     # 备注信息
     comment: Optional[str] = None
+
+
+class ExportMenu(Menu):
+    pass
 
 
 class CreateMenuRequest(BaseModel):
@@ -225,9 +230,17 @@ class BatchDeleteMenusRequest(BaseModel):
 
 
 class ExportMenusRequest(BaseModel):
-    pass
+    ids: list[int]
+
+
+class ImportMenusRequest(BaseModel):
+    file: UploadFile
+
+
+class ImportMenu(CreateMenu):
+    err_msg: Optional[str] = Field(None, alias="errMsg")
 
 
 class ImportMenusResponse(BaseModel):
     # 错误信息
-    err_msg: Optional[str] = Field(None, alias="errMsg")
+    menus: list[ImportMenu]

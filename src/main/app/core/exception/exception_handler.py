@@ -17,7 +17,7 @@ from src.main.app.core.config.config_manager import load_config
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from src.main.app.core.enums.enum import CommonErrorCode
-from src.main.app.core.exception import HttpException
+from src.main.app.core.exception import HTTPException
 
 config = load_config()
 
@@ -214,13 +214,13 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
     )
 
 
-def is_auth_errors_code(exc: HttpException) -> bool:
+def is_auth_errors_code(exc: HTTPException) -> bool:
     if str(exc.code).startswith("20"):
         return True
     return False
 
 
-async def custom_exception_handler(request: Request, exc: HttpException):
+async def custom_exception_handler(request: Request, exc: HTTPException):
     """
     Asynchronous handler for CustomException.
     """

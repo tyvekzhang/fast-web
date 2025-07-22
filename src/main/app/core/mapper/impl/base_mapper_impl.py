@@ -439,7 +439,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         self,
         *,
         parent_data: list[SchemaType],
-        schema_class: SchemaType,
+        schema_class: Type[SchemaType],
         level: int = 1,
         max_level: int = 5,
         db_session: Optional[AsyncSession] = None,

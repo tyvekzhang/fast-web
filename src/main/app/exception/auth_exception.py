@@ -2,11 +2,11 @@
 
 from typing import Optional, Any
 
-from src.main.app.core.exception import HttpException
+from src.main.app.core.exception import HTTPException
 from src.main.app.enums.auth_error_code import AuthErrorCode
 
 
-class AuthException(HttpException):
+class AuthException(HTTPException):
     """Exception class for auth-level errors in the application.
 
     This class should be used for errors related to auth operations,

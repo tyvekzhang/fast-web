@@ -1,4 +1,4 @@
-"""User data object"""
+"""Users data object"""
 
 from datetime import datetime
 from typing import Optional

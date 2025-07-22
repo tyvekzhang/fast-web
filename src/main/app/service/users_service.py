@@ -10,8 +10,8 @@ from starlette.responses import StreamingResponse
 
 from src.main.app.core.schema import PageResult, Token, CurrentUser
 from src.main.app.core.service.base_service import BaseService
-from src.main.app.model.sys_role_model import RoleModel
-from src.main.app.model.users_model import UserModel
+from src.main.app.model.role_model import RoleModel
+from src.main.app.model.user_model import UserModel
 from src.main.app.schema.menus_schema import Menu
 from src.main.app.schema.users_schema import (
     UserQuery,

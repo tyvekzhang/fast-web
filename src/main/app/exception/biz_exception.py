@@ -2,11 +2,11 @@
 
 from typing import Optional, Any
 
-from src.main.app.core.exception import HttpException
+from src.main.app.core.exception import HTTPException
 from src.main.app.enums.biz_error_code import BusinessErrorCode
 
 
-class BusinessException(HttpException):
+class BusinessException(HTTPException):
     def __init__(
         self,
         code: BusinessErrorCode,
