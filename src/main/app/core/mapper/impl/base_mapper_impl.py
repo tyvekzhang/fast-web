@@ -83,7 +83,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         *,
         current: int = 1,
         page_size: int = 100,
-        count: bool = False,
+        count: bool = True,
         db_session: Optional[AsyncSession] = None,
         **kwargs,
     ) -> tuple[list[ModelType], int]:
@@ -156,7 +156,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         *,
         current: int = 1,
         page_size: int = 100,
-        count: bool = False,
+        count: bool = True,
         sort_list: list[SortItem] = None,
         db_session: Optional[AsyncSession] = None,
         **kwargs,

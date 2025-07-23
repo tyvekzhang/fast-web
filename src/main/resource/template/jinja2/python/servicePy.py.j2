@@ -1,0 +1,46 @@
+# Copyright (c) 2025 Fast web and/or its affiliates. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+"""{{ ClassName }} Service"""
+
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import Optional, List
+from fastapi import UploadFile
+from starlette.responses import StreamingResponse
+from src.main.app.model.{{ table_name }}_model import {{ ClassName }}Model
+from src.main.app.core.schema import PageResult, CurrentUser
+from src.main.app.schema.{{ table_name }}_schema import {{ ClassName }}Query, {{ ClassName }}Detail, {{ ClassName }}Create
+from src.main.app.core.service.base_service import BaseService
+
+
+class {{ ClassName }}Service(BaseService[{{ ClassName }}Model], ABC):
+
+    @abstractmethod
+    async def get_{{ c_n }}_by_page(self, *, {{ c_n }}_query: {{ ClassName }}Query, current_user: CurrentUser) -> PageResult:...
+
+    @abstractmethod
+    async def get_{{ c_n }}_detail(self, *, id: int, current_user: CurrentUser) -> Optional[{{ ClassName }}Detail]:...
+
+    @abstractmethod
+    async def export_{{ c_n }}_page(self, *, ids: List[int], current_user: CurrentUser) -> Optional[StreamingResponse]:...
+
+    @abstractmethod
+    async def create_{{ c_n }}(self, *, {{ c_n }}_create: {{ ClassName }}Create, current_user: CurrentUser) -> {{ ClassName }}Model:...
+
+    @abstractmethod
+    async def batch_create_{{ c_n }}(self, *, {{ c_n }}_create_list: List[{{ ClassName }}Create], current_user: CurrentUser) -> List[int]:...
+
+    @abstractmethod
+    async def import_{{ c_n }}(self, *, file: UploadFile, current_user: CurrentUser) -> List[{{ ClassName }}Create]:...

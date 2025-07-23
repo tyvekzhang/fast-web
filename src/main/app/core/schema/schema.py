@@ -55,7 +55,7 @@ class SortItem(BaseModel):
     order: str
 
 
-class BasePage(BaseModel):
+class PaginationRequest(BaseModel):
     """
     Pagination parameters for API endpoints.
 

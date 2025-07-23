@@ -9,7 +9,7 @@ from src.main.app.core.schema import PageResult
 from src.main.app.mapper.menu_mapper import menuMapper
 from src.main.app.model.menus_model import MenuModel
 from src.main.app.schema.menus_schema import (
-    ListMenuRequest,
+    ListMenusRequest,
     Menu,
     CreateMenuRequest,
     MenuDetail,
@@ -17,13 +17,14 @@ from src.main.app.schema.menus_schema import (
     BatchDeleteMenusRequest,
     BatchUpdateMenusRequest,
     BatchUpdateMenusResponse,
-    BatchCreateMenuRequest,
+    BatchCreateMenusRequest,
     BatchCreateMenuResponse,
     ExportMenusRequest,
     ImportMenusResponse,
     BatchGetMenusResponse,
     ImportMenusRequest,
     ImportMenu,
+    BatchPatchMenusRequest,
 )
 from src.main.app.service.impl.menu_service_impl import MenuServiceImpl
 from src.main.app.service.menu_service import MenuService
@@ -56,7 +57,7 @@ async def get_menu(id: int) -> MenuDetail:
 
 @menu_router.get("/menus")
 async def list_menus(
-    req: Annotated[ListMenuRequest, Query()],
+    req: Annotated[ListMenusRequest, Query()],
 ) -> PageResult[Menu]:
     """
     List menus with pagination.
@@ -67,11 +68,11 @@ async def list_menus(
 
     Returns:
 
-        PageResult: Paginated list of menus and total count
+        PageResult: Paginated list of menus and total count.
 
     Raises:
 
-        HTTPException(403 Forbidden): If user don't have access rights
+        HTTPException(403 Forbidden): If user don't have access rights.
     """
     menu_records, total = await menu_service.list_menus(req=req)
     menu_records_with_children: list[
@@ -87,15 +88,15 @@ async def creat_menu(
     req: CreateMenuRequest,
 ) -> Menu:
     """
-    Create a new menu
+    Create a new menu.
 
     Args:
 
-        req: Request object containing menu creation data
+        req: Request object containing menu creation data.
 
     Returns:
 
-         Menu: The menu object
+         Menu: The menu object.
 
     Raises:
 
@@ -111,20 +112,20 @@ async def update_menu(
     req: UpdateMenuRequest,
 ) -> Menu:
     """
-    Update an existing menu
+    Update an existing menu.
 
     Args:
 
-        req: Request object containing menu update data
+        req: Request object containing menu update data.
 
     Returns:
 
-        Menu: The updated menu object
+        Menu: The updated menu object.
 
     Raises:
 
-        HTTPException(403 Forbidden): If the current user doesn't have update permissions
-        HTTPException(404 Not Found): If the menu to update doesn't exist
+        HTTPException(403 Forbidden): If the current user doesn't have update permissions.
+        HTTPException(404 Not Found): If the menu to update doesn't exist.
     """
     menu: MenuModel = await menu_service.update_menu(req=req)
     return Menu(**menu.model_dump())
@@ -135,16 +136,16 @@ async def delete_menu(
     id: int,
 ) -> None:
     """
-    Delete menu by ID
+    Delete menu by ID.
 
     Args:
 
-        id: The ID of the menu to delete
+        id: The ID of the menu to delete.
 
     Raises:
 
-        HTTPException(403 Forbidden): If the current user doesn't have access permissions
-        HTTPException(404 Not Found): If the menu with given ID doesn't exist
+        HTTPException(403 Forbidden): If the current user doesn't have access permissions.
+        HTTPException(404 Not Found): If the menu with given ID doesn't exist.
     """
     await menu_service.delete_menu(id=id)
 
@@ -178,14 +179,14 @@ async def batch_get_menus(
 
 @menu_router.post("/menus:batchCreate")
 async def batch_create_menus(
-    req: BatchCreateMenuRequest,
+    req: BatchCreateMenusRequest,
 ) -> BatchCreateMenuResponse:
     """
     Batch create menus.
 
     Args:
 
-        req (BatchCreateMenuRequest): Request body containing a list of menu creation items.
+        req (BatchCreateMenusRequest): Request body containing a list of menu creation items.
 
     Returns:
 
@@ -209,11 +210,11 @@ async def batch_update_menus(
     req: BatchUpdateMenusRequest,
 ) -> BatchUpdateMenusResponse:
     """
-    Batch updates multiple menus in a single operation.
+    Batch update multiple menus with the same changes.
 
     Args:
 
-        req (BatchUpdateMenusRequest): The batch update request data.
+        req (BatchUpdateMenusRequest): The batch update request data with ids.
 
     Returns:
 
@@ -224,13 +225,42 @@ async def batch_update_menus(
         HTTPException 403 (Forbidden): If user lacks permission to modify menus
         HTTPException 404 (Not Found): If any specified menu ID doesn't exist
     """
-    menu_records: list[MenuModel] = menu_service.batch_update_menus(req=req)
+    menu_records: list[MenuModel] = await menu_service.batch_update_menus(
+        req=req
+    )
+    menu_list: list[Menu] = [Menu(**menu.model_dump()) for menu in menu_records]
+    return BatchUpdateMenusResponse(menus=menu_list)
+
+
+@menu_router.post("/menus:batchPatch")
+async def batch_patch_menus(
+    req: BatchPatchMenusRequest,
+) -> BatchUpdateMenusResponse:
+    """
+    Batch update multiple menus with individual changes.
+
+    Args:
+
+        req (BatchPatchMenusRequest): The batch patch request data.
+
+    Returns:
+
+        BatchUpdateBooksResponse: Contains the list of updated menus.
+
+    Raises:
+
+        HTTPException 403 (Forbidden): If user lacks permission to modify menus
+        HTTPException 404 (Not Found): If any specified menu ID doesn't exist
+    """
+    menu_records: list[MenuModel] = await menu_service.batch_patch_menus(
+        req=req
+    )
     menu_list: list[Menu] = [Menu(**menu.model_dump()) for menu in menu_records]
     return BatchUpdateMenusResponse(menus=menu_list)
 
 
 @menu_router.post("/menus:batchDelete")
-async def batch_remove_menus(
+async def batch_delete_menus(
     req: BatchDeleteMenusRequest,
 ) -> None:
     """
@@ -243,7 +273,44 @@ async def batch_remove_menus(
         HTTPException(404 Not Found): If any of the menus do not exist.
         HTTPException(403 Forbidden): If user don't have access rights.
     """
-    await menu_service.batch_remove_menus(req=req)
+    await menu_service.batch_delete_menus(req=req)
+
+
+@menu_router.get("/menus:exportTemplate")
+async def export_menus_template() -> StreamingResponse:
+    """
+    Export the Excel template for menu import.
+
+    Returns:
+        StreamingResponse: An Excel file stream containing the import template.
+
+    Raises:
+        HTTPException(403 Forbidden): If user don't have access rights.
+    """
+
+    return await menu_service.export_menus_template()
+
+
+@menu_router.get("/menus:export")
+async def export_menus(
+    req: ExportMenusRequest = Query(...),
+) -> StreamingResponse:
+    """
+    Export menu data based on the provided menu IDs.
+
+    Args:
+        req (ExportMenusRequest): Query parameters specifying the menus to export.
+
+    Returns:
+        StreamingResponse: A streaming response containing the generated Excel file.
+
+    Raises:
+        HTTPException(403 Forbidden): If the current user lacks access rights.
+        HTTPException(404 Not Found ): If no matching menus are found.
+    """
+    return await menu_service.export_menus(
+        req=req,
+    )
 
 
 @menu_router.post("/menus:import")
@@ -268,38 +335,3 @@ async def import_menus(
         req=req
     )
     return ImportMenusResponse(menus=import_menus_resp)
-
-
-@menu_router.get("/menus:exportTemplate")
-async def export_menus_template() -> StreamingResponse:
-    """
-    Export the Excel template for menu import.
-
-    Returns:
-        StreamingResponse: An Excel file stream containing the import template.
-    """
-
-    return await menu_service.export_menus_template()
-
-
-@menu_router.get("/menus:export")
-async def export_menus(
-    req: ExportMenusRequest = Query(...),
-) -> StreamingResponse:
-    """
-    Export menu data based on the provided menu IDs.
-
-    Args:
-        req (ExportMenusRequest): Query parameters specifying the menus to export.
-
-    Returns:
-        StreamingResponse: A streaming response containing the generated Excel file.
-
-    Raises:
-        HTTPException(400 Bad Request): If the uploaded file is invalid or cannot be parsed.
-        HTTPException(403 Forbidden): If the current user lacks access rights.
-        HTTPException(404 Not Found ): If no matching menus are found.
-    """
-    return await menu_service.export_menus(
-        req=req,
-    )

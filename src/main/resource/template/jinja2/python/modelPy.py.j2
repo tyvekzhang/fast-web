@@ -1,0 +1,89 @@
+# Copyright (c) 2025 Fast web and/or its affiliates. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+"""{{ class_name }} data object"""
+
+from datetime import datetime
+from typing import Optional
+from sqlmodel import (
+    SQLModel,
+    Field,
+    Column,
+{%- if index_metadata %}
+    Index,
+    UniqueConstraint,
+{%- endif %}
+    BigInteger,
+{%- for sql_model_type in import_list %}
+    {{ sql_model_type }},
+{%- endfor %}
+)
+from src.main.app.core.utils.snowflake_util import snowflake_id
+
+
+class {{ class_name }}Base(SQLModel):
+    {% for field in fields %}
+    {%-  if field.gen_field.field_name == "id" %}
+    id: int = Field(
+        default_factory=snowflake_id,
+        primary_key=True,
+        sa_type=BigInteger,
+        sa_column_kwargs={"comment": "{{ field.gen_field.comment }}"},
+    )
+    {%- elif field.gen_field.field_name == "create_time" %}
+    create_time: Optional[datetime] = Field(
+        sa_type=DateTime,
+        default_factory=datetime.now,
+        sa_column_kwargs={"comment": "{{ field.gen_field.comment }}"},
+    )
+    {%- elif field.gen_field.field_name == "update_time" %}
+    update_time: Optional[datetime] = Field(
+        sa_type=DateTime,
+        default_factory=datetime.now,
+        sa_column_kwargs={
+            "onupdate": datetime.now,
+            "comment": "{{ field.gen_field.comment }}",
+        },
+    )
+    {%- else %}
+    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}]{% else %}{{ field.gen_field.field_type }}{% endif %} = Field(
+        sa_column=Column(
+            {{ field.gen_field.sql_model_type }}{% if field.gen_field.length %}({{ field.gen_field.length }}){% elif field.gen_field.scale %}({{ field.gen_field.length }}, {{ field.gen_field.scale }}){% endif %},
+            {% if field.gen_field.nullable %}nullable=True{% else %}nullable=False{% endif %},
+            {% if field.default is not none and field.gen_field.default != ""%}default={{ field.gen_field.default }},{% endif %}
+            comment="{{ field.gen_field.comment }}"
+        )
+    )
+    {%- endif %}
+    {%- endfor %}
+
+
+class {{ class_name }}Model({{ class_name }}Base, table=True):
+    __tablename__ = "{{ table_name }}"
+    __table_args__ = (
+        {%- if index_metadata %}
+        {%- for index in index_metadata %}
+        {%- if index.type == "unique" %}
+        UniqueConstraint({{ index.field  }}, name="{{ index.name }}"){% if not loop.last or comment %},{% endif %}
+        {%- elif index.type == "primary" %}
+        PrimaryKeyConstraint({{ index.field  }}, name="{{ index.name }}"){% if not loop.last or comment %},{% endif %}
+        {%- else %}
+        Index("{{ index.name }}", {{ index.field  }}){% if not loop.last or comment %},{% endif %}
+        {%- endif %}
+        {%- endfor %}
+        {%- endif %}
+        {%- if comment %}
+        {"comment": "{{ comment }}"}
+        {%- endif %}
+    )

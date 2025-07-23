@@ -47,7 +47,7 @@ start: install
 
 lint:
 	uv add pre-commit --group dev && \
-	uv run pre-commit run --all-files --verbose --show-diff-on-failure
+	uv run pre-commit run --all-files --verbose
 
 test: clean
 	uv sync --group dev && \

@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Optional, Set
 from pydantic import BaseModel, Field
-from src.main.app.core.schema import BasePage
+from src.main.app.core.schema import PaginationRequest
 from src.main.app.schema.menus_schema import Menu
 
 
@@ -66,7 +66,7 @@ class UserInfo(BaseModel):
         return False
 
 
-class UserQuery(BasePage):
+class UserQuery(PaginationRequest):
     """
     用户信息查询参数
     """
@@ -172,3 +172,11 @@ class UserDetail(BaseModel):
     remark: Optional[str] = None
     # 创建时间
     create_time: Optional[datetime] = None
+
+
+class Ids(BaseModel):
+    """
+    Ids schema
+    """
+
+    ids: list[int]

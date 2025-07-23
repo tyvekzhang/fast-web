@@ -11,7 +11,7 @@ from starlette.responses import StreamingResponse
 from src.main.app.core.schema import PageResult, CurrentUser
 from src.main.app.core.service.base_service import BaseService
 from src.main.app.model.user_model import UserModel
-from src.main.app.schema.users_schema import (
+from src.main.app.schema.user_schema import (
     UserQuery,
     UserDetail,
     CreateUserRequest,

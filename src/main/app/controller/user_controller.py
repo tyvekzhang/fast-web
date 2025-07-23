@@ -15,7 +15,7 @@ from src.main.app.mapper.menu_mapper import menuMapper
 from src.main.app.mapper.user_mapper import userMapper
 from src.main.app.model.user_model import UserModel
 from src.main.app.schema.menus_schema import Menu
-from src.main.app.schema.users_schema import (
+from src.main.app.schema.user_schema import (
     UserQuery,
     UserModify,
     CreateUserRequest,

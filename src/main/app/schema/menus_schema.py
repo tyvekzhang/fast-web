@@ -8,7 +8,7 @@ from typing import Optional
 from fastapi import UploadFile
 from pydantic import BaseModel, Field
 
-from src.main.app.core.schema import BasePage
+from src.main.app.core.schema import PaginationRequest
 
 
 class GetMenuRequest(BaseModel):
@@ -17,7 +17,7 @@ class GetMenuRequest(BaseModel):
 
 class Menu(BaseModel):
     """
-    系统菜单分页信息
+    Key info in menu
     """
 
     # 主键
@@ -52,7 +52,7 @@ class Menu(BaseModel):
     children: Optional[list[Menu]] = None
 
 
-class ListMenuRequest(BasePage):
+class ListMenusRequest(PaginationRequest):
     """
     系统菜单查询参数
     """
@@ -118,10 +118,14 @@ class ExportMenu(Menu):
 
 class CreateMenuRequest(BaseModel):
     """
-    系统菜单新增
+    All information for creating the menu.
     """
 
     menu: CreateMenu
+
+
+class BatchUpdateMenu(BaseModel):
+    pass
 
 
 class UpdateMenu(BaseModel):
@@ -209,7 +213,7 @@ class BatchGetMenusResponse(BaseModel):
     menus: list[MenuDetail]
 
 
-class BatchCreateMenuRequest(BaseModel):
+class BatchCreateMenusRequest(BaseModel):
     menus: list[CreateMenu]
 
 
@@ -218,6 +222,11 @@ class BatchCreateMenuResponse(BaseModel):
 
 
 class BatchUpdateMenusRequest(BaseModel):
+    ids: list[int]
+    menu: BatchUpdateMenu
+
+
+class BatchPatchMenusRequest(BaseModel):
     menus: list[UpdateMenu]
 
 

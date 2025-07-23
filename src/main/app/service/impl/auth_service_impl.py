@@ -21,7 +21,7 @@ from src.main.app.model.role_menu_model import RoleMenuModel
 from src.main.app.model.role_model import RoleModel
 from src.main.app.model.user_role_model import UserRoleModel
 from src.main.app.schema.menus_schema import Menu
-from src.main.app.schema.users_schema import (
+from src.main.app.schema.user_schema import (
     SignInWithEmailAndPasswordRequest,
     UserInfo,
 )

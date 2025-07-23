@@ -1,0 +1,168 @@
+import { message } from '@/components/GlobalToast';
+import { export{{ class_name }}Template } from '@/service/{{ kebab_case_class_name }}';
+import { {{ class_name }}Create } from '@/types/{{ kebab_case_class_name }}';
+import { InboxOutlined } from '@ant-design/icons';
+import { Button, Modal, Table, Upload, UploadFile } from 'antd';
+import { ColumnsType } from 'antd/lib/table';
+import { UploadRequestOption } from 'rc-upload/es/interface';
+import type { RcFile } from 'rc-upload/lib/interface';
+import React, { useState } from 'react';
+
+interface {{ class_name }}ImportProps {
+  is{{ class_name }}ImportModalVisible: boolean;
+  is{{ class_name }}ImportLoading: boolean;
+  on{{ class_name }}ImportCancel: () => void;
+  on{{ class_name }}ImportFinish: (fileList: RcFile[]) => Promise<{{ class_name }}Create[]>;
+  handle{{ class_name }}Import: () => void;
+}
+
+const {{ class_name }}ImportComponent: React.FC<{{ class_name }}ImportProps> = ({
+  is{{ class_name }}ImportModalVisible,
+  on{{ class_name }}ImportCancel,
+  on{{ class_name }}ImportFinish,
+  is{{ class_name }}ImportLoading,
+  handle{{ class_name }}Import,
+}) => {
+  const [{{ lowercase_class_name }}ImportFileList, set{{ class_name }}ImportFileList] = useState<RcFile[]>([]);
+  const [{{ class_name }}CreateList, set{{ class_name }}CreateList] = useState<{{ class_name }}Create[]>([]);
+  const [isUploadShow, setIsUploadShow] = useState<boolean>(true);
+
+  const footerButtons = () => [
+    <Button key="back" onClick={handle{{ class_name }}ImportCancel}>
+      取消
+    </Button>,
+    <Button key="submit" type="primary" loading={is{{ class_name }}ImportLoading} onClick={handle{{ class_name }}ImportConfirm}>
+      确定
+    </Button>,
+  ];
+
+  const handle{{ class_name }}ImportConfirm = async () => {
+    if (isUploadShow) {
+      if ({{ lowercase_class_name }}ImportFileList.length === 0) {
+        message.warning('请先选择文件');
+        return;
+      }
+      try {
+        const {{ class_name }}PageList = await on{{ class_name }}ImportFinish({{ lowercase_class_name }}ImportFileList);
+        setIsUploadShow(false);
+        set{{ class_name }}CreateList({{ class_name }}PageList as {{ class_name }}Create[]);
+      } finally {
+        set{{ class_name }}ImportFileList([]);
+      }
+    } else {
+      handle{{ class_name }}Import();
+      setIsUploadShow(true);
+    }
+  };
+  // 表格列信息
+  const {{ class_name }}PageColumns: ColumnsType<{{ class_name }}Create> = [
+    {
+      title: "序号",
+      dataIndex: "No",
+      key: "No",
+      render: (_: number, _record: {{class_name}}Create, rowIndex: number) => rowIndex + 1,
+      width: "8%",
+    },
+    {%- for field in fields %}
+    {%- set comment = "" %}
+    {%- if field.gen_field.pageable == 1 and field.gen_field.field_name != primary_key %}
+    {%- if field.field.comment and field.field.comment != "" %}
+      {%- set parentheseIndex_en = field.field.comment.find("(") %}
+      {%- set parentheseIndex_cn = field.field.comment.find("（") %}
+      {%- if parentheseIndex_en!= -1 %}
+          {%- set comment = field.field.comment[:parentheseIndex_en] %}
+      {%- elif parentheseIndex_cn!= -1 %}
+          {%- set comment = field.field.comment[:parentheseIndex_cn] %}
+      {%- else %}
+          {%- set comment = field.field.comment %}
+      {%- endif %}
+    {%- endif %}
+    {
+      title: "{{ comment }}",
+      dataIndex: "{{ field.gen_field.field_name }}",
+      key: "{{ field.gen_field.field_name }}",
+      render: (text) => (text ? text : "-"),
+    },
+    {%- endif%}
+    {%- endfor %}
+    {
+      title: "错误信息",
+      dataIndex: "errMsg",
+      key: "errMsg",
+      render: (text) => (text ? text : "-"),
+    },
+  ];
+
+  const handle{{ class_name }}ExportTemplate = async () => {
+    await export{{ class_name }}Template();
+  };
+
+  const customUploadRequest = async (options: UploadRequestOption): Promise<void | undefined> => {
+    const { onSuccess, onError, file } = options;
+    const rcFile = file as RcFile;
+    if (!rcFile.name.endsWith('.xls') && !rcFile.name.endsWith('.xlsx')) {
+      message.error('仅支持xls、xlsx格式文件');
+      onError?.(new Error('仅支持xls、xlsx格式文件'));
+      return;
+    }
+    set{{ class_name }}ImportFileList((prev) => [...prev, rcFile]);
+    setTimeout(() => {
+      onSuccess?.(rcFile);
+    }, 200);
+  };
+
+  const handleRemove = (file: UploadFile) => {
+    set{{ class_name }}ImportFileList((prev) => prev.filter((f) => f.uid !== file.uid));
+  };
+
+  const handle{{ class_name }}ImportCancel = () => {
+    on{{ class_name }}ImportCancel();
+    setIsUploadShow(true);
+  };
+
+  return (
+    <Modal
+      title="{{ function_name }}导入"
+      open={is{{ class_name }}ImportModalVisible}
+      onCancel={handle{{ class_name }}ImportCancel}
+      footer={footerButtons}
+      width={'70%'}
+    >
+      {isUploadShow ? (
+        <div>
+          <div>
+            <Upload.Dragger
+              name="file"
+              multiple
+              accept=".xlsx,.xls"
+              onRemove={handleRemove}
+              fileList={ {{ lowercase_class_name }}ImportFileList}
+              customRequest={customUploadRequest as any}
+            >
+              <p className="sc-upload-drag-icon">
+                <InboxOutlined />
+              </p>
+              <p className="sc-upload-text">{'点击或拖拽到此上传'}</p>
+              <p className="sc-upload-hint">仅支持上传xls、xlsx格式的文件</p>
+            </Upload.Dragger>
+          </div>
+          <div onClick={handle{{ class_name }}ExportTemplate} className="cursor-pointer mt-4 text-blue-600">
+            下载模板
+          </div>
+        </div>
+      ) : (
+        <div>
+          <Table
+            columns={ {{ class_name }}PageColumns}
+            dataSource={ {{ class_name }}CreateList}
+            pagination={false}
+            bordered={false}
+            rowKey={'id'}
+          />
+        </div>
+      )}
+    </Modal>
+  );
+};
+
+export default {{ class_name }}ImportComponent;

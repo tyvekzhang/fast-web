@@ -22,7 +22,7 @@ from src.main.app.core.utils import excel_util
 from src.main.app.core.utils.validate_util import ValidateService
 from src.main.app.mapper.user_mapper import UserMapper
 from src.main.app.model.user_model import UserModel
-from src.main.app.schema.users_schema import (
+from src.main.app.schema.user_schema import (
     UserQuery,
     UserPage,
     UserDetail,

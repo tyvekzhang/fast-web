@@ -1,0 +1,9 @@
+{
+  path: '{{ kebab_case_class_name }}',
+  name: '{{ ClassName }}',
+  element: LazyLoad(lazy(() => import('@/views/system/{{ kebab_case_class_name }}'))),
+  meta: {
+    title: '{{ function_name }}',
+    key: '{{ className }}',
+  },
+},

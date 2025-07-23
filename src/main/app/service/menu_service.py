@@ -3,24 +3,24 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Type
+from typing import Type
 
 from starlette.responses import StreamingResponse
 
-from src.main.app.core.schema import CurrentUser
 from src.main.app.core.service.base_service import BaseService
 from src.main.app.model.menus_model import MenuModel
 from src.main.app.schema.menus_schema import (
-    ListMenuRequest,
+    ListMenusRequest,
     CreateMenuRequest,
     Menu,
     UpdateMenuRequest,
     BatchDeleteMenusRequest,
     ExportMenusRequest,
-    BatchCreateMenuRequest,
+    BatchCreateMenusRequest,
     BatchUpdateMenusRequest,
     ImportMenusRequest,
     ImportMenu,
+    BatchPatchMenusRequest,
 )
 
 
@@ -34,7 +34,7 @@ class MenuService(BaseService[MenuModel], ABC):
 
     @abstractmethod
     async def list_menus(
-        self, *, req: ListMenuRequest
+        self, *, req: ListMenusRequest
     ) -> tuple[list[MenuModel], int]: ...
 
     @abstractmethod
@@ -58,31 +58,31 @@ class MenuService(BaseService[MenuModel], ABC):
     async def batch_create_menus(
         self,
         *,
-        req: BatchCreateMenuRequest,
+        req: BatchCreateMenusRequest,
     ) -> list[MenuModel]: ...
 
     @abstractmethod
-    async def export_menu_page(
-        self, *, ids: list[int], current_user: CurrentUser
-    ) -> Optional[StreamingResponse]: ...
+    async def batch_update_menus(
+        self, req: BatchUpdateMenusRequest
+    ) -> list[MenuModel]: ...
 
     @abstractmethod
-    async def batch_remove_menus(self, req: BatchDeleteMenusRequest): ...
+    async def batch_patch_menus(
+        self, req: BatchPatchMenusRequest
+    ) -> list[MenuModel]: ...
 
     @abstractmethod
-    async def import_menus(
-        self, req: ImportMenusRequest
-    ) -> list[ImportMenu]: ...
+    async def batch_delete_menus(self, req: BatchDeleteMenusRequest): ...
 
     @abstractmethod
     async def export_menus_template(self) -> StreamingResponse: ...
 
     @abstractmethod
-    def batch_update_menus(
-        self, req: BatchUpdateMenusRequest
-    ) -> list[MenuModel]: ...
-
-    @abstractmethod
     async def export_menus(
         self, req: ExportMenusRequest
     ) -> StreamingResponse: ...
+
+    @abstractmethod
+    async def import_menus(
+        self, req: ImportMenusRequest
+    ) -> list[ImportMenu]: ...

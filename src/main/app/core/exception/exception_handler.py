@@ -5,17 +5,16 @@ import textwrap
 import traceback
 from typing import Dict, Any, Optional
 
-from pydantic_core._pydantic_core import ValidationError  # noqa
-
 from fastapi import Request
-from fastapi.exceptions import RequestValidationError
 from fastapi.exception_handlers import http_exception_handler
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
 from fastapi.utils import is_body_allowed_for_status_code
 from loguru import logger
-from src.main.app.core.config.config_manager import load_config
+from pydantic_core._pydantic_core import ValidationError  # noqa
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from src.main.app.core.config.config_manager import load_config
 from src.main.app.core.enums.enum import CommonErrorCode
 from src.main.app.core.exception import HTTPException
 
@@ -49,7 +48,11 @@ async def extract_request_data(request: Request) -> Dict[str, Any]:
             form_data = {}
             for key, value in form.items():
                 # Check if it's a file upload (UploadFile instance)
-                if not hasattr(value, "filename"):  # Not a file
+                if (
+                    not hasattr(value, "filename")
+                    and not hasattr(value, "file")
+                    and not hasattr(value, "files")
+                ):  # Not a file
                     form_data[key] = value
                 else:
                     # Record that a file was present but not included

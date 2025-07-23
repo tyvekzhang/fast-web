@@ -1,0 +1,161 @@
+# Copyright (c) 2025 Fast web and/or its affiliates. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+"""{{ ClassName }} domain service impl"""
+
+from __future__ import annotations
+import io
+from typing import Optional, List
+from typing import Union
+import pandas as pd
+from fastapi import UploadFile
+from starlette.responses import StreamingResponse
+from src.main.app.core.constant import FilterOperators
+from src.main.app.core.utils import excel_util
+from src.main.app.core.utils.validate_util import ValidateService
+from src.main.app.mapper.{{ table_name }}_mapper import {{ ClassName }}Mapper
+from src.main.app.model.{{ table_name }}_model import {{ ClassName }}Model
+from src.main.app.core.schema import PageResult, CurrentUser
+from src.main.app.schema.{{ table_name }}_schema import {{ ClassName }}Query, {{ ClassName }}Page, {{ ClassName }}Detail, {{ ClassName }}Create
+from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
+from src.main.app.service.{{ table_name }}_service import {{ ClassName }}Service
+
+
+class {{ ClassName }}ServiceImpl(BaseServiceImpl[{{ ClassName }}Mapper, {{ ClassName }}Model], {{ ClassName }}Service):
+    """
+    Implementation of the {{ ClassName }}Service interface.
+    """
+
+    def __init__(self, mapper: {{ ClassName }}Mapper):
+        """
+        Initialize the {{ ClassName }}ServiceImpl instance.
+
+        Args:
+            mapper ({{ ClassName }}Mapper): The {{ ClassName }}Mapper instance to use for database operations.
+        """
+        super().__init__(mapper=mapper)
+        self.mapper = mapper
+
+    async def get_{{ c_n }}_by_page(self, {{ c_n }}_query: {{ ClassName }}Query, current_user: CurrentUser) -> PageResult:
+        eq = {}
+        ne = {}
+        gt = {}
+        ge = {}
+        lt = {}
+        le = {}
+        between = {}
+        like = {}
+        {%- for field in fields %}
+        {%- if field.gen_field.queryable == 1  %}
+        {%- set field_name=field.gen_field.field_name %}
+        {%- set query_type=field.gen_field.query_type %}
+        {%- if query_type == "EQ" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "":
+            eq["{{ field_name }}"] = {{ c_n }}_query.{{ field_name }}
+        {%- elif query_type == "NE" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "":
+            ne["{{ field_name }}"] = {{ c_n }}_query.{{ field_name }}
+        {%- elif query_type == "GT" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "":
+            gt["{{ field_name }}"] = {{ c_n }}_query.{{ field_name }}
+        {%- elif query_type == "GE" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "":
+            ge["{{ field_name }}"] = {{ c_n }}_query.{{ field_name }}
+        {%- elif query_type == "LT" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "":
+            lt["{{ field_name }}"] = {{ c_n }}_query.{{ field_name }}
+        {%- elif query_type == "LE" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "":
+            le["{{ field_name }}"] = {{ c_n }}_query.{{ field_name }}
+        {%- elif query_type == "BETWEEN" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "":
+            between["{{ field_name }}"] = ({{ c_n }}_query.{{ field_name }}[0], {{ c_n }}_query.{{ field_name }}[1])
+        {%- elif query_type == "LIKE" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "":
+            like["{{ field_name }}"] = {{ c_n }}_query.{{ field_name }}
+        {%- endif %}
+        {%- endif %}
+        {%- endfor %}
+        filters = {
+            FilterOperators.EQ: eq,
+            FilterOperators.NE: ne,
+            FilterOperators.GT: gt,
+            FilterOperators.GE: ge,
+            FilterOperators.LT: lt,
+            FilterOperators.LE: le,
+            FilterOperators.BETWEEN: between,
+            FilterOperators.LIKE: like
+        }
+        records, total = await self.mapper.select_by_ordered_page(
+            current={{ c_n }}_query.current,
+            pageSize={{ c_n }}_query.pageSize,
+            **filters
+        )
+        if total == 0:
+            return PageResult(records=[], total=total)
+        if "sort" in {{ ClassName }}Model.model_fields and total > 1:
+            records.sort(key=lambda x: x['sort'])
+        records = [{{ ClassName }}Page(**record.model_dump()) for record in records]
+        return PageResult(records=records, total=total)
+
+    async def get_{{ c_n }}_detail(self, *, id: int, current_user: CurrentUser) -> Optional[{{ ClassName }}Detail]:
+        {{ c_n }}_do: {{ ClassName }}Model =await self.mapper.select_by_id(id=id)
+        if {{ c_n }}_do is None:
+            return None
+        return {{ ClassName }}Detail(**{{ c_n }}_do.model_dump())
+
+    async def export_{{ c_n }}_page(self, *, ids: List[int], current_user: CurrentUser) -> Optional[StreamingResponse]:
+        if ids is None or len(ids) == 0:
+            return None
+        {{ c_n }}_list: List[{{ ClassName }}Model] = await self.retrieve_by_ids(ids = ids)
+        if {{ c_n }}_list is None or len({{ c_n }}_list) == 0:
+            return None
+        {{ c_n }}_page_list = [{{ ClassName }}Page(**{{ c_n }}.model_dump()) for {{ c_n }} in {{ c_n }}_list]
+        return await excel_util.export_excel(schema={{ ClassName }}Page, file_name="{{ c_n }}_data_export", data_list={{ c_n }}_page_list)
+
+    async def create_{{ c_n }}(self, {{ c_n }}_create: {{ ClassName }}Create, current_user: CurrentUser) -> {{ ClassName }}Model:
+        {{ c_n }}: {{ ClassName }}Model = {{ ClassName }}Model(**{{ c_n }}_create.model_dump())
+        # {{ c_n }}.user_id = request.state.user_id
+        return await self.save(data={{ c_n }})
+
+    async def batch_create_{{ c_n }}(self, *, {{ c_n }}_create_list: List[{{ ClassName }}Create], current_user: CurrentUser) -> List[int]:
+        {{ c_n }}_list: List[{{ ClassName }}Model] = [{{ ClassName }}Model(**{{ c_n }}_create.model_dump()) for {{ c_n }}_create in {{ c_n }}_create_list]
+        await self.batch_save(datas={{ c_n }}_list)
+        return [{{ c_n }}.id for {{ c_n }} in {{ c_n }}_list]
+
+    @staticmethod
+    async def import_{{ c_n }}(*, file: UploadFile, current_user: CurrentUser) -> Union[List[{{ ClassName }}Create], None]:
+        contents = await file.read()
+        import_df = pd.read_excel(io.BytesIO(contents))
+        import_df = import_df.fillna("")
+        {{ c_n }}_records = import_df.to_dict(orient="records")
+        if {{ c_n }}_records is None or len({{ c_n }}_records) == 0:
+            return None
+        for record in {{ c_n }}_records:
+            for key, value in record.items():
+                if value == "":
+                    record[key] = None
+        {{ c_n }}_create_list = []
+        for {{ c_n }}_record in {{ c_n }}_records:
+            try:
+                {{ c_n }}_create = {{ ClassName }}Create(**{{ c_n }}_record)
+                {{ c_n }}_create_list.append({{ c_n }}_create)
+            except Exception as e:
+                valid_data = {k: v for k, v in {{ c_n }}_record.items() if k in {{ ClassName }}Create.model_fields}
+                {{ c_n }}_create = {{ ClassName }}Create.model_construct(**valid_data)
+                {{ c_n }}_create.err_msg = ValidateService.get_validate_err_msg(e)
+                {{ c_n }}_create_list.append({{ c_n }}_create)
+                return {{ c_n }}_create_list
+
+        return {{ c_n }}_create_list

@@ -1,13 +1,19 @@
 """Export the core schemas' symbols."""
 
 from .response import HttpResponse
-from .schema import UserCredential, CurrentUser, BasePage, SortItem, PageResult
+from .schema import (
+    UserCredential,
+    CurrentUser,
+    PaginationRequest,
+    SortItem,
+    PageResult,
+)
 
 __all__ = [
     HttpResponse,
     UserCredential,
     CurrentUser,
-    BasePage,
+    PaginationRequest,
     SortItem,
     PageResult,
 ]
