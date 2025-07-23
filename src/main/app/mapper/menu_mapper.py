@@ -6,7 +6,7 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.main.app.core.mapper.impl.base_mapper_impl import SqlModelMapper
-from src.main.app.model.menus_model import MenuModel
+from src.main.app.model.menu_model import MenuModel
 
 
 class MenuMapper(SqlModelMapper[MenuModel]):

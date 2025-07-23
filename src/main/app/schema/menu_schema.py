@@ -11,8 +11,37 @@ from pydantic import BaseModel, Field
 from src.main.app.core.schema import PaginationRequest
 
 
-class GetMenuRequest(BaseModel):
-    id: int = Field(gt=0)
+class ListMenusRequest(PaginationRequest):
+    """
+    系统菜单查询参数
+    """
+
+    # 主键
+    id: Optional[int] = None
+    # 名称
+    name: Optional[str] = None
+    # 图标
+    icon: Optional[str] = None
+    # 权限标识
+    permission: Optional[str] = None
+    # 排序
+    sort: Optional[int] = None
+    # 路由地址
+    path: Optional[str] = None
+    # 组件路径
+    component: Optional[str] = None
+    # 类型（1目录 2菜单 3按钮）
+    type: Optional[int] = None
+    # 是否缓存（1缓存 0不缓存）
+    cacheable: Optional[int] = None
+    # 父ID
+    parent_id: Optional[int] = None
+    # 是否显示（1显示 0隐藏）
+    visible: Optional[int] = None
+    # 状态（1正常 0停用）
+    status: Optional[int] = None
+    # 创建时间
+    create_time: Optional[datetime] = None
 
 
 class Menu(BaseModel):
@@ -52,37 +81,12 @@ class Menu(BaseModel):
     children: Optional[list[Menu]] = None
 
 
-class ListMenusRequest(PaginationRequest):
+class MenuDetail(Menu):
     """
-    系统菜单查询参数
+    系统菜单详情
     """
 
-    # 主键
-    id: Optional[int] = None
-    # 名称
-    name: Optional[str] = None
-    # 图标
-    icon: Optional[str] = None
-    # 权限标识
-    permission: Optional[str] = None
-    # 排序
-    sort: Optional[int] = None
-    # 路由地址
-    path: Optional[str] = None
-    # 组件路径
-    component: Optional[str] = None
-    # 类型（1目录 2菜单 3按钮）
-    type: Optional[int] = None
-    # 是否缓存（1缓存 0不缓存）
-    cacheable: Optional[int] = None
-    # 父ID
-    parent_id: Optional[int] = None
-    # 是否显示（1显示 0隐藏）
-    visible: Optional[int] = None
-    # 状态（1正常 0停用）
-    status: Optional[int] = None
-    # 创建时间
-    create_time: Optional[datetime] = None
+    pass
 
 
 class CreateMenu(BaseModel):
@@ -112,10 +116,6 @@ class CreateMenu(BaseModel):
     comment: Optional[str] = None
 
 
-class ExportMenu(Menu):
-    pass
-
-
 class CreateMenuRequest(BaseModel):
     """
     All information for creating the menu.
@@ -124,15 +124,7 @@ class CreateMenuRequest(BaseModel):
     menu: CreateMenu
 
 
-class BatchUpdateMenu(BaseModel):
-    pass
-
-
 class UpdateMenu(BaseModel):
-    """
-    系统菜单更新
-    """
-
     # 主键
     id: int
     # 名称
@@ -162,51 +154,7 @@ class UpdateMenu(BaseModel):
 
 
 class UpdateMenuRequest(BaseModel):
-    """
-    系统菜单更新请求
-    """
-
     menu: UpdateMenu
-
-
-class MenuBatchModify(BaseModel):
-    """
-    系统菜单批量更新
-    """
-
-    ids: list[int]
-    # 名称
-    name: str
-    # 图标
-    icon: Optional[str] = None
-    # 权限标识
-    permission: Optional[str] = None
-    # 排序
-    sort: Optional[int] = None
-    # 路由地址
-    path: Optional[str] = None
-    # 组件路径
-    component: Optional[str] = None
-    # 类型（1目录 2菜单 3按钮）
-    type: Optional[int] = None
-    # 是否缓存（1缓存 0不缓存）
-    cacheable: Optional[int] = None
-    # 是否显示（1显示 0隐藏）
-    visible: Optional[int] = None
-    # 父ID
-    parent_id: Optional[int] = None
-    # 状态（1正常 0停用）
-    status: Optional[int] = None
-    # 备注信息
-    comment: Optional[str] = None
-
-
-class MenuDetail(Menu):
-    """
-    系统菜单详情
-    """
-
-    pass
 
 
 class BatchGetMenusResponse(BaseModel):
@@ -219,6 +167,10 @@ class BatchCreateMenusRequest(BaseModel):
 
 class BatchCreateMenuResponse(BaseModel):
     menus: list[Menu]
+
+
+class BatchUpdateMenu(BaseModel):
+    pass
 
 
 class BatchUpdateMenusRequest(BaseModel):
@@ -238,6 +190,10 @@ class BatchDeleteMenusRequest(BaseModel):
     ids: list[int]
 
 
+class ExportMenu(Menu):
+    pass
+
+
 class ExportMenusRequest(BaseModel):
     ids: list[int]
 
@@ -251,5 +207,4 @@ class ImportMenu(CreateMenu):
 
 
 class ImportMenusResponse(BaseModel):
-    # 错误信息
     menus: list[ImportMenu]

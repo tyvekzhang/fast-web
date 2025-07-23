@@ -19,8 +19,8 @@ from src.main.app.core.utils.validate_util import ValidateService
 from src.main.app.enums import BusinessErrorCode
 from src.main.app.exception.biz_exception import BusinessException
 from src.main.app.mapper.menu_mapper import MenuMapper
-from src.main.app.model.menus_model import MenuModel
-from src.main.app.schema.menus_schema import (
+from src.main.app.model.menu_model import MenuModel
+from src.main.app.schema.menu_schema import (
     ListMenusRequest,
     Menu,
     CreateMenuRequest,

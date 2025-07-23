@@ -8,8 +8,8 @@ from typing import Type
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.service.base_service import BaseService
-from src.main.app.model.menus_model import MenuModel
-from src.main.app.schema.menus_schema import (
+from src.main.app.model.menu_model import MenuModel
+from src.main.app.schema.menu_schema import (
     ListMenusRequest,
     CreateMenuRequest,
     Menu,

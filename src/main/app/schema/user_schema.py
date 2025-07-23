@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Optional, Set
 from pydantic import BaseModel, Field
 from src.main.app.core.schema import PaginationRequest
-from src.main.app.schema.menus_schema import Menu
+from src.main.app.schema.menu_schema import Menu
 
 
 class SignInWithEmailAndPasswordRequest(BaseModel):

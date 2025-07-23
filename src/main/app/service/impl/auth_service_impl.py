@@ -16,11 +16,11 @@ from src.main.app.mapper.role_mapper import roleMapper
 from src.main.app.mapper.role_menu_mapper import roleMenuMapper
 from src.main.app.mapper.user_mapper import userMapper
 from src.main.app.mapper.user_role_mapper import userRoleMapper
-from src.main.app.model.menus_model import MenuModel
+from src.main.app.model.menu_model import MenuModel
 from src.main.app.model.role_menu_model import RoleMenuModel
 from src.main.app.model.role_model import RoleModel
 from src.main.app.model.user_role_model import UserRoleModel
-from src.main.app.schema.menus_schema import Menu
+from src.main.app.schema.menu_schema import Menu
 from src.main.app.schema.user_schema import (
     SignInWithEmailAndPasswordRequest,
     UserInfo,
