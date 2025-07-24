@@ -38,3 +38,9 @@ security:
   white_list_routes: /api/v1/probe/liveness, /api/v1/probe/readiness, /api/v1/user/register, /api/v1/user/login, /api/v1/user/refreshTokens
   backend_cors_origins: http://127.0.0.1:7000, http://localhost:7000, http://localhost
   black_ip_list: ""
+
+gen:
+  author: "tyvekzhang"
+  package_name: "com.singularity.modules.reading"
+  auto_remove_pre: True
+  table_prefix: ""

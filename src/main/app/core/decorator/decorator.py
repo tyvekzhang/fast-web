@@ -78,7 +78,7 @@ def log(title: str, business_type: BusinessType):
                     business_type=business_type,
                     operator=current_user.username,
                     oper_ip=request.client.host,
-                    oper_time=datetime.now(),
+                    oper_time=datetime.utcnow(),
                     status=status,
                     params=params,
                     result=str(result) if status else None,

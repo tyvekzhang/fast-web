@@ -16,7 +16,7 @@ import { message } from "@/components/GlobalToast";
 import dayjs from 'dayjs';
 import {
   batchCreate{{ class_name }},
-  batchModify{{ class_name }},
+  batchUpdate{{ class_name }},
   batchRemove{{ class_name }},
   create{{ class_name }},
   export{{ class_name }}Page,
@@ -27,11 +27,11 @@ import {
   remove{{ class_name }},
 } from "@/service/{{ kebab_case_class_name }}";
 import { BaseQueryImpl } from "@/types";
-import { {{ class_name }}BatchModify, {{ class_name }}Create, {{ class_name }}Detail, {{ class_name }}Modify, {{ class_name }}Page, {{ class_name }}Query } from "@/types/{{ kebab_case_class_name }}";
-import {{ class_name }}BatchModifyComponent from "@/views/system/{{ kebab_case_class_name }}/components/{{ kebab_case_class_name }}-batch-modify";
+import { {{ class_name }}BatchUpdate, {{ class_name }}Create, {{ class_name }}Detail, {{ class_name }}Update, {{ class_name }}Page, {{ class_name }}Query } from "@/types/{{ kebab_case_class_name }}";
+import {{ class_name }}BatchUpdateComponent from "@/views/system/{{ kebab_case_class_name }}/components/{{ kebab_case_class_name }}-batch-modify";
 import {{ class_name }}CreateComponent from "@/views/system/{{ kebab_case_class_name }}/components/{{ kebab_case_class_name }}-create";
 import {{ class_name }}ImportComponent from "@/views/system/{{ kebab_case_class_name }}/components/{{ kebab_case_class_name }}-import";
-import {{ class_name }}ModifyComponent from "@/views/system/{{ kebab_case_class_name }}/components/{{ kebab_case_class_name }}-modify";
+import {{ class_name }}UpdateComponent from "@/views/system/{{ kebab_case_class_name }}/components/{{ kebab_case_class_name }}-modify";
 import {{ class_name }}QueryComponent from "@/views/system/{{ kebab_case_class_name }}/components/{{ kebab_case_class_name }}-query";
 import { ColumnsType } from "antd/lib/table";
 import type { RcFile } from "rc-upload/lib/interface";
@@ -46,7 +46,7 @@ const {{ class_name }}: React.FC = () => {
     showCreate: true,
     showImport: true,
     showExport: true,
-    showModify: true,
+    showUpdate: true,
     showRemove: true,
   };
   const showMore = false;
@@ -116,7 +116,7 @@ const {{ class_name }}: React.FC = () => {
     {%- for field in fields %}
     {%- set dict_type = field.gen_field.dict_type %}
     {%- set comment = "" -%}
-    {%- if field.gen_field.pageable == 1 and field.gen_field.field_name != primary_key -%}
+    {%- if field.gen_field.critical == 1 and field.gen_field.field_name != primary_key -%}
         {%- if field.field.comment and field.field.comment != "" -%}
             {%- set parentheseIndex_en = field.field.comment.find("(") -%}
             {%- set parentheseIndex_cn = field.field.comment.find("（") -%}
@@ -184,7 +184,7 @@ const {{ class_name }}: React.FC = () => {
           <button
             type="button"
             className="flex items-center gap-0.5 text-xs btn-operation"
-            onClick={ () => on{{ ClassName }}Modify(record)}
+            onClick={ () => on{{ ClassName }}Update(record)}
           >
             <EditOutlined className="w-3 h-3" />
             编辑
@@ -321,96 +321,96 @@ const on{{ class_name }}QueryFinish = async () => {
   };
 
   // 单个更新模块
-  const [is{{ class_name }}ModifyModalVisible, setIs{{ class_name }}ModifyModalVisible] = useState<boolean>(false);
-  const [is{{ class_name }}ModifyLoading, setIs{{ class_name }}ModifyLoading] = useState<boolean>(false);
-  const [{{ lowercase_class_name }}ModifyForm] = Form.useForm();
-  const on{{ class_name }}Modify = ({{ lowercase_class_name }}Page: {{ class_name }}Page) => {
-    setIs{{ class_name }}ModifyModalVisible(true);
+  const [is{{ class_name }}UpdateModalVisible, setIs{{ class_name }}UpdateModalVisible] = useState<boolean>(false);
+  const [is{{ class_name }}UpdateLoading, setIs{{ class_name }}UpdateLoading] = useState<boolean>(false);
+  const [{{ lowercase_class_name }}UpdateForm] = Form.useForm();
+  const on{{ class_name }}Update = ({{ lowercase_class_name }}Page: {{ class_name }}Page) => {
+    setIs{{ class_name }}UpdateModalVisible(true);
     setSelectedRowKeys([{{ lowercase_class_name }}Page.id])
     setSelectedRows([{{ lowercase_class_name }}Page])
-    {{ lowercase_class_name }}ModifyForm.setFieldsValue({ ...{{ lowercase_class_name }}Page });
+    {{ lowercase_class_name }}UpdateForm.setFieldsValue({ ...{{ lowercase_class_name }}Page });
     {%- for field in fields %}
-    {%- if field.gen_field.modifiable == 1 and field.gen_field.field_name != primary_key %}
+    {%- if field.gen_field.updatable == 1 and field.gen_field.field_name != primary_key %}
     {%- set html_type = field.gen_field.html_type %}
     {%- set field_name = field.gen_field.field_name %}
     {%- if html_type == "datepicker" %}
     if ({{ lowercase_class_name }}Page.{{ field_name }}) {
-      {{ lowercase_class_name }}ModifyForm.setFieldsValue({ "{{ field_name }}": dayjs({{ lowercase_class_name }}Page.{{ field_name }}) });
+      {{ lowercase_class_name }}UpdateForm.setFieldsValue({ "{{ field_name }}": dayjs({{ lowercase_class_name }}Page.{{ field_name }}) });
     }
     {%- endif %}
     {%- endif %}
     {%- endfor %}
   };
 
-  const handle{{ class_name }}ModifyCancel = () => {
+  const handle{{ class_name }}UpdateCancel = () => {
     resetSelectedRows();
-    {{ lowercase_class_name }}ModifyForm.resetFields();
-    setIs{{ class_name }}ModifyModalVisible(false);
+    {{ lowercase_class_name }}UpdateForm.resetFields();
+    setIs{{ class_name }}UpdateModalVisible(false);
   };
-  const handle{{ class_name }}ModifyFinish = async () => {
-    const {{ lowercase_class_name }}ModifyData = (await {{ lowercase_class_name }}ModifyForm.validateFields()) as {{ class_name }}Modify;
-    const {{ lowercase_class_name }}Modify = {...{{ lowercase_class_name }}ModifyData, id: selectedRows[0].id};
-    setIs{{ class_name }}ModifyLoading(true);
+  const handle{{ class_name }}UpdateFinish = async () => {
+    const {{ lowercase_class_name }}UpdateData = (await {{ lowercase_class_name }}UpdateForm.validateFields()) as {{ class_name }}Update;
+    const {{ lowercase_class_name }}Update = {...{{ lowercase_class_name }}UpdateData, id: selectedRows[0].id};
+    setIs{{ class_name }}UpdateLoading(true);
     try {
-      await modify{{ class_name }}({{ lowercase_class_name }}Modify);
-      {{ lowercase_class_name }}ModifyForm.resetFields();
+      await modify{{ class_name }}({{ lowercase_class_name }}Update);
+      {{ lowercase_class_name }}UpdateForm.resetFields();
       message.success("更新成功");
       await on{{ class_name }}QueryFinish();
       resetSelectedRows();
     } finally {
-      setIs{{ class_name }}ModifyLoading(false);
-      setIs{{ class_name }}ModifyModalVisible(false);
+      setIs{{ class_name }}UpdateLoading(false);
+      setIs{{ class_name }}UpdateModalVisible(false);
     }
   };
 
   // 批量更新模块
-  const on{{ class_name }}BatchModify = () => {
+  const on{{ class_name }}BatchUpdate = () => {
     if (selectedRowKeys.length === 1) {
       const selectedRow = selectedRows[0]
-      {{ lowercase_class_name }}BatchModifyForm.setFieldsValue({ ...selectedRow });
+      {{ lowercase_class_name }}BatchUpdateForm.setFieldsValue({ ...selectedRow });
       {%- for field in fields %}
-      {%- if field.gen_field.modifiable == 1 and field.gen_field.field_name != primary_key %}
+      {%- if field.gen_field.updatable == 1 and field.gen_field.field_name != primary_key %}
       {%- set html_type = field.gen_field.html_type %}
       {%- set field_name = field.gen_field.field_name %}
       {%- if html_type == "datepicker" %}
       if (selectedRow.{{ field_name }}) {
-        {{ lowercase_class_name }}BatchModifyForm.setFieldsValue({ "{{ field_name }}": dayjs(selectedRow.{{ field_name }}) });
+        {{ lowercase_class_name }}BatchUpdateForm.setFieldsValue({ "{{ field_name }}": dayjs(selectedRow.{{ field_name }}) });
       }
       {%- endif %}
       {%- endif %}
       {%- endfor %}
-      setIs{{ class_name }}BatchModifyModalVisible(true);
+      setIs{{ class_name }}BatchUpdateModalVisible(true);
     } else {
-      {{ lowercase_class_name }}BatchModifyForm.resetFields();
-      setIs{{ class_name }}BatchModifyModalVisible(true);
+      {{ lowercase_class_name }}BatchUpdateForm.resetFields();
+      setIs{{ class_name }}BatchUpdateModalVisible(true);
     }
   };
-  const [is{{ class_name }}BatchModifyModalVisible, setIs{{ class_name }}BatchModifyModalVisible] = useState<boolean>(false);
-  const [is{{ class_name }}BatchModifyLoading, setIs{{ class_name }}BatchModifyLoading] = useState<boolean>(false);
-  const [{{ lowercase_class_name }}BatchModifyForm] = Form.useForm();
-  const handle{{ class_name }}BatchModifyCancel = async () => {
-    {{ lowercase_class_name }}BatchModifyForm.resetFields();
-    setIs{{ class_name }}BatchModifyModalVisible(false);
+  const [is{{ class_name }}BatchUpdateModalVisible, setIs{{ class_name }}BatchUpdateModalVisible] = useState<boolean>(false);
+  const [is{{ class_name }}BatchUpdateLoading, setIs{{ class_name }}BatchUpdateLoading] = useState<boolean>(false);
+  const [{{ lowercase_class_name }}BatchUpdateForm] = Form.useForm();
+  const handle{{ class_name }}BatchUpdateCancel = async () => {
+    {{ lowercase_class_name }}BatchUpdateForm.resetFields();
+    setIs{{ class_name }}BatchUpdateModalVisible(false);
     resetSelectedRows();
     message.info("操作已取消");
   };
-  const handle{{ class_name }}BatchModifyFinish = async () => {
-    const {{ lowercase_class_name }}BatchModify = (await {{ lowercase_class_name }}BatchModifyForm.validateFields()) as {{ class_name }}BatchModify;
-    setIs{{ class_name }}BatchModifyLoading(true);
+  const handle{{ class_name }}BatchUpdateFinish = async () => {
+    const {{ lowercase_class_name }}BatchUpdate = (await {{ lowercase_class_name }}BatchUpdateForm.validateFields()) as {{ class_name }}BatchUpdate;
+    setIs{{ class_name }}BatchUpdateLoading(true);
     if (selectedRows === null || selectedRows.length === 0) {
       message.warning("请选择要更新的项目")
       return;
     }
     try {
-      {{ lowercase_class_name }}BatchModify.ids = selectedRows.map((row) => row.id);
-      await batchModify{{ class_name }}({{ lowercase_class_name }}BatchModify);
-      {{ lowercase_class_name }}BatchModifyForm.resetFields();
+      {{ lowercase_class_name }}BatchUpdate.ids = selectedRows.map((row) => row.id);
+      await batchUpdate{{ class_name }}({{ lowercase_class_name }}BatchUpdate);
+      {{ lowercase_class_name }}BatchUpdateForm.resetFields();
       message.success("更新成功");
       await on{{ class_name }}QueryFinish();
       resetSelectedRows();
     } finally {
-      setIs{{ class_name }}BatchModifyLoading(false);
-      setIs{{ class_name }}BatchModifyModalVisible(false);
+      setIs{{ class_name }}BatchUpdateLoading(false);
+      setIs{{ class_name }}BatchUpdateModalVisible(false);
     }
   };
 
@@ -481,13 +481,13 @@ const on{{ class_name }}QueryFinish = async () => {
           onCreate={on{{ class_name }}Create}
           onImport={on{{ class_name }}Import}
           onExport={on{{ class_name }}Export}
-          onBatchModify={on{{ class_name }}BatchModify}
+          onBatchUpdate={on{{ class_name }}BatchUpdate}
           onConfirmBatchRemove={handle{{ class_name }}BatchRemove}
           onConfirmBatchRemoveCancel={handle{{ class_name }}BatchRemoveCancel}
           isQueryShow={is{{ class_name }}QueryShow}
           onQueryShow={on{{ class_name }}QueryShow}
           isExportDisabled={selectedRowKeys.length === 0}
-          isBatchModifyDisabled={selectedRowKeys.length === 0}
+          isBatchUpdateDisabled={selectedRowKeys.length === 0}
           isBatchRemoveDisabled={selectedRowKeys.length === 0}
           isBatchRemoveLoading={isBatchRemoveLoading}
           isExportLoading={isExportLoading}
@@ -532,24 +532,24 @@ const on{{ class_name }}QueryFinish = async () => {
           />
         </div>
         <div>
-          <{{ class_name }}ModifyComponent
-            is{{ class_name }}ModifyModalVisible={is{{ class_name }}ModifyModalVisible}
-            on{{ class_name }}ModifyCancel={handle{{ class_name }}ModifyCancel}
-            on{{ class_name }}ModifyFinish={handle{{ class_name }}ModifyFinish}
-            is{{ class_name }}ModifyLoading={is{{ class_name }}ModifyLoading}
-            {{ lowercase_class_name }}ModifyForm={ {{ lowercase_class_name }}ModifyForm}
+          <{{ class_name }}UpdateComponent
+            is{{ class_name }}UpdateModalVisible={is{{ class_name }}UpdateModalVisible}
+            on{{ class_name }}UpdateCancel={handle{{ class_name }}UpdateCancel}
+            on{{ class_name }}UpdateFinish={handle{{ class_name }}UpdateFinish}
+            is{{ class_name }}UpdateLoading={is{{ class_name }}UpdateLoading}
+            {{ lowercase_class_name }}UpdateForm={ {{ lowercase_class_name }}UpdateForm}
             {%- if "" != tree_parent_code %}
             treeSelectDataSource={ {{ lowercase_class_name }}PageDataSource }
             {%- endif %}
           />
         </div>
         <div>
-          <{{ class_name }}BatchModifyComponent
-            is{{ class_name }}BatchModifyModalVisible={is{{ class_name }}BatchModifyModalVisible}
-            on{{ class_name }}BatchModifyCancel={handle{{ class_name }}BatchModifyCancel}
-            on{{ class_name }}BatchModifyFinish={handle{{ class_name }}BatchModifyFinish}
-            is{{ class_name }}BatchModifyLoading={is{{ class_name }}BatchModifyLoading}
-            {{ lowercase_class_name }}BatchModifyForm={ {{ lowercase_class_name }}BatchModifyForm}
+          <{{ class_name }}BatchUpdateComponent
+            is{{ class_name }}BatchUpdateModalVisible={is{{ class_name }}BatchUpdateModalVisible}
+            on{{ class_name }}BatchUpdateCancel={handle{{ class_name }}BatchUpdateCancel}
+            on{{ class_name }}BatchUpdateFinish={handle{{ class_name }}BatchUpdateFinish}
+            is{{ class_name }}BatchUpdateLoading={is{{ class_name }}BatchUpdateLoading}
+            {{ lowercase_class_name }}BatchUpdateForm={ {{ lowercase_class_name }}BatchUpdateForm}
             {%- if "" != tree_parent_code %}
             treeSelectDataSource={ {{ lowercase_class_name }}PageDataSource }
             {%- endif %}

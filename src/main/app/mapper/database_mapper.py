@@ -6,13 +6,13 @@ from sqlmodel import select, delete
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.main.app.core.mapper.impl.base_mapper_impl import SqlModelMapper
-from src.main.app.model.db_database_model import DatabaseDO
+from src.main.app.model.db_database_model import DbDatabaseModel
 
 
-class DatabaseMapper(SqlModelMapper[DatabaseDO]):
+class DatabaseMapper(SqlModelMapper[DbDatabaseModel]):
     async def select_by_connection_id(
         self, connection_id: int, db_session: Union[AsyncSession, None] = None
-    ) -> List[DatabaseDO]:
+    ) -> List[DbDatabaseModel]:
         db_session = db_session or self.db.session
         statement = select(self.model).where(
             self.model.connection_id == connection_id
@@ -31,4 +31,4 @@ class DatabaseMapper(SqlModelMapper[DatabaseDO]):
         return exec_result.rowcount
 
 
-databaseMapper = DatabaseMapper(DatabaseDO)
+databaseMapper = DatabaseMapper(DbDatabaseModel)

@@ -13,7 +13,7 @@ from src.main.app.core.config import config_manager
 from src.main.app.mapper.connection_mapper import connectionMapper
 from src.main.app.mapper.database_mapper import databaseMapper
 from src.main.app.model.db_connection_model import ConnectionDO
-from src.main.app.model.db_database_model import DatabaseDO
+from src.main.app.model.db_database_model import DbDatabaseModel
 
 # Global engine cache with thread safety
 _engine_map: Dict[str, AsyncEngine] = {}
@@ -74,7 +74,9 @@ async def get_cached_async_engine(
     with _lock:
         if cache_key in _engine_map:
             return _engine_map[cache_key]
-        database: DatabaseDO = await databaseMapper.select_by_id(id=database_id)
+        database: DbDatabaseModel = await databaseMapper.select_by_id(
+            id=database_id
+        )
         if database is not None:
             connection_id = database.connection_id
         connection: ConnectionDO = await connectionMapper.select_by_id(
@@ -106,9 +108,11 @@ async def clear_engine_cache() -> None:
 
 async def get_engine_by_database_id(*, env: str, database_id: int):
     async with db_session(env=env) as session:
-        statement = select(DatabaseDO).where(DatabaseDO.id == database_id)
+        statement = select(DbDatabaseModel).where(
+            DbDatabaseModel.id == database_id
+        )
         exec_response = await session.exec(statement)
-        database: DatabaseDO = exec_response.one_or_none()
+        database: DbDatabaseModel = exec_response.one_or_none()
         if database is None:
             pass
         statement = select(ConnectionDO).where(
@@ -125,7 +129,9 @@ async def get_engine_by_database_id(*, env: str, database_id: int):
         return engine
 
 
-def get_database_url(database: DatabaseDO, connection: ConnectionDO) -> str:
+def get_database_url(
+    database: DbDatabaseModel, connection: ConnectionDO
+) -> str:
     database_type = connection.database_type
     database_type = database_type.lower()
     if database_type == "sqlite":

@@ -18,7 +18,7 @@ from src.main.app.schema.menu_schema import (
     BatchUpdateMenusRequest,
     BatchUpdateMenusResponse,
     BatchCreateMenusRequest,
-    BatchCreateMenuResponse,
+    BatchCreateMenusResponse,
     ExportMenusRequest,
     ImportMenusResponse,
     BatchGetMenusResponse,
@@ -180,7 +180,7 @@ async def batch_get_menus(
 @menu_router.post("/menus:batchCreate")
 async def batch_create_menus(
     req: BatchCreateMenusRequest,
-) -> BatchCreateMenuResponse:
+) -> BatchCreateMenusResponse:
     """
     Batch create menus.
 
@@ -190,7 +190,7 @@ async def batch_create_menus(
 
     Returns:
 
-        BatchCreateMenuResponse: Response containing the list of created menus.
+        BatchCreateMenusResponse: Response containing the list of created menus.
 
     Raises:
 
@@ -202,7 +202,7 @@ async def batch_create_menus(
     menu_list: list[Menu] = [
         Menu(**menu_record.model_dump()) for menu_record in menu_records
     ]
-    return BatchCreateMenuResponse(menus=menu_list)
+    return BatchCreateMenusResponse(menus=menu_list)
 
 
 @menu_router.post("/menus:batchUpdate")
@@ -259,7 +259,7 @@ async def batch_patch_menus(
     return BatchUpdateMenusResponse(menus=menu_list)
 
 
-@menu_router.post("/menus:batchDelete")
+@menu_router.delete("/menus:batchDelete")
 async def batch_delete_menus(
     req: BatchDeleteMenusRequest,
 ) -> None:

@@ -117,7 +117,7 @@ def create_token(
     Returns:
         Encoded JWT string
     """
-    expire = datetime.now() + (
+    expire = datetime.utcnow() + (
         expires_delta
         or timedelta(minutes=security_config.refresh_token_expire_minutes)
     )
@@ -168,7 +168,7 @@ def validate_token(token: str) -> bool:
     """
     try:
         payload = decode_jwt_token(token)
-        if datetime.fromtimestamp(payload["exp"]) < datetime.now():
+        if datetime.fromtimestamp(payload["exp"]) < datetime.utcnow():
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token has expired",

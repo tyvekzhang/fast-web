@@ -28,7 +28,7 @@ async def export_excel(
             [user_export_df, pd.DataFrame(data_dicts)], ignore_index=True
         )
 
-    filename = f"{file_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
+    filename = f"{file_name}_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.xlsx"
     stream = io.BytesIO()
 
     try:

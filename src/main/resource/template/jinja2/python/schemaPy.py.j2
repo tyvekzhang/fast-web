@@ -1,102 +1,133 @@
-# Copyright (c) 2025 Fast web and/or its affiliates. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-"""{{ ClassName }} schema"""
+{{ license }}
+"""{{ CN }} schema"""
 
-from datetime import datetime
+from fastapi import UploadFile
 from typing import Optional, List
 from pydantic import BaseModel, Field
-from src.main.app.core.schema import BasePage
+from src.main.app.core.schema import PaginationRequest
 
-class {{ ClassName }}Page(BaseModel):
-    """
-    {{ function_name }}分页信息
-    """
-    {%- for field in fields %}
-    {%- if field.gen_field.pageable == 1  %}
-    # {{ field.gen_field.comment }}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
-    {%- endif %}
-    {%- endfor %}
 
-class {{ ClassName }}Query(BasePage):
-    """
-    {{ function_name }}查询参数
-    """
+class List{{ CNs }}Request(PaginationRequest):
     {%- for field in fields %}
     {%- if field.gen_field.queryable == 1  %}
-    # {{ field.gen_field.comment }}
     {{ field.gen_field.field_name }}: Optional[{{ field.gen_field.field_type }}] = None
     {%- endif %}
     {%- endfor %}
-    sort: Optional[str] = None
 
-class {{ ClassName }}Create(BaseModel):
-    """
-    {{ function_name }}新增
-    """
-    {%- for field in fields %}
-    {%- if field.gen_field.creatable == 1  %}
-    # {{ field.gen_field.comment }}
-    {%- if field.gen_field.html_type == "checkbox" %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[List[{{ field.gen_field.field_type }}]] = {{ field.gen_field.default }}{% else %}List[{{ field.gen_field.field_type }}]{% endif %}
-    {%- else %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
-    {%- endif %}
-    {%- endif %}
-    {%- endfor %}
-    # 错误信息
-    err_msg: Optional[str] = Field(None, alias="errMsg")
 
-class {{ ClassName }}Modify(BaseModel):
-    """
-    {{ function_name }}更新
-    """
+class {{ CN }}(BaseModel):
     {%- for field in fields %}
-    {%- if field.gen_field.modifiable == 1  %}
-    # {{ field.gen_field.comment }}
-    {%- if field.gen_field.html_type == "checkbox" %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[List[{{ field.gen_field.field_type }}]] = {{ field.gen_field.default }}{% else %}List[{{ field.gen_field.field_type }}]{% endif %}
-    {%- else %}
+    {%- if field.gen_field.critical == 1  %}
     {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
-    {%- endif %}
     {%- endif %}
     {%- endfor %}
 
-class {{ ClassName }}BatchModify(BaseModel):
-    """
-    {{ function_name }}批量更新
-    """
-    {{ primary_key }}s: List[int]
-    {%- for field in fields %}
-    {%- if field.gen_field.batch_modifiable == 1  %}
-    # {{ field.gen_field.comment }}
-    {%- if field.gen_field.html_type == "checkbox" %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[List[{{ field.gen_field.field_type }}]] = {{ field.gen_field.default }}{% else %}List[{{ field.gen_field.field_type }}]{% endif %}
-    {%- else %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
-    {%- endif %}
-    {%- endif %}
-    {%- endfor %}
 
-class {{ ClassName }}Detail(BaseModel):
-    """
-    {{ function_name }}详情
-    """
+class {{ CN }}Detail(BaseModel):
     {%- for field in fields %}
     {%- if field.gen_field.detailable == 1  %}
-    # {{ field.gen_field.comment }}
     {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
     {%- endif %}
     {%- endfor %}
+
+
+class {{ CN }}Create(BaseModel):
+    {%- for field in fields %}
+    {%- if field.gen_field.creatable == 1  %}
+    {%- if field.gen_field.html_type == "checkbox" %}
+    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[List[{{ field.gen_field.field_type }}]] = {{ field.gen_field.default }}{% else %}List[{{ field.gen_field.field_type }}]{% endif %}
+    {%- else %}
+    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {%- endif %}
+    {%- endif %}
+    {%- endfor %}
+
+
+class Create{{ CN }}Request(BaseModel):
+    {{ c_n }}: Create{{ CN }}
+
+
+class Update{{ CN }}(BaseModel):
+    {%- for field in fields %}
+    {%- if field.gen_field.updatable == 1  %}
+    {%- if field.gen_field.html_type == "checkbox" %}
+    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[List[{{ field.gen_field.field_type }}]] = {{ field.gen_field.default }}{% else %}List[{{ field.gen_field.field_type }}]{% endif %}
+    {%- else %}
+    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {%- endif %}
+    {%- endif %}
+    {%- endfor %}
+
+
+class Update{{ CN }}Request(BaseModel):
+    {{ c_n }}: Update{{ CN }}
+
+
+class BatchGet{{ CNs }}Response(BaseModel):
+    {{ c_ns }}: list[{{ CN }}Detail]
+
+
+class BatchCreate{{ CNs }}Request(BaseModel):
+    {{ c_ns }}: list[Create{ CN }}]
+
+
+class BatchCreate{{ CNs }}Response(BaseModel):
+    {{ c_ns }}: list[{{ CN }}]
+
+
+class BatchUpdate{{ CNs }}(BaseModel):
+    {{ pks }}: List[int]
+    {%- for field in fields %}
+    {%- if field.gen_field.batch_updatable == 1  %}
+    {%- if field.gen_field.html_type == "checkbox" %}
+    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[List[{{ field.gen_field.field_type }}]] = {{ field.gen_field.default }}{% else %}List[{{ field.gen_field.field_type }}]{% endif %}
+    {%- else %}
+    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {%- endif %}
+    {%- endif %}
+    {%- endfor %}
+
+
+class BatchUpdate{{ CNs }}Request(BaseModel):
+    {{ pks }}: list[int]
+    {{ c_n }}: BatchUpdate{{ CN }}
+
+
+class BatchPatch{{ CNs }}Request(BaseModel):
+    {{ c_ns }}: list[Update{{ CN }}]
+
+
+class BatchUpdate{{ CNs }}Response(BaseModel):
+     {{ c_ns }}: list[{{ CN }}]
+
+
+class BatchDelete{{ CNs }}Request(BaseModel):
+    {{ pks }}: list[int]
+
+
+class Export{{ CN }}({{ CN }}):
+    {%- for field in fields %}
+    {%- if field.gen_field.exportable == 1  %}
+    {%- if field.gen_field.html_type == "checkbox" %}
+    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[List[{{ field.gen_field.field_type }}]] = {{ field.gen_field.default }}{% else %}List[{{ field.gen_field.field_type }}]{% endif %}
+    {%- else %}
+    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {%- endif %}
+    {%- endif %}
+    {%- endfor %}
+
+
+class Export{{ CNs }}Request(BaseModel):
+    {{ pks }}: list[int]
+
+
+class Import{{ CNs }}Request(BaseModel):
+    file: UploadFile
+
+
+class Import{{ CN }}(Create{{ CN }}):
+    err_msg: Optional[str] = Field(None, alias="errMsg")
+
+
+class Import{{ CNs }}Response(BaseModel):
+    {{ c_ns }}: list[Import{{ CN }}]

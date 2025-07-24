@@ -27,14 +27,14 @@ class ModelExt(_SQLModel):
 
     create_time: Optional[datetime] = Field(
         sa_type=DateTime,
-        default_factory=datetime.now,
+        default_factory=datetime.utcnow,
         sa_column_kwargs={"comment": "创建时间"},
     )
     update_time: Optional[datetime] = Field(
         sa_type=DateTime,
-        default_factory=datetime.now,
+        default_factory=datetime.utcnow,
         sa_column_kwargs={
-            "onupdate": datetime.now,  # 使用 `datetime.now` 在更新时自动更新时间
+            "onupdate": datetime.utcnow,  # 使用 `datetime.utcnow` 在更新时自动更新时间
             "comment": "更新时间",
         },
     )

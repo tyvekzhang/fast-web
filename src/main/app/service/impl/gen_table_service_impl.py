@@ -6,8 +6,8 @@ from collections import OrderedDict
 from typing import List, Dict
 from sqlalchemy import text
 
-from src.main.app.core.gen.gen_util import GenUtils
-from src.main.app.core.gen.jinja2_util import Jinja2Utils
+from src.main.app.core.utils.gen_util import GenUtils
+from src.main.app.core.utils.jinja2_util import Jinja2Utils
 from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.core.session.db_engine import get_cached_async_engine
 from src.main.app.core.utils.sql_util import SqlUtil

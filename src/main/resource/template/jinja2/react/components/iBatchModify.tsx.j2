@@ -68,32 +68,32 @@ import {
 {%- if components.dict_type %}
 import { useAppSelector } from '@/stores';
 {%- endif %}
-import { {{ class_name }}BatchModify } from '@/types/{{ kebab_case_class_name }}';
+import { {{ class_name }}BatchUpdate } from '@/types/{{ kebab_case_class_name }}';
 import { FormInstance } from 'antd/es/form';
 import React, { useMemo } from 'react';
 
-interface {{ class_name }}BatchModifyProps {
-  is{{ class_name }}BatchModifyModalVisible: boolean;
-  on{{ class_name }}BatchModifyCancel: () => void;
-  on{{ class_name }}BatchModifyFinish: () => void;
-  is{{ class_name }}BatchModifyLoading: boolean;
-  {{ lowercase_class_name }}BatchModifyForm: FormInstance<{{ class_name }}BatchModify>;
+interface {{ class_name }}BatchUpdateProps {
+  is{{ class_name }}BatchUpdateModalVisible: boolean;
+  on{{ class_name }}BatchUpdateCancel: () => void;
+  on{{ class_name }}BatchUpdateFinish: () => void;
+  is{{ class_name }}BatchUpdateLoading: boolean;
+  {{ lowercase_class_name }}BatchUpdateForm: FormInstance<{{ class_name }}BatchUpdate>;
 {%- if components.treeselect %}
   treeSelectDataSource?: {{ class_name }}Page[];
 {%- endif %}
 }
 
-const {{ lowercase_class_name }}BatchModifyFormItemLayout = {
+const {{ lowercase_class_name }}BatchUpdateFormItemLayout = {
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
 };
 
-const {{ class_name }}BatchModifyComponent: React.FC<{{ class_name }}BatchModifyProps> = ({
-  is{{ class_name }}BatchModifyModalVisible,
-  on{{ class_name }}BatchModifyCancel,
-  on{{ class_name }}BatchModifyFinish,
-  is{{ class_name }}BatchModifyLoading,
-  {{ lowercase_class_name }}BatchModifyForm,
+const {{ class_name }}BatchUpdateComponent: React.FC<{{ class_name }}BatchUpdateProps> = ({
+  is{{ class_name }}BatchUpdateModalVisible,
+  on{{ class_name }}BatchUpdateCancel,
+  on{{ class_name }}BatchUpdateFinish,
+  is{{ class_name }}BatchUpdateLoading,
+  {{ lowercase_class_name }}BatchUpdateForm,
 {%- if components.treeselect %}
   treeSelectDataSource,
 {%- endif %}
@@ -104,14 +104,14 @@ const {{ class_name }}BatchModifyComponent: React.FC<{{ class_name }}BatchModify
 {%- endif %}
   const footerButtons = useMemo(
     () => [
-      <Button key="cancel" onClick={on{{ class_name }}BatchModifyCancel}>
+      <Button key="cancel" onClick={on{{ class_name }}BatchUpdateCancel}>
         取消
       </Button>,
-      <Button key="submit" type="primary" loading={is{{ class_name }}BatchModifyLoading} onClick={on{{ class_name }}BatchModifyFinish}>
+      <Button key="submit" type="primary" loading={is{{ class_name }}BatchUpdateLoading} onClick={on{{ class_name }}BatchUpdateFinish}>
         确定
       </Button>,
     ],
-    [is{{ class_name }}BatchModifyLoading, on{{ class_name }}BatchModifyCancel],
+    [is{{ class_name }}BatchUpdateLoading, on{{ class_name }}BatchUpdateCancel],
   );
 {%- if "" != components.dict_type %}
   const { dictData } = useAppSelector((state: Record<string, any>) => state.dict);
@@ -120,22 +120,22 @@ const {{ class_name }}BatchModifyComponent: React.FC<{{ class_name }}BatchModify
   return (
     <Modal
       title="{{ function_name }}编辑"
-      open={is{{ class_name }}BatchModifyModalVisible}
-      onCancel={on{{ class_name }}BatchModifyCancel}
+      open={is{{ class_name }}BatchUpdateModalVisible}
+      onCancel={on{{ class_name }}BatchUpdateCancel}
       footer={footerButtons}
       destroyOnClose
       width={"60%"}
     >
         <Form
-          {...{{ lowercase_class_name }}BatchModifyFormItemLayout}
-          form={ {{ lowercase_class_name }}BatchModifyForm}
-          name="{{ lowercase_class_name }}BatchModify"
-          onFinish={on{{ class_name }}BatchModifyFinish}
+          {...{{ lowercase_class_name }}BatchUpdateFormItemLayout}
+          form={ {{ lowercase_class_name }}BatchUpdateForm}
+          name="{{ lowercase_class_name }}BatchUpdate"
+          onFinish={on{{ class_name }}BatchUpdateFinish}
           className="grid grid-cols-1 lg:grid-cols-2 gap-y-0 gap-x-2 pt-4"
         >
           {%- for field in fields %}
           {%- set comment = "" %}
-          {%- if field.gen_field.modifiable == 1 and field.gen_field.field_name != primary_key %}
+          {%- if field.gen_field.updatable == 1 and field.gen_field.field_name != primary_key %}
           {%- if field.field.comment and field.field.comment != "" %}
               {%- set parentheseIndex_en = field.field.comment.find("(") %}
               {%- set parentheseIndex_cn = field.field.comment.find("（") %}
@@ -223,4 +223,4 @@ const {{ class_name }}BatchModifyComponent: React.FC<{{ class_name }}BatchModify
   );
 };
 
-export default {{ class_name }}BatchModifyComponent;
+export default {{ class_name }}BatchUpdateComponent;

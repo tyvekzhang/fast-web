@@ -59,14 +59,14 @@ class UserBase(SQLModel):
     )
     create_time: Optional[datetime] = Field(
         sa_type=DateTime,
-        default_factory=datetime.now,
+        default_factory=datetime.utcnow,
         sa_column_kwargs={"comment": "创建时间"},
     )
     update_time: Optional[datetime] = Field(
         sa_type=DateTime,
-        default_factory=datetime.now,
+        default_factory=datetime.utcnow,
         sa_column_kwargs={
-            "onupdate": datetime.now,
+            "onupdate": datetime.utcnow,
             "comment": "更新时间",
         },
     )

@@ -165,7 +165,7 @@ class BatchCreateMenusRequest(BaseModel):
     menus: list[CreateMenu]
 
 
-class BatchCreateMenuResponse(BaseModel):
+class BatchCreateMenusResponse(BaseModel):
     menus: list[Menu]
 
 

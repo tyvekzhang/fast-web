@@ -2,9 +2,28 @@ import json
 from datetime import datetime
 from typing import List
 
+from src.main.app.core.constant import constant
 from src.main.app.core.gen.gen_constants import GenConstants
+from src.main.app.core.utils.converter_util import ClassNameConverter
 from src.main.app.model.db_index_model import IndexDO
 from src.main.app.schema.gen_table_schema import TableGen
+
+APACHE_V2 = """
+# Copyright (c) 2025 {} and/or its affiliates. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+"""
 
 
 class Jinja2Utils:
@@ -18,51 +37,56 @@ class Jinja2Utils:
         """
         设置模板变量信息
         """
+        converter = ClassNameConverter()
         gen_table = table_gen.gen_table
 
-        comment = gen_table.comment
         package_name = gen_table.package_name
+        module_name = gen_table.module_name
         import_list = Jinja2Utils.get_import_list(table_gen)
         function_name = gen_table.function_name
         table_name = gen_table.table_name
-        author = gen_table.function_author
-        date_time = datetime.now().strftime("%Y-%m-%d")
-        class_name = Jinja2Utils.capitalize(gen_table.class_name)
-        c_n = Jinja2Utils.to_snake_case(class_name)
-        lowercase_class_name = Jinja2Utils.uncapitalize(class_name)
+        author = converter.convert(gen_table.function_author, "pascal")
+        license = APACHE_V2.format(author).strip()
+        date_time = datetime.utcnow().strftime("%Y-%m-%d")
+
+        raw_class_name = converter.to_singular(table_name)
+
+        className = converter.convert(raw_class_name, "camel")  # noqa
+        ClassName = converter.convert(raw_class_name, "pascal")  # noqa
+        class_name = converter.convert(raw_class_name, "snake")
+        class_names = converter.to_plural(raw_class_name)
+        classNames = converter.convert(class_names, "camel")  # noqa
+        ClassNames = converter.convert(class_names, "pascal")  # noqa
+
         primary_key = table_gen.pk_field
-        router_name = Jinja2Utils.to_kebab_case(class_name)
-        kebab_case_class_name = router_name
+
+        primary_keys = converter.to_plural(primary_key)  # noqa
         fields = table_gen.fields
         for field in fields:
             pass
-        module_name = gen_table.module_name
         business_name = gen_table.business_name
-
         tpl_category = gen_table.tpl_category
 
         context = {
-            "comment": comment,
+            "license": license,
             "package_name": package_name,
             "import_list": import_list,
             "function_name": function_name,
-            "table_name": table_name,
             "author": author,
             "datetime": date_time,
-            "class_name": class_name,
-            "c_n": c_n,
-            "ClassName": class_name,
-            "ClassNames": pluralize(class_name),
-            "lowercase_class_name": lowercase_class_name,
-            "className": lowercase_class_name,
-            "primary_key": primary_key,
-            "router_name": router_name,
-            "kebab_case_class_name": kebab_case_class_name,
-            "cn": kebab_case_class_name,
+            "table_name": table_name,
+            "cN": className,
+            "CN": ClassName,
+            "c_n": class_name,
+            "c_ns": class_names,
+            "cNs": classNames,
+            "CNs": ClassNames,
+            "pk": primary_key,
+            "pks": primary_keys,
             "fields": fields,
             "index_metadata": index_metadata,
             "business_name": business_name,
-            "tree_parent_code": "parent_id",
+            "tree_parent_code": constant.PARENT_ID,
             # "tpl_category": tpl_category,
             # "module_name": module_name,
             # "business_name": Jinja2Utils.capitalize(business_name),

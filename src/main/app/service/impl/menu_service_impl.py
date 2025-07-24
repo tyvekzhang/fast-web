@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import io
 import json
-from datetime import datetime
 from typing import Type, Any
 
 import pandas as pd
@@ -183,7 +182,7 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
                 f"{BusinessErrorCode.MENU_NAME_EXISTS.message}: {str(exist_menu_names)}",
             )
         data_list = [MenuModel(**menu.model_dump()) for menu in menu_list]
-        await self.batch_save(data=data_list)
+        await self.mapper.batch_insert(data_list=data_list)
         return data_list
 
     async def batch_update_menus(
@@ -213,11 +212,10 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
 
     async def batch_delete_menus(self, req: BatchDeleteMenusRequest):
         ids: list[int] = req.ids
-        await self.delete_by_ids(ids=ids)
+        await self.mapper.batch_delete_by_ids(ids=ids)
 
     async def export_menus_template(self) -> StreamingResponse:
-        timestamp = datetime.now().strftime("%Y%m%d%H%M")
-        file_name = f"menu_import_tpl_{timestamp}"
+        file_name = "menu_import_tpl"
         return await excel_util.export_excel(
             schema=CreateMenu, file_name=file_name
         )

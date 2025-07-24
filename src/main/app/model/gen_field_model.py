@@ -61,16 +61,16 @@ class GenFieldBase(SQLModel):
     queryable: Optional[int] = Field(
         default=0, sa_column=Column(SmallInteger, comment="查询字段(0否,1是)")
     )
-    pageable: Optional[int] = Field(
+    critical: Optional[int] = Field(
         default=0, sa_column=Column(SmallInteger, comment="列表字段(0否,1是)")
     )
     detailable: Optional[int] = Field(
         default=0, sa_column=Column(SmallInteger, comment="详情字段(0否,1是)")
     )
-    modifiable: Optional[int] = Field(
+    updatable: Optional[int] = Field(
         default=0, sa_column=Column(SmallInteger, comment="修改字段(0否,1是)")
     )
-    batch_modifiable: Optional[int] = Field(
+    batch_updatable: Optional[int] = Field(
         default=0, sa_column=Column(SmallInteger, comment="批量修改(0否,1是)")
     )
     query_type: Optional[str] = Field(

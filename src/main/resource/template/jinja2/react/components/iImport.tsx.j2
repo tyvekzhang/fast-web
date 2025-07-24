@@ -65,7 +65,7 @@ const {{ class_name }}ImportComponent: React.FC<{{ class_name }}ImportProps> = (
     },
     {%- for field in fields %}
     {%- set comment = "" %}
-    {%- if field.gen_field.pageable == 1 and field.gen_field.field_name != primary_key %}
+    {%- if field.gen_field.critical == 1 and field.gen_field.field_name != primary_key %}
     {%- if field.field.comment and field.field.comment != "" %}
       {%- set parentheseIndex_en = field.field.comment.find("(") %}
       {%- set parentheseIndex_cn = field.field.comment.find("（") %}

@@ -9,7 +9,7 @@ from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.core.session.db_engine import get_cached_async_engine
 from src.main.app.mapper.connection_mapper import connectionMapper
 from src.main.app.mapper.database_mapper import DatabaseMapper
-from src.main.app.model.db_database_model import DatabaseDO
+from src.main.app.model.db_database_model import DbDatabaseModel
 from src.main.app.schema.database_schema import (
     DB_CREATE_TEMPLATES,
     DatabaseQuery,
@@ -20,7 +20,7 @@ from src.main.app.service.database_service import DatabaseService
 
 
 class DatabaseServiceImpl(
-    BaseServiceImpl[DatabaseMapper, DatabaseDO], DatabaseService
+    BaseServiceImpl[DatabaseMapper, DbDatabaseModel], DatabaseService
 ):
     """
     Implementation of the DatabaseService interface.
@@ -36,7 +36,7 @@ class DatabaseServiceImpl(
         super().__init__(mapper=mapper)
         self.mapper = mapper
 
-    async def add(self, *, data: DatabaseDO) -> DatabaseDO:
+    async def add(self, *, data: DbDatabaseModel) -> DbDatabaseModel:
         engine = await get_cached_async_engine(connection_id=data.connection_id)
         database = await self.mapper.insert(data=data)
         async with engine.connect() as conn:
@@ -144,7 +144,9 @@ class DatabaseServiceImpl(
                 )
         new_add_databases = []
         need_delete_ids = []
-        records: List[DatabaseDO] = await self.mapper.select_by_connection_id(
+        records: List[
+            DbDatabaseModel
+        ] = await self.mapper.select_by_connection_id(
             connection_id=connection_id
         )
         exist_database_names = set()
@@ -155,7 +157,7 @@ class DatabaseServiceImpl(
         for record in database_records:
             if record.database_name not in exist_database_names:
                 new_add_databases.append(
-                    DatabaseDO(
+                    DbDatabaseModel(
                         **DatabaseAdd(
                             connection_id=connection_id,
                             database_name=record.database_name,

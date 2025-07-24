@@ -132,19 +132,19 @@ class GenUtils:
         if not GenUtils.arrays_contains(
             GenConstants.COLUMNNAME_NOT_MODIFY, field_name
         ):
-            gen_field.modifiable = GenConstants.REQUIRE
+            gen_field.updatable = GenConstants.REQUIRE
 
         # BatchModify field
         if not GenUtils.arrays_contains(
             GenConstants.COLUMNNAME_NOT_BATCH_MODIFY, field_name
         ):
-            gen_field.batch_modifiable = GenConstants.REQUIRE
+            gen_field.batch_updatable = GenConstants.REQUIRE
 
         # Page field
         if not GenUtils.arrays_contains(
             GenConstants.COLUMNNAME_NOT_PAGE, field_name
         ):
-            gen_field.pageable = GenConstants.REQUIRE
+            gen_field.critical = GenConstants.REQUIRE
 
         # Detail field
         if (
