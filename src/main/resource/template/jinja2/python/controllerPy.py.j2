@@ -1,66 +1,66 @@
 {{ license }}
 """{{ ClassName }} REST Controller"""
-
+from __future__ import annotations
 from typing import Annotated
 
 from fastapi import APIRouter, Query, Form
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.schema import PageResult
-from src.main.app.mapper.menu_mapper import menuMapper
-from src.main.app.model.menu_model import MenuModel
-from src.main.app.schema.menu_schema import (
-    ListMenusRequest,
-    Menu,
-    CreateMenuRequest,
-    MenuDetail,
-    UpdateMenuRequest,
-    BatchDeleteMenusRequest,
-    BatchUpdateMenusRequest,
-    BatchUpdateMenusResponse,
-    BatchCreateMenusRequest,
-    BatchCreateMenusResponse,
-    ExportMenusRequest,
-    ImportMenusResponse,
-    BatchGetMenusResponse,
-    ImportMenusRequest,
-    ImportMenu, BatchPatchMenusRequest,
+from src.main.app.mapper.{{ c_n }}_mapper import {{ c_n }}Mapper
+from src.main.app.model.{{ c_n }}_model import {{ CN }}Model
+from src.main.app.schema.{{ c_n }}_schema import (
+    List{{ CNs }}Request,
+    {{ CN }},
+    Create{{ CN }}Request,
+    {{ CN }}Detail,
+    Update{{ CN }}Request,
+    BatchDelete{{ CNs }}Request,
+    BatchUpdate{{ CNs }}Request,
+    BatchUpdate{{ CNs }}Response,
+    BatchCreate{{ CNs }}Request,
+    BatchCreate{{ CNs }}Response,
+    Export{{ CNs }}Request,
+    Import{{ CNs }}Response,
+    BatchGet{{ CNs }}Response,
+    Import{{ CNs }}Request,
+    Import{{ CN }}, BatchPatch{{ CNs }}Request,
 )
-from src.main.app.service.impl.menu_service_impl import MenuServiceImpl
-from src.main.app.service.menu_service import MenuService
+from src.main.app.service.impl.{{ c_n }}_service_impl import {{ CN }}ServiceImpl
+from src.main.app.service.{{ c_n }}_service import {{ CN }}Service
 
-menu_router = APIRouter()
-menu_service: MenuService = MenuServiceImpl(mapper=menuMapper)
+{{ c_n }}_router = APIRouter()
+{{ c_n }}_service: {{ CN }}Service = {{ CN }}ServiceImpl(mapper={{ c_n }}Mapper)
 
 
-@menu_router.get("/menus/{id}")
-async def get_menu(id: int) -> MenuDetail:
+@{{ c_n }}_router.get("/{{ c_ns }}/{id}")
+async def get_{{ c_n }}(id: int) -> {{ CN }}Detail:
     """
-    Retrieve menu details.
+    Retrieve {{ c_n }} details.
 
     Args:
 
-        id: Unique ID of the menu resource.
+        id: Unique ID of the {{ c_n }} resource.
 
     Returns:
 
-        MenuDetail: The menu object containing all its details.
+        {{ CN }}Detail: The {{ c_n }} object containing all its details.
 
     Raises:
 
         HTTPException(403 Forbidden): If the current user does not have permission.
-        HTTPException(404 Not Found): If the requested menu does not exist.
+        HTTPException(404 Not Found): If the requested {{ c_n }} does not exist.
     """
-    menu_record: MenuModel = await menu_service.get_menu(id=id)
-    return MenuDetail(**menu_record.model_dump())
+    {{ c_n }}_record: {{ CN }}Model = await {{ c_n }}_service.get_{{ c_n }}(id=id)
+    return {{ CN }}Detail(**{{ c_n }}_record.model_dump())
 
 
-@menu_router.get("/menus")
-async def list_menus(
-    req: Annotated[ListMenusRequest, Query()],
-) -> PageResult[Menu]:
+@{{ c_n }}_router.get("/{{ c_ns }}")
+async def list_{{ c_ns }}(
+    req: Annotated[List{{ CNs }}Request, Query()],
+) -> PageResult[{{ CN }}]:
     """
-    List menus with pagination.
+    List {{ c_ns }} with pagination.
 
     Args:
 
@@ -68,214 +68,214 @@ async def list_menus(
 
     Returns:
 
-        PageResult: Paginated list of menus and total count.
+        PageResult: Paginated list of {{ c_ns }} and total count.
 
     Raises:
 
         HTTPException(403 Forbidden): If user don't have access rights.
     """
-    menu_records, total = await menu_service.list_menus(req=req)
-    menu_records_with_children: list[
-        Menu
-    ] = await menu_service.get_children_recursively(
-        parent_data=menu_records, schema_class=Menu
+    {{ c_n }}_records, total = await {{ c_n }}_service.list_{{ c_ns }}(req=req)
+    {{ c_n }}_records_with_children: list[
+        {{ CN }}
+    ] = await {{ c_n }}_service.get_children_recursively(
+        parent_data={{ c_n }}_records, schema_class={{ CN }}
     )
-    return PageResult(records=menu_records_with_children, total=total)
+    return PageResult(records={{ c_n }}_records_with_children, total=total)
 
 
-@menu_router.post("/menus")
-async def creat_menu(
-    req: CreateMenuRequest,
-) -> Menu:
+@{{ c_n }}_router.post("/{{ c_ns }}")
+async def creat_{{ c_n }}(
+    req: Create{{ CN }}Request,
+) -> {{ CN }}:
     """
-    Create a new menu.
+    Create a new {{ c_n }}.
 
     Args:
 
-        req: Request object containing menu creation data.
+        req: Request object containing {{ c_n }} creation data.
 
     Returns:
 
-         Menu: The menu object.
+         {{ CN }}: The {{ c_n }} object.
 
     Raises:
 
         HTTPException(403 Forbidden): If the current user don't have access rights.
         HTTPException(409 Conflict): If the creation data already exists.
     """
-    menu: MenuModel = await menu_service.create_menu(req=req)
-    return Menu(**menu.model_dump())
+    {{ c_n }}: {{ CN }}Model = await {{ c_n }}_service.create_{{ c_n }}(req=req)
+    return {{ CN }}(**{{ c_n }}.model_dump())
 
 
-@menu_router.put("/menus")
-async def update_menu(
-    req: UpdateMenuRequest,
-) -> Menu:
+@{{ c_n }}_router.put("/{{ c_ns }}")
+async def update_{{ c_n }}(
+    req: Update{{ CN }}Request,
+) -> {{ CN }}:
     """
-    Update an existing menu.
+    Update an existing {{ c_n }}.
 
     Args:
 
-        req: Request object containing menu update data.
+        req: Request object containing {{ c_n }} update data.
 
     Returns:
 
-        Menu: The updated menu object.
+        {{ CN }}: The updated {{ c_n }} object.
 
     Raises:
 
         HTTPException(403 Forbidden): If the current user doesn't have update permissions.
-        HTTPException(404 Not Found): If the menu to update doesn't exist.
+        HTTPException(404 Not Found): If the {{ c_n }} to update doesn't exist.
     """
-    menu: MenuModel = await menu_service.update_menu(req=req)
-    return Menu(**menu.model_dump())
+    {{ c_n }}: {{ CN }}Model = await {{ c_n }}_service.update_{{ c_n }}(req=req)
+    return {{ CN }}(**{{ c_n }}.model_dump())
 
 
-@menu_router.delete("/menus/{id}")
-async def delete_menu(
+@{{ c_n }}_router.delete("/{{ c_ns }}/{id}")
+async def delete_{{ c_n }}(
     id: int,
 ) -> None:
     """
-    Delete menu by ID.
+    Delete {{ c_n }} by ID.
 
     Args:
 
-        id: The ID of the menu to delete.
+        id: The ID of the {{ c_n }} to delete.
 
     Raises:
 
         HTTPException(403 Forbidden): If the current user doesn't have access permissions.
-        HTTPException(404 Not Found): If the menu with given ID doesn't exist.
+        HTTPException(404 Not Found): If the {{ c_n }} with given ID doesn't exist.
     """
-    await menu_service.delete_menu(id=id)
+    await {{ c_n }}_service.delete_{{ c_n }}(id=id)
 
 
-@menu_router.get("/menus:batchGet")
-async def batch_get_menus(
-    ids: list[int] = Query(..., description="List of menu IDs to retrieve"),
-) -> BatchGetMenusResponse:
+@{{ c_n }}_router.get("/{{ c_ns }}:batchGet")
+async def batch_get_{{ c_ns }}(
+    ids: list[int] = Query(..., description="List of {{ c_n }} IDs to retrieve"),
+) -> BatchGet{{ CNs }}Response:
     """
-    Retrieves multiple menus by their IDs.
+    Retrieves multiple {{ c_ns }} by their IDs.
 
     Args:
 
-        ids (list[int]): A list of menu resource IDs.
+        ids (list[int]): A list of {{ c_n }} resource IDs.
 
     Returns:
 
-        list[MenuDetail]: A list of menu objects matching the provided IDs.
+        list[{{ CN }}Detail]: A list of {{ c_n }} objects matching the provided IDs.
 
     Raises:
 
         HTTPException(403 Forbidden): If the current user does not have access rights.
-        HTTPException(404 Not Found): If one of the requested menus does not exist.
+        HTTPException(404 Not Found): If one of the requested {{ c_ns }} does not exist.
     """
-    menu_records: list[MenuModel] = await menu_service.batch_get_menus(ids)
-    menu_detail_list: list[MenuDetail] = [
-        MenuDetail(**menu_record.model_dump()) for menu_record in menu_records
+    {{ c_n }}_records: list[{{ CN }}Model] = await {{ c_n }}_service.batch_get_{{ c_ns }}(ids)
+    {{ c_n }}_detail_list: list[{{ CN }}Detail] = [
+        {{ CN }}Detail(**{{ c_n }}_record.model_dump()) for {{ c_n }}_record in {{ c_n }}_records
     ]
-    return BatchGetMenusResponse(menus=menu_detail_list)
+    return BatchGet{{ CNs }}Response({{ c_ns }}={{ c_n }}_detail_list)
 
 
-@menu_router.post("/menus:batchCreate")
-async def batch_create_menus(
-    req: BatchCreateMenusRequest,
-) -> BatchCreateMenusResponse:
+@{{ c_n }}_router.post("/{{ c_ns }}:batchCreate")
+async def batch_create_{{ c_ns }}(
+    req: BatchCreate{{ CNs }}Request,
+) -> BatchCreate{{ CNs }}Response:
     """
-    Batch create menus.
+    Batch create {{ c_ns }}.
 
     Args:
 
-        req (BatchCreateMenusRequest): Request body containing a list of menu creation items.
+        req (BatchCreate{{ CNs }}Request): Request body containing a list of {{ c_n }} creation items.
 
     Returns:
 
-        BatchCreateMenusResponse: Response containing the list of created menus.
+        BatchCreate{{ CNs }}Response: Response containing the list of created {{ c_ns }}.
 
     Raises:
 
         HTTPException(403 Forbidden): If the current user lacks access rights.
-        HTTPException(409 Conflict): If any menu creation data already exists.
+        HTTPException(409 Conflict): If any {{ c_n }} creation data already exists.
     """
 
-    menu_records = await menu_service.batch_create_menus(req=req)
-    menu_list: list[Menu] = [
-        Menu(**menu_record.model_dump()) for menu_record in menu_records
+    {{ c_n }}_records = await {{ c_n }}_service.batch_create_{{ c_ns }}(req=req)
+    {{ c_n }}_list: list[{{ CN }}] = [
+        {{ CN }}(**{{ c_n }}_record.model_dump()) for {{ c_n }}_record in {{ c_n }}_records
     ]
-    return BatchCreateMenusResponse(menus=menu_list)
+    return BatchCreate{{ CNs }}Response({{ c_ns }}={{ c_n }}_list)
 
 
-@menu_router.post("/menus:batchUpdate")
-async def batch_update_menus(
-    req: BatchUpdateMenusRequest,
-) -> BatchUpdateMenusResponse:
+@{{ c_n }}_router.post("/{{ c_ns }}:batchUpdate")
+async def batch_update_{{ c_ns }}(
+    req: BatchUpdate{{ CNs }}Request,
+) -> BatchUpdate{{ CNs }}Response:
     """
-    Batch update multiple menus with the same changes.
+    Batch update multiple {{ c_ns }} with the same changes.
 
     Args:
 
-        req (BatchUpdateMenusRequest): The batch update request data with ids.
+        req (BatchUpdate{{ CNs }}Request): The batch update request data with ids.
 
     Returns:
 
-        BatchUpdateBooksResponse: Contains the list of updated menus.
+        BatchUpdateBooksResponse: Contains the list of updated {{ c_ns }}.
 
     Raises:
 
-        HTTPException 403 (Forbidden): If user lacks permission to modify menus
-        HTTPException 404 (Not Found): If any specified menu ID doesn't exist
+        HTTPException 403 (Forbidden): If user lacks permission to modify {{ c_ns }}
+        HTTPException 404 (Not Found): If any specified {{ c_n }} ID doesn't exist
     """
-    menu_records: list[MenuModel] = await menu_service.batch_update_menus(req=req)
-    menu_list: list[Menu] = [Menu(**menu.model_dump()) for menu in menu_records]
-    return BatchUpdateMenusResponse(menus=menu_list)
+    {{ c_n }}_records: list[{{ CN }}Model] = await {{ c_n }}_service.batch_update_{{ c_ns }}(req=req)
+    {{ c_n }}_list: list[{{ CN }}] = [{{ CN }}(**{{ c_n }}.model_dump()) for {{ c_n }} in {{ c_n }}_records]
+    return BatchUpdate{{ CNs }}Response({{ c_ns }}={{ c_n }}_list)
 
 
-@menu_router.post("/menus:batchPatch")
-async def batch_patch_menus(
-    req: BatchPatchMenusRequest,
-) -> BatchUpdateMenusResponse:
+@{{ c_n }}_router.post("/{{ c_ns }}:batchPatch")
+async def batch_patch_{{ c_ns }}(
+    req: BatchPatch{{ CNs }}Request,
+) -> BatchUpdate{{ CNs }}Response:
     """
-    Batch update multiple menus with individual changes.
+    Batch update multiple {{ c_ns }} with individual changes.
 
     Args:
 
-        req (BatchPatchMenusRequest): The batch patch request data.
+        req (BatchPatch{{ CNs }}Request): The batch patch request data.
 
     Returns:
 
-        BatchUpdateBooksResponse: Contains the list of updated menus.
+        BatchUpdateBooksResponse: Contains the list of updated {{ c_ns }}.
 
     Raises:
 
-        HTTPException 403 (Forbidden): If user lacks permission to modify menus
-        HTTPException 404 (Not Found): If any specified menu ID doesn't exist
+        HTTPException 403 (Forbidden): If user lacks permission to modify {{ c_ns }}
+        HTTPException 404 (Not Found): If any specified {{ c_n }} ID doesn't exist
     """
-    menu_records: list[MenuModel] = await menu_service.batch_patch_menus(req=req)
-    menu_list: list[Menu] = [Menu(**menu.model_dump()) for menu in menu_records]
-    return BatchUpdateMenusResponse(menus=menu_list)
+    {{ c_n }}_records: list[{{ CN }}Model] = await {{ c_n }}_service.batch_patch_{{ c_ns }}(req=req)
+    {{ c_n }}_list: list[{{ CN }}] = [{{ CN }}(**{{ c_n }}.model_dump()) for {{ c_n }} in {{ c_n }}_records]
+    return BatchUpdate{{ CNs }}Response({{ c_ns }}={{ c_n }}_list)
 
 
-@menu_router.post("/menus:batchDelete")
-async def batch_delete_menus(
-    req: BatchDeleteMenusRequest,
+@{{ c_n }}_router.post("/{{ c_ns }}:batchDelete")
+async def batch_delete_{{ c_ns }}(
+    req: BatchDelete{{ CNs }}Request,
 ) -> None:
     """
-    Batch delete menus.
+    Batch delete {{ c_ns }}.
 
     Args:
-        req (BatchDeleteMenusRequest): Request object containing delete info.
+        req (BatchDelete{{ CNs }}Request): Request object containing delete info.
 
     Raises:
-        HTTPException(404 Not Found): If any of the menus do not exist.
+        HTTPException(404 Not Found): If any of the {{ c_ns }} do not exist.
         HTTPException(403 Forbidden): If user don't have access rights.
     """
-    await menu_service.batch_delete_menus(req=req)
+    await {{ c_n }}_service.batch_delete_{{ c_ns }}(req=req)
 
 
-@menu_router.get("/menus:exportTemplate")
-async def export_menus_template() -> StreamingResponse:
+@{{ c_n }}_router.get("/{{ c_ns }}:exportTemplate")
+async def export_{{ c_ns }}_template() -> StreamingResponse:
     """
-    Export the Excel template for menu import.
+    Export the Excel template for {{ c_n }} import.
 
     Returns:
         StreamingResponse: An Excel file stream containing the import template.
@@ -284,49 +284,49 @@ async def export_menus_template() -> StreamingResponse:
         HTTPException(403 Forbidden): If user don't have access rights.
     """
 
-    return await menu_service.export_menus_template()
+    return await {{ c_n }}_service.export_{{ c_ns }}_template()
 
 
-@menu_router.get("/menus:export")
-async def export_menus(
-    req: ExportMenusRequest = Query(...),
+@{{ c_n }}_router.get("/{{ c_ns }}:export")
+async def export_{{ c_ns }}(
+    req: Export{{ CNs }}Request = Query(...),
 ) -> StreamingResponse:
     """
-    Export menu data based on the provided menu IDs.
+    Export {{ c_n }} data based on the provided {{ c_n }} IDs.
 
     Args:
-        req (ExportMenusRequest): Query parameters specifying the menus to export.
+        req (Export{{ CNs }}Request): Query parameters specifying the {{ c_ns }} to export.
 
     Returns:
         StreamingResponse: A streaming response containing the generated Excel file.
 
     Raises:
         HTTPException(403 Forbidden): If the current user lacks access rights.
-        HTTPException(404 Not Found ): If no matching menus are found.
+        HTTPException(404 Not Found ): If no matching {{ c_ns }} are found.
     """
-    return await menu_service.export_menus(
+    return await {{ c_n }}_service.export_{{ c_ns }}(
         req=req,
     )
 
-@menu_router.post("/menus:import")
-async def import_menus(
-    req: ImportMenusRequest = Form(...),
-) -> ImportMenusResponse:
+@{{ c_n }}_router.post("/{{ c_ns }}:import")
+async def import_{{ c_ns }}(
+    req: Import{{ CNs }}Request = Form(...),
+) -> Import{{ CNs }}Response:
     """
-    Import menus from an uploaded Excel file.
+    Import {{ c_ns }} from an uploaded Excel file.
 
     Args:
-        req (UploadFile): The Excel file containing menu data to import.
+        req (UploadFile): The Excel file containing {{ c_n }} data to import.
 
     Returns:
-        ImportMenusResponse: List of successfully parsed menu data.
+        Import{{ CNs }}Response: List of successfully parsed {{ c_n }} data.
 
     Raises:
         HTTPException(400 Bad Request): If the uploaded file is invalid or cannot be parsed.
         HTTPException(403 Forbidden): If the current user lacks access rights.
     """
 
-    import_menus_resp: list[ImportMenu] = await menu_service.import_menus(
+    import_{{ c_ns }}_resp: list[Import{{ CN }}] = await {{ c_n }}_service.import_{{ c_ns }}(
         req=req
     )
-    return ImportMenusResponse(menus=import_menus_resp)
+    return Import{{ CNs }}Response({{ c_ns }}=import_{{ c_ns }}_resp)

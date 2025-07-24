@@ -1,0 +1,133 @@
+import httpClient from '@/lib/http';
+import { downloadBlob } from '@/service/util';
+import { PageResult } from '@/types';
+import {
+  BatchCreate{{ CNs }}Request,
+  BatchDelete{{ CNs }}Request,
+  BatchUpdate{{ CNs }}Request,
+  BatchUpdate{{ CNs }}Response,
+  Create{{ CN }}Request,
+  Export{{ CNs }}Request,
+  Import{{ CNs }}Request,
+  Import{{ CNs }}Response,
+  List{{ CNs }}Request,
+  {{ CN }},
+  {{ CN }}Detail,
+  Update{{ CN }}Request,
+} from '@/types/{{ cN }}';
+import { AxiosResponse } from 'axios';
+
+/**
+ * Retrieve {{ cN }} details.
+ *
+ * @param Unique ID of the {{ cN }} resource.
+ * @returns The {{ cN }} object containing all its details.
+ */
+export function get{{ CN }}(id: string) {
+  return httpClient.get<{{ CN }}Detail>(`/{{ cNs }}/${id}`);
+}
+/**
+ * List {{ cNs }} with pagination.
+ *
+ * @param req Request object containing pagination, filter and sort parameters.
+ * @returns Paginated list of {{ cNs }} and total count.
+ */
+export function list{{ CNs }}(req: Partial<List{{ CNs }}Request>) {
+  return httpClient.get<PageResult<{{ CN }}>>('/{{ cNs }}', req);
+}
+/**
+ * Create a new {{ cN }}.
+ *
+ * @param req Request object containing {{ cN }} creation data.
+ * @returns The {{ cN }} object.
+ */
+export function create{{ CN }}(req: Create{{ CN }}Request) {
+  return httpClient.post<number>('/{{ cNs }}', req);
+}
+/**
+ * Update an existing {{ cN }}.
+ *
+ * @param req Request object containing {{ cN }} update data.
+ */
+export function update{{ CN }}(req: Update{{ CN }}Request) {
+  return httpClient.put<{{ CN }}>('/{{ cNs }}', req);
+}
+/**
+ * Delete {{ cN }} by ID
+ *
+ * @param id The ID of the {{ cN }} to delete.
+ */
+export function delete{{ CN }}(id: string) {
+  return httpClient.delete<void>(`/{{ cNs }}/${id}`);
+}
+/**
+ *  Batch create {{ cNs }}.
+ *
+ * @param req Request body containing a list of {{ cN }} creation items.
+ * @returns Response containing the list of created {{ cNs }}.
+ */
+export function batchCreate{{ CNs }}(req: BatchCreate{{ CNs }}Request) {
+  return httpClient.post<number[]>('/{{ cNs }}:batchCreate', req);
+}
+/**
+ * Batch updates multiple {{ cNs }} in a single operation.
+ *
+ * @param req The batch update request data.
+ */
+export function batchUpdate{{ CNs }}(req: BatchUpdate{{ CNs }}Request) {
+  return httpClient.put<BatchUpdate{{ CNs }}Response>('/{{ cN }}:batchUpdate', req);
+}
+/**
+ * Batch delete {{ cNs }}.
+ *
+ * @param req Request object containing delete info.
+ */
+export function batchDelete{{ CN }}(req: BatchDelete{{ CNs }}Request) {
+  return httpClient.delete<void>('/{{ cNs }}:batchDelete', { data: req });
+}
+
+/**
+ *  Export the Excel template for {{ cN }} import.
+ *
+ */
+export async function export{{ CN }}Template() {
+  const response = await httpClient.get<AxiosResponse>(
+    `/{{ cNs }}:exportTemplate`,
+    {},
+    {
+      responseType: 'blob',
+    },
+  );
+  downloadBlob(response, '{{ cN }}_import_tpl.xlsx');
+}
+
+/**
+ * Export {{ cN }} data based on the provided {{ cN }} IDs.
+ *
+ * @param req Query parameters specifying the {{ cNs }} to export.
+ */
+export async function export{{ CN }}Page(req: Export{{ CNs }}Request) {
+  const params = {
+    ids: req.ids,
+  };
+  const response = await httpClient.get<AxiosResponse>(
+    `/{{ cNs }}:export`,
+    params,
+    {
+      responseType: 'blob',
+    },
+  );
+  downloadBlob(response, '{{ cN }}_data_export.xlsx');
+}
+
+/**
+ * Import {{ cNs }} from an uploaded Excel file.
+ *
+ * @param req The request with excel file to import.
+ * @returns  List of successfully parsed {{ cN }} data.
+ */
+export function import{{ CN }}(req: Import{{ CNs }}Request) {
+  const formData = new FormData();
+  formData.append('file', req.file);
+  return httpClient.post<Import{{ CNs }}Response>('/{{ cNs }}:import', formData);
+}

@@ -134,7 +134,7 @@ def upgrade():
         INSERT INTO `menus` VALUES (15, '角色管理', 'UserCog', NULL, 4, '/system/role', NULL, 2, NULL, 1, 1, NULL, NULL, NULL, NULL);
     """)
     op.execute("""
-        INSERT INTO `menus` VALUES (17, '代码生成', 'Code2', NULL, 2, '/tool/code', NULL, 2, NULL, 1, 5, NULL, NULL, NULL, NULL);
+        INSERT INTO `menus` VALUES (17, '代码生成', 'Code2', NULL, 2, '/tool/codegen', NULL, 2, NULL, 1, 5, NULL, NULL, NULL, NULL);
     """)
     op.execute("""
         INSERT INTO `menus` VALUES (19, '系统监控', 'Activity', NULL, 10, '/monitor', NULL, 1, NULL, 1, 0, NULL, NULL, NULL, NULL);

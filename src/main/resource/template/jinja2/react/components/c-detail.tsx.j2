@@ -1,0 +1,63 @@
+import { {{ CN }}Detail } from '@/types/{{ cN }}';
+import { Descriptions, Drawer } from 'antd';
+import React from 'react';
+
+interface {{ CN }}DetailDrawerProps {
+  is{{ CN }}DetailDrawerVisible: boolean;
+  on{{ CN }}DetailClose: () => void;
+  {{ cN }}Detail: {{ CN }}Detail | null;
+}
+
+const {{ CN }}DetailComponent: React.FC<{{ CN }}DetailDrawerProps> = ({
+  is{{ CN }}DetailDrawerVisible,
+  on{{ CN }}DetailClose,
+  {{ cN }}Detail,
+}) => {
+  return (
+    <Drawer
+      title="系统菜单详情"
+      open={is{{ CN }}DetailDrawerVisible}
+      onClose={on{{ CN }}DetailClose}
+      destroyOnHidden
+      width={600}
+    >
+      {{{ cN }}Detail && (
+        <Descriptions column={1} bordered>
+          <Descriptions.Item label="名称">{{{ cN }}Detail.name}</Descriptions.Item>
+          <Descriptions.Item label="图标">{{{ cN }}Detail.icon}</Descriptions.Item>
+          <Descriptions.Item label="权限标识">
+            {{{ cN }}Detail.permission}
+          </Descriptions.Item>
+          <Descriptions.Item label="排序">{{{ cN }}Detail.sort}</Descriptions.Item>
+          <Descriptions.Item label="路由地址">
+            {{{ cN }}Detail.path}
+          </Descriptions.Item>
+          <Descriptions.Item label="组件路径">
+            {{{ cN }}Detail.component}
+          </Descriptions.Item>
+          <Descriptions.Item label="类型">{{{ cN }}Detail.type}</Descriptions.Item>
+          <Descriptions.Item label="是否缓存">
+            {{{ cN }}Detail.cacheable}
+          </Descriptions.Item>
+          <Descriptions.Item label="是否显示">
+            {{{ cN }}Detail.visible}
+          </Descriptions.Item>
+          <Descriptions.Item label="父ID">
+            {{{ cN }}Detail.parent_id}
+          </Descriptions.Item>
+          <Descriptions.Item label="状态">
+            {{{ cN }}Detail.status}
+          </Descriptions.Item>
+          <Descriptions.Item label="创建时间">
+            {{{ cN }}Detail.create_time}
+          </Descriptions.Item>
+          <Descriptions.Item label="备注信息">
+            {{{ cN }}Detail.comment}
+          </Descriptions.Item>
+        </Descriptions>
+      )}
+    </Drawer>
+  );
+};
+
+export default {{ CN }}DetailComponent;

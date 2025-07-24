@@ -3,31 +3,86 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Optional, List
-from fastapi import UploadFile
+from typing import Type
+
 from starlette.responses import StreamingResponse
-from src.main.app.model.{{ table_name }}_model import {{ ClassName }}Model
-from src.main.app.core.schema import PageResult, CurrentUser
-from src.main.app.schema.{{ table_name }}_schema import {{ ClassName }}Query, {{ ClassName }}Detail, {{ ClassName }}Create
+
 from src.main.app.core.service.base_service import BaseService
+from src.main.app.model.{{ c_n }}_model import {{ CN }}Model
+from src.main.app.schema.{{ c_n }}_schema import (
+    List{{ CNs }}Request,
+    Create{{ CN }}Request,
+    {{ CN }},
+    Update{{ CN }}Request,
+    BatchDelete{{ CNs }}Request,
+    Export{{ CNs }}Request,
+    BatchCreate{{ CNs }}Request,
+    BatchUpdate{{ CNs }}Request,
+    Import{{ CNs }}Request,
+    Import{{ CN }},
+    BatchPatch{{ CNs }}Request,
+)
 
 
-class {{ ClassName }}Service(BaseService[{{ ClassName }}Model], ABC):
+class {{ CN }}Service(BaseService[{{ CN }}Model], ABC):
+    @abstractmethod
+    async def get_{{ c_n }}(
+        self,
+        *,
+        id: int,
+    ) -> {{ CN }}Model: ...
 
     @abstractmethod
-    async def get_{{ c_n }}_by_page(self, *, {{ c_n }}_query: {{ ClassName }}Query, current_user: CurrentUser) -> PageResult:...
+    async def list_{{ c_ns }}(
+        self, *, req: List{{ CNs }}Request
+    ) -> tuple[list[{{ CN }}Model], int]: ...
 
     @abstractmethod
-    async def get_{{ c_n }}_detail(self, *, id: int, current_user: CurrentUser) -> Optional[{{ ClassName }}Detail]:...
+    async def get_children_recursively(
+        self, *, parent_data: list[{{ CN }}Model], schema_class: Type[{{ CN }}]
+    ) -> list[{{ CN }}]: ...
 
     @abstractmethod
-    async def export_{{ c_n }}_page(self, *, ids: List[int], current_user: CurrentUser) -> Optional[StreamingResponse]:...
+    async def create_{{ c_n }}(self, *, req: Create{{ CN }}Request) -> {{ CN }}Model: ...
 
     @abstractmethod
-    async def create_{{ c_n }}(self, *, {{ c_n }}_create: {{ ClassName }}Create, current_user: CurrentUser) -> {{ ClassName }}Model:...
+    async def update_{{ c_n }}(self, req: Update{{ CN }}Request) -> {{ CN }}Model: ...
 
     @abstractmethod
-    async def batch_create_{{ c_n }}(self, *, {{ c_n }}_create_list: List[{{ ClassName }}Create], current_user: CurrentUser) -> List[int]:...
+    async def delete_{{ c_n }}(self, id: int) -> None: ...
 
     @abstractmethod
-    async def import_{{ c_n }}(self, *, file: UploadFile, current_user: CurrentUser) -> List[{{ ClassName }}Create]:...
+    async def batch_get_{{ c_ns }}(self, ids: list[int]) -> list[{{ CN }}Model]: ...
+
+    @abstractmethod
+    async def batch_create_{{ c_ns }}(
+        self,
+        *,
+        req: BatchCreate{{ CNs }}Request,
+    ) -> list[{{ CN }}Model]: ...
+
+    @abstractmethod
+    async def batch_update_{{ c_ns }}(
+        self, req: BatchUpdate{{ CNs }}Request
+    ) -> list[{{ CN }}Model]: ...
+
+    @abstractmethod
+    async def batch_patch_{{ c_ns }}(
+        self, req: BatchPatch{{ CNs }}Request
+    ) -> list[{{ CN }}Model]: ...
+
+    @abstractmethod
+    async def batch_delete_{{ c_ns }}(self, req: BatchDelete{{ CNs }}Request): ...
+
+    @abstractmethod
+    async def export_{{ c_ns }}_template(self) -> StreamingResponse: ...
+
+    @abstractmethod
+    async def export_{{ c_ns }}(
+        self, req: Export{{ CNs }}Request
+    ) -> StreamingResponse: ...
+
+    @abstractmethod
+    async def import_{{ c_ns }}(
+        self, req: Import{{ CNs }}Request
+    ) -> list[Import{{ CN }}]: ...

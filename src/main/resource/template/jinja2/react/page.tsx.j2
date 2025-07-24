@@ -1,0 +1,564 @@
+'use client';
+import ActionButtonComponent from '@/components/base/action-button';
+import { PaginatedTable } from '@/components/base/paginated-table';
+import TransitionWrapper from '@/components/base/transition-wrapper';
+import SvgIcon from '@/components/svg-icon';
+import {
+  batchCreate{{ CNs }},
+  batchDelete{{ CN }},
+  batchUpdate{{ CNs }}s,
+  create{{ CN }},
+  delete{{ CN }},
+  export{{ CN }}Page,
+  get{{ CN }},
+  import{{ CN }},
+  list{{ CNs }},
+  update{{ CN }},
+} from '@/service/{{ cN }}';
+import { BaseQueryImpl } from '@/types';
+import {
+  BatchUpdate{{ CN }},
+  Create{{ CN }},
+  List{{ CNs }}Request,
+  {{ CN }},
+  {{ CN }}Detail,
+  Update{{ CN }},
+} from '@/types/{{ cN }}';
+import { Form, message } from 'antd';
+import { ColumnsType } from 'antd/lib/table';
+import dayjs from 'dayjs';
+import { Eye, MoreHorizontal, PenLine, Trash2 } from 'lucide-react';
+import type { RcFile } from 'rc-upload/lib/interface';
+import React, { useEffect, useState } from 'react';
+import BatchUpdate{{ CN }}Component from './components/batch-update-{{ cN }}';
+import Create{{ CN }}Component from './components/create-{{ cN }}';
+import Import{{ CN }}Component from './components/import-{{ cN }}';
+import {{ CN }}DetailComponent from './components/{{ cN }}-detail';
+import {{ CN }}QueryComponent from './components/query-{{ cN }}';
+import Update{{ CN }}Component from './components/update-{{ cN }}';
+
+const {{ CN }}Page: React.FC = () => {
+  // 配置模块
+  const actionConfig = {
+    showCreate: true,
+    showImport: true,
+    showExport: true,
+    showModify: true,
+    showRemove: true,
+  };
+  const showMore = false;
+
+  // 查询模块
+  const [is{{ CN }}QueryShow, setIs{{ CN }}QueryShow] = useState<boolean>(true);
+  const [{{ cN }}PageDataSource, set{{ CN }}PageDataSource] = useState<{{ CN }}[]>([]);
+  const [{{ cN }}PageTotalCount, set{{ CN }}PageTotalCount] = useState(0);
+  const [current, setCurrent] = useState(1);
+  const [page_size, setpage_size] = useState(10);
+  const on{{ CN }}QueryShow = () => {
+    setIs{{ CN }}QueryShow((prevState) => !prevState);
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      const {{ cN }}Query =
+        (await {{ cN }}QueryForm.validateFields()) as List{{ CNs }}Request;
+      const pageData = BaseQueryImpl.create(current, page_size);
+      const resp = await list{{ CNs }}({ ...pageData, ...{{ cN }}Query });
+      set{{ CN }}PageDataSource(resp.records);
+      set{{ CN }}PageTotalCount(resp.total);
+    };
+    fetchData().then(() => {});
+  }, [current, page_size]);
+
+  const handlePaginationChange = (newPage: number, newpage_size: number) => {
+    setCurrent(newPage);
+    setpage_size(newpage_size);
+  };
+  const resetPagination = () => {
+    setCurrent(1);
+    setpage_size(10);
+  };
+
+  // 详情模块
+  const [is{{ CN }}DetailDrawerVisible, setIs{{ CN }}DetailDrawerVisible] =
+    useState<boolean>(false);
+  const [{{ cN }}Detail, set{{ CN }}Detail] = useState<{{ CN }}Detail | null>(null);
+  const on{{ CN }}Detail = async ({{ cN }}Page: {{ CN }}) => {
+    setIs{{ CN }}DetailDrawerVisible(true);
+    const id = {{ cN }}Page.id;
+    await get{{ CN }}(id).then(set{{ CN }}Detail);
+  };
+
+  const on{{ CN }}DetailClose = async () => {
+    set{{ CN }}Detail(null);
+    setIs{{ CN }}DetailDrawerVisible(false);
+  };
+
+  // 表格列信息
+  const {{ cN }}PageColumns: ColumnsType<{{ CN }}> = [
+    {
+      title: 'Id',
+      dataIndex: 'id',
+      key: 'id',
+      hidden: true,
+    },
+    {
+      title: '序号',
+      dataIndex: 'No',
+      key: 'No',
+      render: (_: number, _record: {{ CN }}, rowIndex: number) => rowIndex + 1,
+      width: '6%',
+    },
+    {
+      title: '名称',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text) => (text ? text : '--'),
+      ellipsis: true,
+      width: '8%',
+    },
+    {
+      title: '图标',
+      dataIndex: 'icon',
+      key: 'icon',
+      render: (text) =>
+        text ? <SvgIcon name={text} strokeWidth={1.3} /> : '--',
+      ellipsis: true,
+      width: '6%',
+    },
+    {
+      title: '权限标识',
+      dataIndex: 'permission',
+      key: 'permission',
+      render: (text) => (text ? text : '--'),
+      ellipsis: true,
+      width: '12%',
+    },
+    {
+      title: '排序',
+      dataIndex: 'sort',
+      key: 'sort',
+      render: (text) => (text ? text : '--'),
+      width: '6%',
+    },
+    {
+      title: '路由地址',
+      dataIndex: 'path',
+      key: 'path',
+      render: (text) => (text ? text : '--'),
+      ellipsis: true,
+      width: '12%',
+    },
+    {
+      title: '组件路径',
+      dataIndex: 'component',
+      key: 'component',
+      render: (text) => (text ? text : '--'),
+      ellipsis: true,
+      width: '12%',
+    },
+    {
+      title: '状态',
+      dataIndex: 'status',
+      key: 'status',
+      render: (text) => (text ? text : '--'),
+      width: '4%',
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'create_time',
+      key: 'create_time',
+      render: (text) =>
+        text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '--',
+      ellipsis: true,
+      width: '12%',
+    },
+    {
+      title: '操作',
+      key: 'action',
+      align: 'center',
+      render: (_, record) => (
+        <div className="flex gap-2 items-center justify-center">
+          <button
+            type="button"
+            className="flex items-center gap-0.5 text-xs btn-operation"
+            onClick={() => on{{ CN }}Detail(record)}
+          >
+            <Eye size={12} />
+            详情
+          </button>
+          <button
+            type="button"
+            className="flex items-center gap-0.5 text-xs btn-operation"
+            onClick={() => onUpdate{{ CN }}(record)}
+          >
+            <PenLine size={12} />
+            编辑
+          </button>
+          <button
+            type="button"
+            className="flex items-center gap-0.5 text-xs btn-remove"
+            onClick={() => handleDelete{{ CN }}(record)}
+          >
+            <Trash2 size={12} />
+            删除
+          </button>
+
+          {showMore && (
+            <button
+              type="button"
+              className="flex items-center gap-0.5 text-xs btn-operation"
+            >
+              <span>更多</span>
+              <MoreHorizontal size={12} />
+            </button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  const [visibleColumns, setVisibleColumns] = useState(
+    {{ cN }}PageColumns.map((col) => col.key),
+  );
+  const onToggleColumnVisibility = (columnKey: string) => {
+    setVisibleColumns((prevVisibleColumns) => {
+      if (prevVisibleColumns.includes(columnKey)) {
+        return prevVisibleColumns.filter((key) => key !== columnKey);
+      } else {
+        return [...prevVisibleColumns, columnKey];
+      }
+    });
+  };
+  const filtered{{ CN }}Columns = {{ cN }}PageColumns.filter((col) =>
+    visibleColumns.includes(col.key),
+  );
+
+  const [{{ cN }}QueryForm] = Form.useForm();
+  const handle{{ CN }}QueryReset = () => {
+    resetPagination();
+    {{ cN }}QueryForm.resetFields();
+    on{{ CN }}QueryFinish();
+  };
+  const on{{ CN }}QueryFinish = async () => {
+    const values = {{ cN }}QueryForm.getFieldsValue();
+    const { create_time } = values;
+    if (create_time) {
+      const [startDate, endDate] = create_time;
+      values.create_time = [
+        startDate.format('YYYY-MM-DD'),
+        endDate.format('YYYY-MM-DD'),
+      ];
+    }
+    const {{ cN }}Query = values as List{{ CNs }}Request;
+    const filtered{{ CN }}Query = Object.fromEntries(
+      Object.entries({{ cN }}Query).filter(
+        ([, value]) => value !== undefined && value !== null && value !== '',
+      ),
+    );
+    resetPagination();
+    await handle{{ CN }}QueryFinish(filtered{{ CN }}Query as List{{ CNs }}Request);
+  };
+  const handle{{ CN }}QueryFinish = async ({{ cN }}Page: List{{ CNs }}Request) => {
+    await list{{ CNs }}({
+      ...BaseQueryImpl.create(current, page_size),
+      ...{{ cN }}Page,
+    }).then((resp) => {
+      set{{ CN }}PageDataSource(resp.records);
+      set{{ CN }}PageTotalCount(resp.total);
+    });
+  };
+
+  // 新增模块
+  const [isCreate{{ CN }}ModalVisible, setIsCreate{{ CN }}ModalVisible] =
+    useState(false);
+  const [isCreate{{ CN }}Loading, setIsCreate{{ CN }}Loading] = useState(false);
+  const [create{{ CN }}Form] = Form.useForm();
+  const onCreate{{ CN }} = () => {
+    setIsCreate{{ CN }}ModalVisible(true);
+  };
+  const handleCreate{{ CN }}Cancel = () => {
+    create{{ CN }}Form.resetFields();
+    setIsCreate{{ CN }}ModalVisible(false);
+  };
+  const handleCreate{{ CN }}Finish = async (data: Create{{ CN }}) => {
+    setIsCreate{{ CN }}Loading(true);
+    try {
+      await create{{ CN }}({ {{ cN }}: data });
+      message.success('新增成功');
+      create{{ CN }}Form.resetFields();
+      await on{{ CN }}QueryFinish();
+    } finally {
+      setIsCreate{{ CN }}Loading(false);
+      setIsCreate{{ CN }}ModalVisible(false);
+    }
+  };
+
+  // 单个删除模块
+  const handleDelete{{ CN }} = async ({{ cN }}Page: {{ CN }}) => {
+    await delete{{ CN }}({{ cN }}Page.id);
+    message.success("删除成功")
+    await on{{ CN }}QueryFinish();
+  };
+
+  // 批量删除模块
+  const [isBatchRemoveLoading, setIsBatchRemoveLoading] =
+    useState<boolean>(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [selectedRows, setSelectedRows] = useState<{{ CN }}[]>([]);
+  const resetSelectedRows = () => {
+    setSelectedRowKeys([]);
+    setSelectedRows([]);
+  };
+  const handleSelectionChange = (
+    selectedRowKeys: React.Key[],
+    selectedRows: {{ CN }}[],
+  ) => {
+    setSelectedRows(selectedRows);
+    setSelectedRowKeys(selectedRowKeys);
+  };
+  const handle{{ CN }}BatchRemove = async () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning('请先选择要删除的项目');
+      return;
+    }
+    try {
+      setIsBatchRemoveLoading(true);
+      await batchDelete{{ CN }}({ ids: selectedRows.map((row) => row.id) });
+      message.success("删除成功")
+      await on{{ CN }}QueryFinish();
+      resetSelectedRows();
+    } finally {
+      setIsBatchRemoveLoading(false);
+    }
+  };
+  const handle{{ CN }}BatchRemoveCancel = async () => {
+    resetSelectedRows();
+    message.info('操作已取消');
+  };
+
+  // 单个更新模块
+  const [isUpdate{{ CN }}ModalVisible, setIsUpdate{{ CN }}ModalVisible] =
+    useState<boolean>(false);
+  const [isUpdate{{ CN }}Loading, setIsUpdate{{ CN }}Loading] =
+    useState<boolean>(false);
+  const [update{{ CN }}Form] = Form.useForm();
+  const onUpdate{{ CN }} = ({{ cN }}Page: {{ CN }}) => {
+    setIsUpdate{{ CN }}ModalVisible(true);
+    setSelectedRowKeys([{{ cN }}Page.id]);
+    setSelectedRows([{{ cN }}Page]);
+    update{{ CN }}Form.setFieldsValue({ ...{{ cN }}Page });
+  };
+
+  const handleUpdate{{ CN }}Cancel = () => {
+    resetSelectedRows();
+    update{{ CN }}Form.resetFields();
+    setIsUpdate{{ CN }}ModalVisible(false);
+  };
+  const handleUpdate{{ CN }}Finish = async () => {
+    const update{{ CN }}Data =
+      (await update{{ CN }}Form.validateFields()) as Update{{ CN }};
+    const req = { ...update{{ CN }}Data, id: selectedRows[0].id };
+    setIsUpdate{{ CN }}Loading(true);
+    try {
+      await update{{ CN }}({ {{ cN }}: req });
+      update{{ CN }}Form.resetFields();
+      message.success('更新成功');
+      await on{{ CN }}QueryFinish();
+      resetSelectedRows();
+    } finally {
+      setIsUpdate{{ CN }}Loading(false);
+      setIsUpdate{{ CN }}ModalVisible(false);
+    }
+  };
+
+  // 批量更新模块
+  const on{{ CN }}BatchModify = () => {
+    if (selectedRowKeys.length === 1) {
+      setIsUpdate{{ CN }}ModalVisible(true);
+      update{{ CN }}Form.setFieldsValue({ ...selectedRows[0] });
+    } else {
+      setIs{{ CN }}BatchModifyModalVisible(true);
+      {{ cN }}BatchModifyForm.resetFields();
+    }
+  };
+  const [is{{ CN }}BatchModifyModalVisible, setIs{{ CN }}BatchModifyModalVisible] =
+    useState<boolean>(false);
+  const [is{{ CN }}BatchModifyLoading, setIs{{ CN }}BatchModifyLoading] =
+    useState<boolean>(false);
+  const [{{ cN }}BatchModifyForm] = Form.useForm();
+  const handle{{ CN }}BatchModifyCancel = async () => {
+    {{ cN }}BatchModifyForm.resetFields();
+    setIs{{ CN }}BatchModifyModalVisible(false);
+    resetSelectedRows();
+    message.info('操作已取消');
+  };
+  const handle{{ CN }}BatchModifyFinish = async () => {
+    const {{ cN }}BatchModify =
+      (await {{ cN }}BatchModifyForm.validateFields()) as BatchUpdate{{ CN }};
+    setIs{{ CN }}BatchModifyLoading(true);
+    if (selectedRows === null || selectedRows.length === 0) {
+      message.warning('请选择要更新的项目');
+      return;
+    }
+    try {
+      const ids = selectedRows.map((row) => row.id);
+      await batchUpdate{{ CNs }}s({ ids: ids, {{ cN }}: {{ cN }}BatchModify });
+      {{ cN }}BatchModifyForm.resetFields();
+      message.success('更新成功');
+      await on{{ CN }}QueryFinish();
+      resetSelectedRows();
+    } finally {
+      setIs{{ CN }}BatchModifyLoading(false);
+      setIs{{ CN }}BatchModifyModalVisible(false);
+    }
+  };
+
+  // 导入模块
+  const [isImport{{ CN }}ModalVisible, setIsImport{{ CN }}ModalVisible] =
+    useState<boolean>(false);
+  const [isImport{{ CN }}Loading, setIsImport{{ CN }}Loading] =
+    useState<boolean>(false);
+  const [create{{ CN }}List, setCreate{{ CN }}List] = useState<Create{{ CN }}[]>([]);
+
+  const onImport{{ CN }} = () => {
+    setIsImport{{ CN }}ModalVisible(true);
+  };
+  const handleImport{{ CN }}Cancel = () => {
+    setIsImport{{ CN }}ModalVisible(false);
+  };
+  const onImport{{ CN }}Finish = async (fileList: RcFile[]) => {
+    try {
+      setIsImport{{ CN }}Loading(true);
+      const create{{ CN }}List = await import{{ CN }}({ file: fileList[0] });
+      setCreate{{ CN }}List(create{{ CN }}List.{{ cNs }});
+      return create{{ CN }}List;
+    } finally {
+      setIsImport{{ CN }}Loading(false);
+    }
+  };
+
+  const handleImport{{ CN }} = async () => {
+    setIsImport{{ CN }}Loading(true);
+    try {
+      await batchCreate{{ CNs }}({ {{ cNs }}: create{{ CN }}List });
+      message.success('导入成功');
+      setIsImport{{ CN }}ModalVisible(false);
+      await on{{ CN }}QueryFinish();
+    } finally {
+      setIsImport{{ CN }}Loading(false);
+      setCreate{{ CN }}List([]);
+    }
+  };
+
+  // 导出模块
+  const [isExportLoading, setIsExportLoading] = useState<boolean>(false);
+  const on{{ CN }}Export = async () => {
+    if (selectedRowKeys === null || selectedRowKeys.length === 0) {
+      message.warning('请先选择导出的项目');
+      return;
+    }
+    try {
+      setIsExportLoading(true);
+      await export{{ CN }}Page({ ids: selectedRows.map((row) => row.id) });
+      resetSelectedRows();
+    } finally {
+      setIsExportLoading(false);
+    }
+  };
+
+  return (
+    <div className="w-full mx-auto px-4 bg-white">
+      <TransitionWrapper show={is{{ CN }}QueryShow}>
+        <{{ CN }}QueryComponent
+          on{{ CN }}QueryFinish={on{{ CN }}QueryFinish}
+          on{{ CN }}QueryReset={handle{{ CN }}QueryReset}
+          {{ cN }}QueryForm={{{ cN }}QueryForm}
+        />
+      </TransitionWrapper>
+      <div>
+        <ActionButtonComponent
+          onCreate={onCreate{{ CN }}}
+          onImport={onImport{{ CN }}}
+          onExport={on{{ CN }}Export}
+          onBatchModify={on{{ CN }}BatchModify}
+          onConfirmBatchRemove={handle{{ CN }}BatchRemove}
+          onConfirmBatchRemoveCancel={handle{{ CN }}BatchRemoveCancel}
+          isQueryShow={is{{ CN }}QueryShow}
+          onQueryShow={on{{ CN }}QueryShow}
+          isExportDisabled={selectedRowKeys.length === 0}
+          isBatchModifyDisabled={selectedRowKeys.length === 0}
+          isBatchRemoveDisabled={selectedRowKeys.length === 0}
+          isBatchRemoveLoading={isBatchRemoveLoading}
+          isExportLoading={isExportLoading}
+          rawColumns={{{ cN }}PageColumns as any[]}
+          visibleColumns={visibleColumns as any[]}
+          onToggleColumnVisibility={onToggleColumnVisibility}
+          actionConfig={actionConfig}
+          className="mb-2 mt-4"
+        />
+      </div>
+      <div>
+        <PaginatedTable<{{ CN }}>
+          columns={filtered{{ CN }}Columns}
+          dataSource={{{ cN }}PageDataSource}
+          total={{{ cN }}PageTotalCount}
+          current={current}
+          page_size={page_size}
+          onPaginationChange={handlePaginationChange}
+          onSelectionChange={handleSelectionChange}
+          selectedRowKeys={selectedRowKeys}
+          rowKey="id"
+        />
+      </div>
+      <div>
+        <div>
+          <Create{{ CN }}Component
+            isCreate{{ CN }}ModalVisible={isCreate{{ CN }}ModalVisible}
+            onCreate{{ CN }}Cancel={handleCreate{{ CN }}Cancel}
+            onCreate{{ CN }}Finish={handleCreate{{ CN }}Finish}
+            isCreate{{ CN }}Loading={isCreate{{ CN }}Loading}
+            create{{ CN }}Form={create{{ CN }}Form}
+            optionDataSource={{{ cN }}PageDataSource}
+          />
+        </div>
+        <div>
+          <{{ CN }}DetailComponent
+            is{{ CN }}DetailDrawerVisible={is{{ CN }}DetailDrawerVisible}
+            on{{ CN }}DetailClose={on{{ CN }}DetailClose}
+            {{ cN }}Detail={{{ cN }}Detail}
+          />
+        </div>
+        <div>
+          <Update{{ CN }}Component
+            isUpdate{{ CN }}ModalVisible={isUpdate{{ CN }}ModalVisible}
+            onUpdate{{ CN }}Cancel={handleUpdate{{ CN }}Cancel}
+            onUpdate{{ CN }}Finish={handleUpdate{{ CN }}Finish}
+            isUpdate{{ CN }}Loading={isUpdate{{ CN }}Loading}
+            update{{ CN }}Form={update{{ CN }}Form}
+            optionDataSource={{{ cN }}PageDataSource}
+          />
+        </div>
+        <div>
+          <BatchUpdate{{ CN }}Component
+            isBatchUpdate{{ CN }}ModalVisible={is{{ CN }}BatchModifyModalVisible}
+            onBatchUpdate{{ CN }}Cancel={handle{{ CN }}BatchModifyCancel}
+            onBatchUpdate{{ CN }}Finish={handle{{ CN }}BatchModifyFinish}
+            isBatchUpdate{{ CN }}Loading={is{{ CN }}BatchModifyLoading}
+            batchUpdate{{ CNs }}Form={{{ cN }}BatchModifyForm}
+          />
+        </div>
+        <div>
+          <Import{{ CN }}Component
+            isImport{{ CN }}ModalVisible={isImport{{ CN }}ModalVisible}
+            isImport{{ CN }}Loading={isImport{{ CN }}Loading}
+            onImport{{ CN }}Finish={onImport{{ CN }}Finish}
+            onImport{{ CN }}Cancel={handleImport{{ CN }}Cancel}
+            handleImport{{ CN }}={handleImport{{ CN }}}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default {{ CN }}Page;
