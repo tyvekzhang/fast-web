@@ -1,0 +1,104 @@
+{{ license }}
+{%- set components = {
+    'datepicker': False,
+    'dict_type': False,
+} %}
+
+{%- for field in fields %}
+    {%- set html_type = field.gen_field.html_type %}
+    {%- if html_type in components %}
+        {%- set _ = components.update({html_type: True}) %}
+    {%- endif %}
+    {%- if field.dict_type != "" %}
+        {%- set _ = components.update({'dict_type': True}) %}
+    {%- endif %}
+{%- endfor %}
+
+{%- if components.datepicker %}
+import dayjs from 'dayjs';
+{%- endif %}
+import {
+  Descriptions,
+  Drawer,
+  Button,
+  Space,
+} from 'antd';
+{%- if components.dict_type %}
+import { useAppSelector } from '@/stores';
+{%- endif %}
+import { {{ CN }}Detail } from '@/types/{{ kebab_case_class_name }}';
+import React, { useMemo } from 'react';
+
+interface {{ CN }}DetailDrawerProps {
+  is{{ CN }}DetailDrawerVisible: boolean;
+  on{{ CN }}DetailClose: () => void;
+  {{ cN }}Detail: {{ CN }}Detail | null;
+}
+
+const {{ CN }}DetailComponent: React.FC<{{ CN }}DetailDrawerProps> = ({
+  is{{ CN }}DetailDrawerVisible,
+  on{{ CN }}DetailClose,
+  {{ cN }}Detail,
+}) => {
+
+{%- if components.dict_type %}
+  const { dictData } = useAppSelector((state: Record<string, any>) => state.dict);
+{%- endif %}
+
+  return (
+    <Drawer
+      title="{{ function_name }}详情"
+      open={is{{ CN }}DetailDrawerVisible}
+      onClose={on{{ CN }}DetailClose}
+      destroyOnClose
+      width={600}
+    >
+      { {{ cN }}Detail && (
+        <Descriptions column={1} bordered>
+          {%- for field in fields %}
+          {%- set comment = "" %}
+          {%- if field.gen_field.detailable == 1 and field.gen_field.field_name != primary_key %}
+          {%- if field.field.comment and field.field.comment != "" %}
+              {%- set parentheseIndex_en = field.field.comment.find("(") %}
+              {%- set parentheseIndex_cn = field.field.comment.find("（") %}
+              {%- if parentheseIndex_en!= -1 %}
+                  {%- set comment = field.field.comment[:parentheseIndex_en] %}
+              {%- elif parentheseIndex_cn!= -1 %}
+                  {%- set comment = field.field.comment[:parentheseIndex_cn] %}
+              {%- else %}
+                  {%- set comment = field.field.comment %}
+              {%- endif %}
+          {%- endif %}
+          {%- set field_name = field.gen_field.field_name %}
+          {%- set html_type = field.gen_field.html_type %}
+          {%- set dict_type = field.gen_field.dict_type %}
+          <Descriptions.Item label="{{ comment }}">
+            {%- if html_type == 'datepicker' or html_type == 'datetime' %}
+              {dayjs({{ cN }}Detail.{{ field_name }}).format('YYYY-MM-DD')}
+            {%- elif dict_type %}
+              {(() => {
+                const values = ({{ cN }}Detail.{{ field_name }} || '').toString().split(',');
+                return values.map((value, index) => {
+                  const item = dictData["{{ dict_type }}"] && dictData["{{ dict_type }}"].find((d: Record<string, string>) => d.value === value);
+                  const content = item ? <span key={value}>{item.label}</span> : <span key={value}>-</span>;
+                  return index < values.length - 1 ? (
+                    <React.Fragment key={index}>
+                      {content}
+                      ,&nbsp;
+                    </React.Fragment>
+                  ) : content;
+                });
+              })()}
+            {%- else %}
+              { {{ cN }}Detail.{{ field_name }}}
+            {%- endif %}
+          </Descriptions.Item>
+          {%- endif %}
+          {%- endfor %}
+        </Descriptions>
+      )}
+    </Drawer>
+  );
+};
+
+export default {{ CN }}DetailComponent;

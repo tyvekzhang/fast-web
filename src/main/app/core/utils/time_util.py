@@ -1,14 +1,13 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def get_current_time(fmt: str = "%Y-%m-%d %H:%M:%S"):
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     now_str = now.strftime(fmt)
     now_str = now_str.replace(" ", "_")
     return now_str
 
 
-def get_date_time():
-    tmp = get_current_time()
-    current = tmp.replace("-", "").replace("_", "")
-    return current
+def get_date_time(fmt: str = "%Y%m%d_%H%M%S"):
+    now = datetime.now(timezone.utc)
+    return now.strftime(fmt)

@@ -153,24 +153,13 @@ async def preview_code(table_id: int) -> StreamingResponse:
     )
     table_name = str(gen_table_DO.table_name)
 
-    # 创建一个字节流
-    mem = BytesIO(data)
-    mem.seek(0)
-
-    # 定义一个生成器函数来流式传输数据
-    def iterfile():
-        try:
-            yield from mem
-        finally:
-            mem.close()
-
-    # 创建响应
-    response = StreamingResponse(iterfile(), media_type="application/zip")
-    response.headers["Content-Disposition"] = (
-        f"attachment; filename={table_name}_{get_date_time()}.zip"
+    return StreamingResponse(
+        BytesIO(data),
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": f"attachment; filename={table_name}_{get_date_time()}.zip"
+        },
     )
-
-    return response
 
 
 @gen_table_router.get("/gen-table/export")

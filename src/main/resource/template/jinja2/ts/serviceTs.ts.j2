@@ -1,3 +1,4 @@
+{{ license }}
 import httpClient from '@/lib/http';
 import { downloadBlob } from '@/service/util';
 import { PageResult } from '@/types';
@@ -123,7 +124,7 @@ export async function export{{ CN }}Page(req: Export{{ CNs }}Request) {
 /**
  * Import {{ cNs }} from an uploaded Excel file.
  *
- * @param req The request with excel file to import.
+ * @param req The request with file to import.
  * @returns  List of successfully parsed {{ cN }} data.
  */
 export function import{{ CN }}(req: Import{{ CNs }}Request) {

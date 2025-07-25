@@ -1,0 +1,229 @@
+{{ license }}
+{%- set components = {
+    'input': False,
+    'select': False,
+    'datepicker': False,
+    'checkbox': False,
+    'radio': False,
+    'textarea': False,
+    'autocomplete': False,
+    'cascader': False,
+    'colorpicker': False,
+    'inputnumber': False,
+    'mentions': False,
+    'rate': False,
+    'slider': False,
+    'switch': False,
+    'timepicker': False,
+    'transfer': False,
+    'treeselect': False,
+    'upload': False,
+    'dict_type': False
+} %}
+
+{%- if "" != tree_parent_code %}
+{%- set _ = components.update({'treeselect': True}) %}
+{%- endif %}
+
+{%- for field in fields %}
+    {%- set html_type = field.gen_field.html_type %}
+    {%- if html_type in components %}
+        {%- set _ = components.update({html_type: True}) %}
+    {%- endif %}
+    {%- if field.dict_type != "" %}
+        {%- set _ = components.update({'dict_type': True}) %}
+    {%- endif %}
+{%- endfor %}
+
+{%- if components.input -%}
+import { Input } from 'antd';
+{%- endif %}
+{%- if components.select %}
+import { Select } from 'antd';
+{%- endif %}
+{%- if components.datepicker %}
+import { DatePicker } from 'antd';
+{%- endif %}
+{%- if components.checkbox %}
+import { Checkbox } from 'antd';
+{%- endif %}
+{%- if components.radio %}
+import { Radio } from 'antd';
+{%- endif %}
+{%- if components.treeselect %}
+import { DownOutlined } from '@ant-design/icons';
+import { TreeSelect } from 'antd';
+import { TreeSelectUtil } from '@/utils/select-util';
+import { {{ CN }}Page } from '@/types/{{ kebab_case_class_name }}';
+{%- endif %}
+import {
+  AutoComplete,
+  Button,
+  Cascader,
+  ColorPicker,
+  Form,
+  InputNumber, Mentions,
+  Modal, Rate,
+  Slider, Switch, TimePicker, Transfer, Upload,
+} from 'antd';
+{%- if components.dict_type %}
+import { useAppSelector } from '@/stores';
+{%- endif %}
+import { {{ CN }}Create } from '@/types/{{ kebab_case_class_name }}';
+import { FormInstance } from 'antd/es/form';
+import React, { useMemo } from 'react';
+
+const {{ cN }}CreateFormItemLayout = {
+  labelCol: { span: 5 },
+  wrapperCol: { span: 17 },
+};
+
+interface {{ CN }}CreateProps {
+  is{{ CN }}CreateModalVisible: boolean;
+  on{{ CN }}CreateCancel: () => void;
+  on{{ CN }}CreateFinish: ({{ cN }}Create: {{ CN }}Create) => void;
+  is{{ CN }}CreateLoading: boolean;
+  {{ cN }}CreateForm: FormInstance;
+{%- if components.treeselect %}
+  treeSelectDataSource?: {{ CN }}Page[];
+{%- endif %}
+}
+
+const {{ CN }}CreateComponent: React.FC<{{ CN }}CreateProps> = ({
+  is{{ CN }}CreateModalVisible,
+  on{{ CN }}CreateCancel,
+  on{{ CN }}CreateFinish,
+  is{{ CN }}CreateLoading,
+  {{ cN }}CreateForm,
+{%- if components.treeselect %}
+  treeSelectDataSource,
+{%- endif %}
+}) => {
+{%- if components.treeselect %}
+  const treeSelectDataTransform = [{ name: '根目录', id: 0, children: treeSelectDataSource }];
+  const treeSelectData = TreeSelectUtil.transform(treeSelectDataTransform as any);
+{%- endif %}
+  const footerButtons = useMemo(
+    () => [
+      <Button key="back" onClick={on{{ CN }}CreateCancel}>
+        取消
+      </Button>,
+      <Button key="submit" type="primary" loading={is{{ CN }}CreateLoading} onClick={() => {{ cN }}CreateForm.submit()}>
+        确定
+      </Button>,
+    ],
+    [is{{ CN }}CreateLoading, {{ cN }}CreateForm, on{{ CN }}CreateCancel],
+  );
+
+{%- if "" != components.dict_type %}
+  const { dictData } = useAppSelector((state: Record<string, any>) => state.dict);
+{%- endif %}
+
+  return (
+    <div>
+      <Modal
+        title="{{ function_name }}新增"
+        open={is{{ CN }}CreateModalVisible}
+        onCancel={on{{ CN }}CreateCancel}
+        footer={footerButtons}
+        width={'60%'}
+      >
+        <Form
+          {...{{ cN }}CreateFormItemLayout}
+          form={ {{ cN }}CreateForm}
+          name="{{ cN }}Create"
+          onFinish={on{{ CN }}CreateFinish}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-y-0 gap-x-2 pt-4"
+        >
+          {%- for field in fields %}
+          {%- set comment = "" %}
+          {%- if field.gen_field.creatable == 1 and field.gen_field.field_name != primary_key %}
+          {%- if field.field.comment and field.field.comment != "" %}
+              {%- set parentheseIndex_en = field.field.comment.find("(") %}
+              {%- set parentheseIndex_cn = field.field.comment.find("（") %}
+              {%- if parentheseIndex_en!= -1 %}
+                  {%- set comment = field.field.comment[:parentheseIndex_en] %}
+              {%- elif parentheseIndex_cn!= -1 %}
+                  {%- set comment = field.field.comment[:parentheseIndex_cn] %}
+              {%- else %}
+                  {%- set comment = field.field.comment %}
+              {%- endif %}
+          {%- endif %}
+          {%- set field_name = field.gen_field.field_name %}
+          {%- set html_type = field.gen_field.html_type %}
+          {%- set dict_type = field.gen_field.dict_type %}
+          <Form.Item name="{{ field_name }}" label="{{ comment }}" rules={[{ required: false, message: '请输入{{ comment }}' }]}>
+            {%- if field_name == tree_parent_code and "" != tree_parent_code %}
+            <TreeSelect
+              placeholder="请选择{{comment}}"
+              allowClear
+              multiple
+              maxCount={1}
+              treeCheckable
+              showCheckedStrategy={TreeSelect.SHOW_CHILD}
+              treeData={treeSelectData}
+            />
+            {%- elif html_type == 'input' %}
+            <Input placeholder="请输入{{ comment }}" />
+            {%- elif html_type =='select' %}
+            {%- if dict_type %}
+            <Select
+                placeholder="请选择{{ comment }}"
+                options={ dictData["{{ dict_type }}"] }
+            />
+            {%- else %}
+            <Select placeholder="请选择{{ comment }}" />
+            {%- endif %}
+            {%- elif html_type == 'datepicker' or html_type == 'datetime' %}
+            <DatePicker format="YYYY-MM-DD" placeholder="请选择{{ comment }}" />
+            {%- elif html_type == 'checkbox' %}
+            {%- if dict_type %}
+            <Checkbox.Group options={ dictData["{{ dict_type }}"] } />
+            {%- else %}
+            <Checkbox.Group options={ ["请选择字典生成"] } />
+            {%- endif %}
+            {%- elif html_type == 'radio' %}
+            {%- if dict_type %}
+            <Radio.Group options={ dictData["{{ dict_type }}"] } />
+            {%- else %}
+            <Radio.Group options={ ["请选择字典生成"] } />
+            {%- endif %}
+            {%- elif html_type == 'textarea' %}
+            <Input.TextArea />
+            {%- elif html_type == 'autocomplete' %}
+            <AutoComplete placeholder="请输入{{ comment }}" />
+            {%- elif html_type == 'cascader' %}
+            <Cascader placeholder="请选择{{ comment }}" />
+            {%- elif html_type == 'colorpicker' %}
+            <ColorPicker />
+            {%- elif html_type == 'inputnumber' %}
+            <InputNumber placeholder="请输入数字" />
+            {%- elif html_type =='mentions' %}
+            <Mentions placeholder="请提及{{ comment }}" />
+            {%- elif html_type == 'rate' %}
+            <Rate />
+            {%- elif html_type =='slider' %}
+            <Slider />
+            {%- elif html_type =='switch' %}
+            <Switch />
+            {%- elif html_type == 'timepicker' %}
+            <TimePicker placeholder="请选择时间" />
+            {%- elif html_type == 'transfer' %}
+            <Transfer />
+            {%- elif html_type == 'treeselect' %}
+            <TreeSelect placeholder="请选择" />
+            {%- elif html_type == 'upload' %}
+            <Upload />
+            {%- else %}
+            <Input placeholder="请输入{{ comment }}" />
+            {%- endif %}
+          </Form.Item>
+          {%- endif %}
+          {%- endfor %}
+        </Form>
+      </Modal>
+    </div>
+  );
+};
+
+export default {{ CN }}CreateComponent;

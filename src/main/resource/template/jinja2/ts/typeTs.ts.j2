@@ -1,0 +1,104 @@
+{{ license }}
+import {PaginationRequest} from '.';
+
+export interface List{{ CNs }}Request extends PaginationRequest {
+    {% for field in fields %}
+    {%- if field.gen_field.queryable == 1  %}
+    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
+    {% endif -%}
+    {% endfor %}
+}
+
+export interface {{ CN }} {
+    {% for field in fields %}
+    {%- if field.gen_field.critical == 1  %}
+    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
+    {% endif -%}
+    {% endfor %}
+}
+
+export interface {{ CN }}Detail extends {{ CN }} {
+
+}
+
+export interface Create{{ CN }} {
+    {% for field in fields %}
+    {%- if field.gen_field.creatable == 1  %}
+    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
+    {% endif -%}
+    {% endfor %}
+}
+
+export interface Create{{ CN }}Request {
+{{ cN }}: Create{{ CN }};
+}
+
+export interface Update{{ CN }} {
+    {% for field in fields %}
+    {%- if field.gen_field.updatable == 1  %}
+    /** {{ field.field.comment }} */
+    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
+    {% endif -%}
+    {% endfor %}
+}
+
+export interface Update{{ CN }}Request {
+    menu: Update{{ CN }};
+}
+
+export interface BatchGet{{ CNs }}Response {
+    {{ cNs }}: {{ CN }}Detail[];
+}
+
+export interface BatchCreate{{ CNs }}Request {
+    {{ cNs }}: Create{{ CN }}[];
+}
+
+export interface BatchCreate{{ CN }}Response {
+    {{ cNs }}: {{ CN }}[];
+}
+
+export interface BatchUpdate{{ CN }} {
+    {% for field in fields %}
+    {%- if field.gen_field.batch_updatable == 1 %}
+    /** {{ field.field.comment }} */
+    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
+    {% endif -%}
+    {% endfor %}
+}
+
+export interface BatchUpdate{{ CNs }}Request {
+    ids: string[];
+    menu: BatchUpdate{{ CN }};
+}
+
+export interface BatchPatch{{ CNs }}Request {
+    {{ cNs }}: Update{{ CN }}[];
+}
+
+export interface BatchUpdate{{ CNs }}Response {
+    {{ cNs }}: {{ CN }}[];
+}
+
+export interface BatchDelete{{ CNs }}Request {
+    ids: string[];
+}
+
+export interface Export{{ CN }} extends {{ CN }} {
+}
+
+export interface Export{{ CNs }}Request {
+    ids: string[];
+}
+
+export interface Import{{ CNs }}Request {
+    file: File;
+}
+
+export interface Import{{ CN }} extends Create{{ CN }} {
+    errMsg: string;
+}
+
+export interface Import{{ CNs }}Response {
+    {{ cNs }}: Import{{ CN }}[];
+}

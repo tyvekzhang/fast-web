@@ -1,3 +1,4 @@
+{{ license }}
 'use client';
 import ActionButtonComponent from '@/components/base/action-button';
 import { PaginatedTable } from '@/components/base/paginated-table';
@@ -472,7 +473,7 @@ const {{ CN }}Page: React.FC = () => {
         <{{ CN }}QueryComponent
           on{{ CN }}QueryFinish={on{{ CN }}QueryFinish}
           on{{ CN }}QueryReset={handle{{ CN }}QueryReset}
-          {{ cN }}QueryForm={{{ cN }}QueryForm}
+          {{ cN }}QueryForm={ {{ cN }}QueryForm}
         />
       </TransitionWrapper>
       <div>
@@ -490,7 +491,7 @@ const {{ CN }}Page: React.FC = () => {
           isBatchRemoveDisabled={selectedRowKeys.length === 0}
           isBatchRemoveLoading={isBatchRemoveLoading}
           isExportLoading={isExportLoading}
-          rawColumns={{{ cN }}PageColumns as any[]}
+          rawColumns={ {{ cN }}PageColumns as any[]}
           visibleColumns={visibleColumns as any[]}
           onToggleColumnVisibility={onToggleColumnVisibility}
           actionConfig={actionConfig}
@@ -500,8 +501,8 @@ const {{ CN }}Page: React.FC = () => {
       <div>
         <PaginatedTable<{{ CN }}>
           columns={filtered{{ CN }}Columns}
-          dataSource={{{ cN }}PageDataSource}
-          total={{{ cN }}PageTotalCount}
+          dataSource={ {{ cN }}PageDataSource}
+          total={ {{ cN }}PageTotalCount}
           current={current}
           page_size={page_size}
           onPaginationChange={handlePaginationChange}
@@ -518,14 +519,14 @@ const {{ CN }}Page: React.FC = () => {
             onCreate{{ CN }}Finish={handleCreate{{ CN }}Finish}
             isCreate{{ CN }}Loading={isCreate{{ CN }}Loading}
             create{{ CN }}Form={create{{ CN }}Form}
-            optionDataSource={{{ cN }}PageDataSource}
+            optionDataSource={ {{ cN }}PageDataSource}
           />
         </div>
         <div>
           <{{ CN }}DetailComponent
             is{{ CN }}DetailDrawerVisible={is{{ CN }}DetailDrawerVisible}
             on{{ CN }}DetailClose={on{{ CN }}DetailClose}
-            {{ cN }}Detail={{{ cN }}Detail}
+            {{ cN }}Detail={ {{ cN }}Detail}
           />
         </div>
         <div>
@@ -535,7 +536,7 @@ const {{ CN }}Page: React.FC = () => {
             onUpdate{{ CN }}Finish={handleUpdate{{ CN }}Finish}
             isUpdate{{ CN }}Loading={isUpdate{{ CN }}Loading}
             update{{ CN }}Form={update{{ CN }}Form}
-            optionDataSource={{{ cN }}PageDataSource}
+            optionDataSource={ {{ cN }}PageDataSource}
           />
         </div>
         <div>
@@ -544,7 +545,7 @@ const {{ CN }}Page: React.FC = () => {
             onBatchUpdate{{ CN }}Cancel={handle{{ CN }}BatchModifyCancel}
             onBatchUpdate{{ CN }}Finish={handle{{ CN }}BatchModifyFinish}
             isBatchUpdate{{ CN }}Loading={is{{ CN }}BatchModifyLoading}
-            batchUpdate{{ CNs }}Form={{{ cN }}BatchModifyForm}
+            batchUpdate{{ CNs }}Form={ {{ cN }}BatchModifyForm}
           />
         </div>
         <div>

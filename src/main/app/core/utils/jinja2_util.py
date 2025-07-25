@@ -51,12 +51,14 @@ class Jinja2Utils:
 
         raw_class_name = converter.to_singular(table_name)
 
-        className = converter.convert(raw_class_name, "camel")  # noqa
-        ClassName = converter.convert(raw_class_name, "pascal")  # noqa
-        class_name = converter.convert(raw_class_name, "snake")
+        className = converter.to_camel(raw_class_name)  # noqa
+        ClassName = converter.to_pascal(raw_class_name)  # noqa
+        class_name = converter.to_snake(raw_class_name)
         class_names = converter.to_plural(raw_class_name)
-        classNames = converter.convert(class_names, "camel")  # noqa
-        ClassNames = converter.convert(class_names, "pascal")  # noqa
+        classNames = converter.to_camel(class_names)  # noqa
+        ClassNames = converter.to_pascal(
+            class_names,
+        )  # noqa
 
         primary_key = table_gen.pk_field
 
@@ -190,44 +192,15 @@ class Jinja2Utils:
             ]
             for tmp in python_template:
                 select_template.append(tmp)
-        if backend == GenConstants.JAVA:
-            model_tpl = "jinja2/java/mybatis_plus/model.java.j2"
-            mapper_tpl = "jinja2/java/mybatis_plus/mapper.java.j2"
-            service_tpl = "jinja2/java/mybatis_plus/service.java.j2"
-            service_impl_tpl = "jinja2/java/mybatis_plus/serviceImpl.java.j2"
-            controller_tpl = "jinja2/java/mybatis_plus/controller.java.j2"
-            create_tpl = "jinja2/java/command/create.java.j2"
-            modify_tpl = "jinja2/java/command/modify.java.j2"
-            batch_modify_tpl = "jinja2/java/command/batchModify.java.j2"
-            query_tpl = "jinja2/java/command/query.java.j2"
-            detail_tpl = "jinja2/java/vo/detail.java.j2"
-            page_tpl = "jinja2/java/vo/page.java.j2"
-            converter_tpl = "jinja2/java/converter/converter.java.j2"
-            java_template = [
-                model_tpl,
-                mapper_tpl,
-                service_tpl,
-                service_impl_tpl,
-                controller_tpl,
-                create_tpl,
-                modify_tpl,
-                query_tpl,
-                detail_tpl,
-                page_tpl,
-                converter_tpl,
-                batch_modify_tpl,
-            ]
-            select_template.extend(java_template)
-        index_tpl = "jinja2/react/index.tsx.j2"
-        index_query_tpl = "jinja2/react/components/iQuery.tsx.j2"
-        index_create_tpl = "jinja2/react/components/iCreate.tsx.j2"
-        index_detail_tpl = "jinja2/react/components/iDetail.tsx.j2"
-        index_modify_tpl = "jinja2/react/components/iModify.tsx.j2"
-        index_batch_modify_tpl = "jinja2/react/components/iBatchModify.tsx.j2"
-        index_import_tpl = "jinja2/react/components/iImport.tsx.j2"
-        api_tpl = "jinja2/js/api.js.j2"
-        type_tpl = "jinja2/js/type.js.j2"
-        router_tpl = "jinja2/react/router.tsx.j2"
+        index_tpl = "jinja2/react/pageTs.tsx.j2"
+        index_query_tpl = "jinja2/react/components/queryTs.tsx.j2"
+        index_create_tpl = "jinja2/react/components/createTs.tsx.j2"
+        index_detail_tpl = "jinja2/react/components/detailTs.tsx.j2"
+        index_modify_tpl = "jinja2/react/components/updateTs.tsx.j2"
+        index_batch_modify_tpl = "jinja2/react/components/batchUpdateTs.tsx.j2"
+        index_import_tpl = "jinja2/react/components/importTs.tsx.j2"
+        api_tpl = "jinja2/ts/serviceTs.ts.j2"
+        type_tpl = "jinja2/ts/typeTs.ts.j2"
         react_templates = [
             index_query_tpl,
             index_modify_tpl,
@@ -238,7 +211,6 @@ class Jinja2Utils:
             index_create_tpl,
             api_tpl,
             type_tpl,
-            router_tpl,
         ]
 
         select_template.extend(react_templates)
@@ -258,39 +230,25 @@ class Jinja2Utils:
         获取文件名
         """
         gen_table = table_gen.gen_table
+        converter = ClassNameConverter()
         file_name = ""
         package_name = gen_table.package_name
         module_name = gen_table.module_name
+        if not module_name:
+            module_name = "system"
         class_name = gen_table.class_name
         table_name = gen_table.table_name
         business_name = gen_table.business_name
-
         java_path = (
             f"{Jinja2Utils.JAVA_PROJECT_PATH}/{package_name.replace('.', '/')}"
         )
         py_path = f"{Jinja2Utils.PY_PROJECT_PATH}"
-        mybatis_path = f"{Jinja2Utils.MYBATIS_PATH}/{module_name}"
         client_dir = "src"
-        client_module_dir = "system"
-        kebab_case_class_name = Jinja2Utils.to_kebab_case(business_name)
+        kebab_case_class_name = converter.to_kebab(
+            converter.to_singular(table_name)
+        )
 
-        if "model.java.j2" in template:
-            file_name = f"{java_path}/model/{class_name}DO.java"
-        elif (
-            "sub-model.java.j2" in template
-            and gen_table.get("tplCategory") == "sub"
-        ):
-            sub_class_name = gen_table.get("subTable").get("className")
-            file_name = f"{java_path}/domain/{sub_class_name}.java"
-        elif "mapper.java.j2" in template:
-            file_name = f"{java_path}/mapper/{class_name}Mapper.java"
-        elif "service.java.j2" in template:
-            file_name = f"{java_path}/service/I{class_name}Service.java"
-        elif "serviceImpl.java.j2" in template:
-            file_name = f"{java_path}/service/impl/{class_name}ServiceImpl.java"
-        elif "controller.java.j2" in template:
-            file_name = f"{java_path}/controller/{class_name}Controller.java"
-        elif "controllerPy.py.j2" in template:
+        if "controllerPy.py.j2" in template:
             file_name = f"{py_path}/controller/{table_name}_controller.py"
         elif "servicePy.py.j2" in template:
             file_name = f"{py_path}/service/{table_name}_service.py"
@@ -302,47 +260,29 @@ class Jinja2Utils:
             file_name = f"{py_path}/schema/{table_name}_schema.py"
         elif "modelPy.py.j2" in template:
             file_name = f"{py_path}/model/{table_name}_model.py"
-        elif "converter.java.j2" in template:
-            file_name = f"{java_path}/converter/{class_name}Converter.java"
-        elif "create.java.j2" in template:
-            file_name = f"{java_path}/command/{class_name}Create.java"
-        elif "modify.java.j2" in template:
-            file_name = f"{java_path}/command/{class_name}Modify.java"
-        elif "batchModify.java.j2" in template:
-            file_name = f"{java_path}/command/{class_name}BatchModify.java"
-        elif "query.java.j2" in template:
-            file_name = f"{java_path}/command/{class_name}Query.java"
-        elif "detail.java.j2" in template:
-            file_name = f"{java_path}/vo/{class_name}Detail.java"
-        elif "page.java.j2" in template:
-            file_name = f"{java_path}/vo/{class_name}Page.java"
-        elif "mapper.xml.vm" in template:
-            file_name = f"{mybatis_path}/{class_name}Mapper.xml"
         elif "sql.vm" in template:
             file_name = f"{business_name}Menu.sql"
-        elif "index.tsx.j2" in template:
-            file_name = f"{client_dir}/views/{client_module_dir}/{kebab_case_class_name}/index.tsx"
-        elif "iQuery.tsx.j2" in template:
-            file_name = f"{client_dir}/views/{client_module_dir}/{kebab_case_class_name}/components/{kebab_case_class_name}-query.tsx"
-        elif "iCreate.tsx.j2" in template:
-            file_name = f"{client_dir}/views/{client_module_dir}/{kebab_case_class_name}/components/{kebab_case_class_name}-create.tsx"
-        elif "iDetail.tsx.j2" in template:
-            file_name = f"{client_dir}/views/{client_module_dir}/{kebab_case_class_name}/components/{kebab_case_class_name}-detail.tsx"
-        elif "iModify.tsx.j2" in template:
-            file_name = f"{client_dir}/views/{client_module_dir}/{kebab_case_class_name}/components/{kebab_case_class_name}-modify.tsx"
-        elif "iBatchModify.tsx.j2" in template:
-            file_name = f"{client_dir}/views/{client_module_dir}/{kebab_case_class_name}/components/{kebab_case_class_name}-batch-modify.tsx"
-        elif "iImport.tsx.j2" in template:
-            file_name = f"{client_dir}/views/{client_module_dir}/{kebab_case_class_name}/components/{kebab_case_class_name}-import.tsx"
-        elif "api.js.j2" in template:
+        elif "pageTs.tsx.j2" in template:
+            file_name = f"{client_dir}/app/(main)/{module_name}/{kebab_case_class_name}/page.tsx"
+        elif "queryTs.tsx.j2" in template:
+            file_name = f"{client_dir}/app/(main)/{module_name}/{kebab_case_class_name}/components/query-{kebab_case_class_name}.tsx"
+        elif "createTs.tsx.j2" in template:
+            file_name = f"{client_dir}/app/(main)/{module_name}/{kebab_case_class_name}/components/create-{kebab_case_class_name}.tsx"
+        elif "detailTs.tsx.j2" in template:
+            file_name = f"{client_dir}/app/(main)/{module_name}/{kebab_case_class_name}/components/{kebab_case_class_name}-detail.tsx"
+        elif "updateTs.tsx.j2" in template:
+            file_name = f"{client_dir}/app/(main)/{module_name}/{kebab_case_class_name}/components/update-{kebab_case_class_name}.tsx"
+        elif "batchUpdateTs.tsx.j2" in template:
+            file_name = f"{client_dir}/app/(main)/{module_name}/{kebab_case_class_name}/components/batch-update-{kebab_case_class_name}.tsx"
+        elif "importTs.tsx.j2" in template:
+            file_name = f"{client_dir}/app/(main)/{module_name}/{kebab_case_class_name}/components/import-{kebab_case_class_name}.tsx"
+        elif "serviceTs.ts.j2" in template:
             file_name = f"{client_dir}/service/{kebab_case_class_name}.ts"
-        elif "type.js.j2" in template:
+        elif "typeTs.ts.j2" in template:
             file_name = f"{client_dir}/types/{kebab_case_class_name}.ts"
-        elif "router.tsx.j2" in template:
-            file_name = f"{client_dir}/router.ts"
         else:
             raise Exception(template)
-
+        print(f"file_name: {file_name}")
         return file_name
 
     @staticmethod

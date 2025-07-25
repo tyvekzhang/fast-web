@@ -40,7 +40,7 @@ security:
   black_ip_list: ""
 
 gen:
-  author: "tyvekzhang"
-  package_name: "com.singularity.modules.reading"
+  author: "Fast web"
+  package_name: ""
   auto_remove_pre: True
   table_prefix: ""
