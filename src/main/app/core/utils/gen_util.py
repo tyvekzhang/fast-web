@@ -4,6 +4,7 @@ from typing import List
 
 from src.main.app.core.config.config_manager import load_config
 from src.main.app.core.gen.gen_constants import GenConstants
+from src.main.app.core.utils.converter_util import ClassNameConverter
 from src.main.app.core.utils.field_type_mapping_util import (
     sql_map2sqlmodel_type,
 )
@@ -202,7 +203,10 @@ class GenUtils:
         if auto_remove_pre and StringUtils.is_not_empty(table_prefix):
             search_list = StringUtils.split(table_prefix, ",")
             table_name = GenUtils.replace_first(table_name, search_list)
-        return StringUtils.to_upper_camel_case(table_name)
+        converter = ClassNameConverter()
+        table_name = converter.to_singular(table_name)
+        table_name = table_name.strip("_")
+        return converter.to_snake(table_name)
 
     @staticmethod
     def replace_first(replacement: str, search_list: List[str]) -> str:

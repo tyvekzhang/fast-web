@@ -1,4 +1,4 @@
-{{ license }}
+{{ licenseTs }}
 import httpClient from '@/lib/http';
 import { downloadBlob } from '@/service/util';
 import { PageResult } from '@/types';
@@ -15,8 +15,9 @@ import {
   {{ CN }},
   {{ CN }}Detail,
   Update{{ CN }}Request,
-} from '@/types/{{ cN }}';
+} from '@/types/{{ c_kebab_n }}';
 import { AxiosResponse } from 'axios';
+
 
 /**
  * Retrieve {{ cN }} details.
@@ -27,6 +28,8 @@ import { AxiosResponse } from 'axios';
 export function get{{ CN }}(id: string) {
   return httpClient.get<{{ CN }}Detail>(`/{{ cNs }}/${id}`);
 }
+
+
 /**
  * List {{ cNs }} with pagination.
  *
@@ -36,6 +39,8 @@ export function get{{ CN }}(id: string) {
 export function list{{ CNs }}(req: Partial<List{{ CNs }}Request>) {
   return httpClient.get<PageResult<{{ CN }}>>('/{{ cNs }}', req);
 }
+
+
 /**
  * Create a new {{ cN }}.
  *
@@ -45,6 +50,8 @@ export function list{{ CNs }}(req: Partial<List{{ CNs }}Request>) {
 export function create{{ CN }}(req: Create{{ CN }}Request) {
   return httpClient.post<number>('/{{ cNs }}', req);
 }
+
+
 /**
  * Update an existing {{ cN }}.
  *
@@ -53,6 +60,8 @@ export function create{{ CN }}(req: Create{{ CN }}Request) {
 export function update{{ CN }}(req: Update{{ CN }}Request) {
   return httpClient.put<{{ CN }}>('/{{ cNs }}', req);
 }
+
+
 /**
  * Delete {{ cN }} by ID
  *
@@ -61,6 +70,8 @@ export function update{{ CN }}(req: Update{{ CN }}Request) {
 export function delete{{ CN }}(id: string) {
   return httpClient.delete<void>(`/{{ cNs }}/${id}`);
 }
+
+
 /**
  *  Batch create {{ cNs }}.
  *
@@ -70,6 +81,8 @@ export function delete{{ CN }}(id: string) {
 export function batchCreate{{ CNs }}(req: BatchCreate{{ CNs }}Request) {
   return httpClient.post<number[]>('/{{ cNs }}:batchCreate', req);
 }
+
+
 /**
  * Batch updates multiple {{ cNs }} in a single operation.
  *
@@ -78,6 +91,8 @@ export function batchCreate{{ CNs }}(req: BatchCreate{{ CNs }}Request) {
 export function batchUpdate{{ CNs }}(req: BatchUpdate{{ CNs }}Request) {
   return httpClient.put<BatchUpdate{{ CNs }}Response>('/{{ cN }}:batchUpdate', req);
 }
+
+
 /**
  * Batch delete {{ cNs }}.
  *
@@ -86,6 +101,7 @@ export function batchUpdate{{ CNs }}(req: BatchUpdate{{ CNs }}Request) {
 export function batchDelete{{ CN }}(req: BatchDelete{{ CNs }}Request) {
   return httpClient.delete<void>('/{{ cNs }}:batchDelete', { data: req });
 }
+
 
 /**
  *  Export the Excel template for {{ cN }} import.
@@ -102,12 +118,13 @@ export async function export{{ CN }}Template() {
   downloadBlob(response, '{{ cN }}_import_tpl.xlsx');
 }
 
+
 /**
  * Export {{ cN }} data based on the provided {{ cN }} IDs.
  *
  * @param req Query parameters specifying the {{ cNs }} to export.
  */
-export async function export{{ CN }}Page(req: Export{{ CNs }}Request) {
+export async function export{{ CN }}(req: Export{{ CNs }}Request) {
   const params = {
     ids: req.ids,
   };
@@ -120,6 +137,7 @@ export async function export{{ CN }}Page(req: Export{{ CNs }}Request) {
   );
   downloadBlob(response, '{{ cN }}_data_export.xlsx');
 }
+
 
 /**
  * Import {{ cNs }} from an uploaded Excel file.

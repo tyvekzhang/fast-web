@@ -1,4 +1,4 @@
-{{ license }}
+{{ licenseTs }}
 {%- set components = {
     'input': False,
     'select': False,
@@ -51,10 +51,10 @@ import { Checkbox } from 'antd';
 import { Radio } from 'antd';
 {%- endif %}
 {%- if components.treeselect %}
-import { DownOutlined } from '@ant-design/icons';
+import { ChevronDown } from 'lucide-react';
 import { TreeSelect } from 'antd';
 import { TreeSelectUtil } from '@/utils/select-util';
-import { {{ CN }}Page } from '@/types/{{ kebab_case_class_name }}';
+import { {{ CN }} } from '@/types/{{ c_kebab_n }}';
 {%- endif %}
 import {
   AutoComplete,
@@ -62,39 +62,38 @@ import {
   Cascader,
   ColorPicker,
   Form,
-  InputNumber, Mentions,
+  InputNumber, Mentions, Input,
   Modal, Rate,
   Slider, Switch, TimePicker, Transfer, Upload,
 } from 'antd';
 {%- if components.dict_type %}
-import { useAppSelector } from '@/stores';
 {%- endif %}
-import { {{ CN }}Create } from '@/types/{{ kebab_case_class_name }}';
+import { Create{{ CN }} } from '@/types/{{ c_kebab_n }}';
 import { FormInstance } from 'antd/es/form';
 import React, { useMemo } from 'react';
 
-const {{ cN }}CreateFormItemLayout = {
+const create{{ CN }}FormItemLayout = {
   labelCol: { span: 5 },
   wrapperCol: { span: 17 },
 };
 
-interface {{ CN }}CreateProps {
-  is{{ CN }}CreateModalVisible: boolean;
-  on{{ CN }}CreateCancel: () => void;
-  on{{ CN }}CreateFinish: ({{ cN }}Create: {{ CN }}Create) => void;
-  is{{ CN }}CreateLoading: boolean;
-  {{ cN }}CreateForm: FormInstance;
+interface Create{{ CN }}Props {
+  isCreate{{ CN }}ModalVisible: boolean;
+  onCreate{{ CN }}Cancel: () => void;
+  onCreate{{ CN }}Finish: (create{{ CN }}: Create{{ CN }}) => void;
+  isCreate{{ CN }}Loading: boolean;
+  create{{ CN }}Form: FormInstance;
 {%- if components.treeselect %}
-  treeSelectDataSource?: {{ CN }}Page[];
+  treeSelectDataSource?: {{ CN }}[];
 {%- endif %}
 }
 
-const {{ CN }}CreateComponent: React.FC<{{ CN }}CreateProps> = ({
-  is{{ CN }}CreateModalVisible,
-  on{{ CN }}CreateCancel,
-  on{{ CN }}CreateFinish,
-  is{{ CN }}CreateLoading,
-  {{ cN }}CreateForm,
+const Create{{ CN }}Component: React.FC<Create{{ CN }}Props> = ({
+  isCreate{{ CN }}ModalVisible,
+  onCreate{{ CN }}Cancel,
+  onCreate{{ CN }}Finish,
+  isCreate{{ CN }}Loading,
+  create{{ CN }}Form,
 {%- if components.treeselect %}
   treeSelectDataSource,
 {%- endif %}
@@ -105,34 +104,37 @@ const {{ CN }}CreateComponent: React.FC<{{ CN }}CreateProps> = ({
 {%- endif %}
   const footerButtons = useMemo(
     () => [
-      <Button key="back" onClick={on{{ CN }}CreateCancel}>
+      <Button key="back" onClick={onCreate{{ CN }}Cancel}>
         取消
       </Button>,
-      <Button key="submit" type="primary" loading={is{{ CN }}CreateLoading} onClick={() => {{ cN }}CreateForm.submit()}>
+      <Button key="submit" type="primary" loading={isCreate{{ CN }}Loading} onClick={() => create{{ CN }}Form.submit()}>
         确定
       </Button>,
     ],
-    [is{{ CN }}CreateLoading, {{ cN }}CreateForm, on{{ CN }}CreateCancel],
+    [isCreate{{ CN }}Loading, create{{ CN }}Form, onCreate{{ CN }}Cancel],
   );
 
 {%- if "" != components.dict_type %}
-  const { dictData } = useAppSelector((state: Record<string, any>) => state.dict);
+  const dictData = {
+    "key1": "value1",
+    "key2": "value2"
+  }
 {%- endif %}
 
   return (
     <div>
       <Modal
         title="{{ function_name }}新增"
-        open={is{{ CN }}CreateModalVisible}
-        onCancel={on{{ CN }}CreateCancel}
+        open={isCreate{{ CN }}ModalVisible}
+        onCancel={onCreate{{ CN }}Cancel}
         footer={footerButtons}
         width={'60%'}
       >
         <Form
-          {...{{ cN }}CreateFormItemLayout}
-          form={ {{ cN }}CreateForm}
-          name="{{ cN }}Create"
-          onFinish={on{{ CN }}CreateFinish}
+          {...create{{ CN }}FormItemLayout}
+          form={ create{{ CN }}Form}
+          name="create{{ CN }}"
+          onFinish={onCreate{{ CN }}Finish}
           className="grid grid-cols-1 lg:grid-cols-2 gap-y-0 gap-x-2 pt-4"
         >
           {%- for field in fields %}
@@ -152,7 +154,7 @@ const {{ CN }}CreateComponent: React.FC<{{ CN }}CreateProps> = ({
           {%- set field_name = field.gen_field.field_name %}
           {%- set html_type = field.gen_field.html_type %}
           {%- set dict_type = field.gen_field.dict_type %}
-          <Form.Item name="{{ field_name }}" label="{{ comment }}" rules={[{ required: false, message: '请输入{{ comment }}' }]}>
+          <Form.Item name="{{ field_name }}" label="{% if comment %}{{ comment }}{% else %}{{ field.gen_field.field_name }}{% endif %}" rules={[{ required: false, message: '请输入{{ comment }}' }]}>
             {%- if field_name == tree_parent_code and "" != tree_parent_code %}
             <TreeSelect
               placeholder="请选择{{comment}}"
@@ -226,4 +228,4 @@ const {{ CN }}CreateComponent: React.FC<{{ CN }}CreateProps> = ({
   );
 };
 
-export default {{ CN }}CreateComponent;
+export default Create{{ CN }}Component;

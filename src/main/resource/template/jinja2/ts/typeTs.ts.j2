@@ -1,4 +1,4 @@
-{{ license }}
+{{ licenseTs }}
 import {PaginationRequest} from '.';
 
 export interface List{{ CNs }}Request extends PaginationRequest {
@@ -36,14 +36,13 @@ export interface Create{{ CN }}Request {
 export interface Update{{ CN }} {
     {% for field in fields %}
     {%- if field.gen_field.updatable == 1  %}
-    /** {{ field.field.comment }} */
     {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
     {% endif -%}
     {% endfor %}
 }
 
 export interface Update{{ CN }}Request {
-    menu: Update{{ CN }};
+{{ cN }}: Update{{ CN }};
 }
 
 export interface BatchGet{{ CNs }}Response {
@@ -61,7 +60,6 @@ export interface BatchCreate{{ CN }}Response {
 export interface BatchUpdate{{ CN }} {
     {% for field in fields %}
     {%- if field.gen_field.batch_updatable == 1 %}
-    /** {{ field.field.comment }} */
     {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
     {% endif -%}
     {% endfor %}
@@ -69,7 +67,7 @@ export interface BatchUpdate{{ CN }} {
 
 export interface BatchUpdate{{ CNs }}Request {
     ids: string[];
-    menu: BatchUpdate{{ CN }};
+    {{ cN }}: BatchUpdate{{ CN }};
 }
 
 export interface BatchPatch{{ CNs }}Request {

@@ -78,34 +78,37 @@ class {{ CN }}ServiceImpl(BaseServiceImpl[{{ CN }}Mapper, {{ CN }}Model], {{ CN 
             FilterOperators.BETWEEN: {},
             FilterOperators.LIKE: {},
         }
-        if req.parent_id is not None and req.parent_id != "":
-            filters[FilterOperators.EQ]["parent_id"] = req.parent_id
-        else:
-            filters[FilterOperators.EQ]["parent_id"] = 0
-        if req.id is not None and req.id != "":
-            filters[FilterOperators.EQ]["id"] = req.id
-        if req.name is not None and req.name != "":
-            filters[FilterOperators.LIKE]["name"] = req.name
-        if req.icon is not None and req.icon != "":
-            filters[FilterOperators.EQ]["icon"] = req.icon
-        if req.permission is not None and req.permission != "":
-            filters[FilterOperators.EQ]["permission"] = req.permission
-        if req.sort is not None and req.sort != "":
-            filters[FilterOperators.EQ]["sort"] = req.sort
-        if req.path is not None and req.path != "":
-            filters[FilterOperators.EQ]["path"] = req.path
-        if req.component is not None and req.component != "":
-            filters[FilterOperators.EQ]["component"] = req.component
-        if req.type is not None and req.type != "":
-            filters[FilterOperators.EQ]["type"] = req.type
-        if req.cacheable is not None and req.cacheable != "":
-            filters[FilterOperators.EQ]["cacheable"] = req.cacheable
-        if req.visible is not None and req.visible != "":
-            filters[FilterOperators.EQ]["visible"] = req.visible
-        if req.status is not None and req.status != "":
-            filters[FilterOperators.EQ]["status"] = req.status
-        if req.create_time is not None and req.create_time != "":
-            filters[FilterOperators.EQ]["create_time"] = req.create_time
+        {%- for field in fields %}
+        {%- if field.gen_field.queryable == 1  %}
+        {%- set field_name=field.gen_field.field_name %}
+        {%- set query_type=field.gen_field.query_type %}
+        {%- if query_type == "EQ" %}
+        if req.{{ field_name }} is not None and req.{{ field_name }} != "":
+            filters[FilterOperators.EQ]["{{ field_name }}"] = req.{{ field_name }}
+        {%- elif query_type == "NE" %}
+        if req.{{ field_name }} is not None and req.{{ field_name }} != "":
+            filters[FilterOperators.NE]["{{ field_name }}"] = req.{{ field_name }}
+        {%- elif query_type == "GT" %}
+        if req.{{ field_name }} is not None and req.{{ field_name }} != "":
+            filters[FilterOperators.GT]["{{ field_name }}"] = req.{{ field_name }}
+        {%- elif query_type == "GE" %}
+        if req.{{ field_name }} is not None and req.{{ field_name }} != "":
+            filters[FilterOperators.GE]["{{ field_name }}"] = req.{{ field_name }}
+        {%- elif query_type == "LT" %}
+        if req.{{ field_name }} is not None and req.{{ field_name }} != "":
+            filters[FilterOperators.LT]["{{ field_name }}"] = req.{{ field_name }}
+        {%- elif query_type == "LE" %}
+        if req.{{ field_name }} is not None and req.{{ field_name }} != "":
+            filters[FilterOperators.LE]["{{ field_name }}"] = req.{{ field_name }}
+        {%- elif query_type == "BETWEEN" %}
+        if req.{{ field_name }} is not None and req.{{ field_name }} != "":
+            filters[FilterOperators.BETWEEN]["{{ field_name }}"] = (req.{{ field_name }}[0], req.{{ field_name }}[1])
+        {%- elif query_type == "LIKE" %}
+        if req.{{ field_name }} is not None and req.{{ field_name }} != "":
+            filters[FilterOperators.LIKE]["{{ field_name }}"] = req.{{ field_name }}
+        {%- endif %}
+        {%- endif %}
+        {%- endfor %}
         sort_list = None
         sort_str = req.sort_str
         if sort_str is not None:
@@ -129,11 +132,6 @@ class {{ CN }}ServiceImpl(BaseServiceImpl[{{ CN }}Mapper, {{ CN }}Model], {{ CN 
         )
 
     async def create_{{ c_n }}(self, req: Create{{ CN }}Request) -> {{ CN }}Model:
-        {{ c_n }}_record: {{ CN }}Model = await self.mapper.select_by_name(
-            name=req.{{ c_n }}.name
-        )
-        if {{ c_n }}_record is not None:
-            raise BusinessException(BusinessErrorCode.MENU_NAME_EXISTS)
         {{ c_n }}: {{ CN }}Model = {{ CN }}Model(**req.{{ c_n }}.model_dump())
         return await self.save(data={{ c_n }})
 
@@ -172,16 +170,6 @@ class {{ CN }}ServiceImpl(BaseServiceImpl[{{ CN }}Mapper, {{ CN }}Model], {{ CN 
         {{ c_n }}_list: list[Create{{ CN }}] = req.{{ c_ns }}
         if not {{ c_n }}_list:
             raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
-        {{ c_n }}_names = [{{ c_n }}.name for {{ c_n }} in {{ c_n }}_list]
-        {{ c_n }}_records: list[{{ CN }}Model] = await self.mapper.select_by_names(
-            names={{ c_n }}_names
-        )
-        if {{ c_n }}_records:
-            exist_{{ c_n }}_names = [{{ c_n }}.name for {{ c_n }} in {{ c_n }}_records]
-            raise BusinessException(
-                BusinessErrorCode.MENU_NAME_EXISTS,
-                f"{BusinessErrorCode.MENU_NAME_EXISTS.message}: {str(exist_{{ c_n }}_names)}",
-            )
         data_list = [{{ CN }}Model(**{{ c_n }}.model_dump()) for {{ c_n }} in {{ c_n }}_list]
         await self.mapper.batch_insert(data_list=data_list)
         return data_list

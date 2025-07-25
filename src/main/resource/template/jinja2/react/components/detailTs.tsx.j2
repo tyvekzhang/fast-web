@@ -1,4 +1,4 @@
-{{ license }}
+{{ licenseTs }}
 {%- set components = {
     'datepicker': False,
     'dict_type': False,
@@ -24,9 +24,9 @@ import {
   Space,
 } from 'antd';
 {%- if components.dict_type %}
-import { useAppSelector } from '@/stores';
+
 {%- endif %}
-import { {{ CN }}Detail } from '@/types/{{ kebab_case_class_name }}';
+import { {{ CN }}Detail } from '@/types/{{ c_kebab_n }}';
 import React, { useMemo } from 'react';
 
 interface {{ CN }}DetailDrawerProps {
@@ -42,7 +42,10 @@ const {{ CN }}DetailComponent: React.FC<{{ CN }}DetailDrawerProps> = ({
 }) => {
 
 {%- if components.dict_type %}
-  const { dictData } = useAppSelector((state: Record<string, any>) => state.dict);
+  const dictData = {
+    "key1": "value1",
+    "key2": "value2"
+}
 {%- endif %}
 
   return (
@@ -50,7 +53,7 @@ const {{ CN }}DetailComponent: React.FC<{{ CN }}DetailDrawerProps> = ({
       title="{{ function_name }}详情"
       open={is{{ CN }}DetailDrawerVisible}
       onClose={on{{ CN }}DetailClose}
-      destroyOnClose
+      destroyOnHidden
       width={600}
     >
       { {{ cN }}Detail && (
@@ -72,7 +75,7 @@ const {{ CN }}DetailComponent: React.FC<{{ CN }}DetailDrawerProps> = ({
           {%- set field_name = field.gen_field.field_name %}
           {%- set html_type = field.gen_field.html_type %}
           {%- set dict_type = field.gen_field.dict_type %}
-          <Descriptions.Item label="{{ comment }}">
+          <Descriptions.Item label="{% if comment %}{{ comment }}{% else %}{{ field.gen_field.field_name }}{% endif %}">
             {%- if html_type == 'datepicker' or html_type == 'datetime' %}
               {dayjs({{ cN }}Detail.{{ field_name }}).format('YYYY-MM-DD')}
             {%- elif dict_type %}

@@ -5,6 +5,8 @@ from typing import List
 from src.main.app.core.constant import constant
 from src.main.app.core.gen.gen_constants import GenConstants
 from src.main.app.core.utils.converter_util import ClassNameConverter
+from src.main.app.core.utils.gen_util import GenUtils, gen_config
+from src.main.app.core.utils.string_util import StringUtils
 from src.main.app.model.db_index_model import IndexDO
 from src.main.app.schema.gen_table_schema import TableGen
 
@@ -23,6 +25,21 @@ APACHE_V2 = """
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""
+APACHE_V2_TS = """
+// Copyright (c) 2025 {} and/or its affiliates. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 """
 
 
@@ -45,14 +62,17 @@ class Jinja2Utils:
         import_list = Jinja2Utils.get_import_list(table_gen)
         function_name = gen_table.function_name
         table_name = gen_table.table_name
+        class_name = gen_table.class_name
         author = converter.convert(gen_table.function_author, "pascal")
         license = APACHE_V2.format(author).strip()
+        license_ts = APACHE_V2_TS.format(author).strip()
         date_time = datetime.utcnow().strftime("%Y-%m-%d")
 
-        raw_class_name = converter.to_singular(table_name)
+        raw_class_name = converter.to_singular(class_name)
 
         className = converter.to_camel(raw_class_name)  # noqa
         ClassName = converter.to_pascal(raw_class_name)  # noqa
+        _c_n = converter.to_kebab(raw_class_name)
         class_name = converter.to_snake(raw_class_name)
         class_names = converter.to_plural(raw_class_name)
         classNames = converter.to_camel(class_names)  # noqa
@@ -71,6 +91,7 @@ class Jinja2Utils:
 
         context = {
             "license": license,
+            "licenseTs": license_ts,
             "package_name": package_name,
             "import_list": import_list,
             "function_name": function_name,
@@ -80,6 +101,7 @@ class Jinja2Utils:
             "cN": className,
             "CN": ClassName,
             "c_n": class_name,
+            "c_kebab_n": _c_n,
             "c_ns": class_names,
             "cNs": classNames,
             "CNs": ClassNames,
@@ -248,18 +270,30 @@ class Jinja2Utils:
             converter.to_singular(table_name)
         )
 
+        auto_remove_pre = gen_config.auto_remove_pre
+        table_prefix = gen_config.table_prefix
+        if auto_remove_pre and StringUtils.is_not_empty(table_prefix):
+            search_list = StringUtils.split(table_prefix, ",")
+            kebab_case_class_name = GenUtils.replace_first(
+                kebab_case_class_name, search_list
+            )
+            kebab_case_class_name = kebab_case_class_name.lstrip("_").lstrip(
+                "-"
+            )
+        py_file_name = converter.to_snake(kebab_case_class_name)
+
         if "controllerPy.py.j2" in template:
-            file_name = f"{py_path}/controller/{table_name}_controller.py"
+            file_name = f"{py_path}/controller/{py_file_name}_controller.py"
         elif "servicePy.py.j2" in template:
-            file_name = f"{py_path}/service/{table_name}_service.py"
+            file_name = f"{py_path}/service/{py_file_name}_service.py"
         elif "serviceImplPy.py.j2" in template:
-            file_name = f"{py_path}/service/impl/{table_name}_service_impl.py"
+            file_name = f"{py_path}/service/impl/{py_file_name}_service_impl.py"
         elif "mapperPy.py.j2" in template:
-            file_name = f"{py_path}/mapper/{table_name}_mapper.py"
+            file_name = f"{py_path}/mapper/{py_file_name}_mapper.py"
         elif "schemaPy.py.j2" in template:
-            file_name = f"{py_path}/schema/{table_name}_schema.py"
+            file_name = f"{py_path}/schema/{py_file_name}_schema.py"
         elif "modelPy.py.j2" in template:
-            file_name = f"{py_path}/model/{table_name}_model.py"
+            file_name = f"{py_path}/model/{py_file_name}_model.py"
         elif "sql.vm" in template:
             file_name = f"{business_name}Menu.sql"
         elif "pageTs.tsx.j2" in template:

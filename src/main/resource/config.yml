@@ -43,4 +43,5 @@ gen:
   author: "Fast web"
   package_name: ""
   auto_remove_pre: True
-  table_prefix: ""
+  table_prefix: "gen, read, db"
+  add_license: True

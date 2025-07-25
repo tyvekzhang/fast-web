@@ -1,67 +1,66 @@
-{{ license }}
-import { message } from '@/components/GlobalToast';
-import { export{{ CN }}Template } from '@/service/{{ kebab_case_class_name }}';
-import { {{ CN }}Create } from '@/types/{{ kebab_case_class_name }}';
+{{ licenseTs }}
+import { export{{ CN }}Template } from '@/service/{{ c_kebab_n }}';
+import { Create{{ CN }}, Import{{ CNs }}Response} from '@/types/{{ c_kebab_n }}';
 import { InboxOutlined } from '@ant-design/icons';
-import { Button, Modal, Table, Upload, UploadFile } from 'antd';
+import { Button, Modal, Table, Upload, UploadFile, message } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { UploadRequestOption } from 'rc-upload/es/interface';
 import type { RcFile } from 'rc-upload/lib/interface';
 import React, { useState } from 'react';
 
-interface {{ CN }}ImportProps {
-  is{{ CN }}ImportModalVisible: boolean;
-  is{{ CN }}ImportLoading: boolean;
-  on{{ CN }}ImportCancel: () => void;
-  on{{ CN }}ImportFinish: (fileList: RcFile[]) => Promise<{{ CN }}Create[]>;
-  handle{{ CN }}Import: () => void;
+interface Import{{ CN }}Props {
+  isImport{{ CN }}ModalVisible: boolean;
+  isImport{{ CN }}Loading: boolean;
+  onImport{{ CN }}Cancel: () => void;
+  onImport{{ CN }}Finish: (fileList: RcFile[]) => Promise<Import{{ CNs }}Response>;
+  handleImport{{ CN }}: () => void;
 }
 
-const {{ CN }}ImportComponent: React.FC<{{ CN }}ImportProps> = ({
-  is{{ CN }}ImportModalVisible,
-  on{{ CN }}ImportCancel,
-  on{{ CN }}ImportFinish,
-  is{{ CN }}ImportLoading,
-  handle{{ CN }}Import,
+const Import{{ CN }}Component: React.FC<Import{{ CN }}Props> = ({
+  isImport{{ CN }}ModalVisible,
+  onImport{{ CN }}Cancel,
+  onImport{{ CN }}Finish,
+  isImport{{ CN }}Loading,
+  handleImport{{ CN }},
 }) => {
-  const [{{ cN }}ImportFileList, set{{ CN }}ImportFileList] = useState<RcFile[]>([]);
-  const [{{ CN }}CreateList, set{{ CN }}CreateList] = useState<{{ CN }}Create[]>([]);
+  const [{{ cN }}ImportFileList, setImport{{ CN }}FileList] = useState<RcFile[]>([]);
+  const [Create{{ CN }}List, setCreate{{ CN }}List] = useState<Create{{ CN }}[]>([]);
   const [isUploadShow, setIsUploadShow] = useState<boolean>(true);
 
   const footerButtons = () => [
-    <Button key="back" onClick={handle{{ CN }}ImportCancel}>
+    <Button key="back" onClick={handleImport{{ CN }}Cancel}>
       取消
     </Button>,
-    <Button key="submit" type="primary" loading={is{{ CN }}ImportLoading} onClick={handle{{ CN }}ImportConfirm}>
+    <Button key="submit" type="primary" loading={isImport{{ CN }}Loading} onClick={handleImport{{ CN }}Confirm}>
       确定
     </Button>,
   ];
 
-  const handle{{ CN }}ImportConfirm = async () => {
+  const handleImport{{ CN }}Confirm = async () => {
     if (isUploadShow) {
       if ({{ cN }}ImportFileList.length === 0) {
         message.warning('请先选择文件');
         return;
       }
       try {
-        const {{ CN }}PageList = await on{{ CN }}ImportFinish({{ cN }}ImportFileList);
+        const import{{ CN }}Response = await onImport{{ CN }}Finish({{ cN }}ImportFileList);
         setIsUploadShow(false);
-        set{{ CN }}CreateList({{ CN }}PageList as {{ CN }}Create[]);
+        setCreate{{ CN }}List(import{{ CN }}Response.{{ cNs }});
       } finally {
-        set{{ CN }}ImportFileList([]);
+        setImport{{ CN }}FileList([]);
       }
     } else {
-      handle{{ CN }}Import();
+      handleImport{{ CN }}();
       setIsUploadShow(true);
     }
   };
   // 表格列信息
-  const {{ CN }}PageColumns: ColumnsType<{{ CN }}Create> = [
+  const {{ CN }}Columns: ColumnsType<Create{{ CN }}> = [
     {
       title: "序号",
       dataIndex: "No",
       key: "No",
-      render: (_: number, _record: {{class_name}}Create, rowIndex: number) => rowIndex + 1,
+      render: (_: number, _record: Create{{ CN }}, rowIndex: number) => rowIndex + 1,
       width: "8%",
     },
     {%- for field in fields %}
@@ -79,7 +78,7 @@ const {{ CN }}ImportComponent: React.FC<{{ CN }}ImportProps> = ({
       {%- endif %}
     {%- endif %}
     {
-      title: "{{ comment }}",
+      title: "{% if comment %}{{ comment }}{% else %}{{ field.gen_field.field_name }}{% endif %}",
       dataIndex: "{{ field.gen_field.field_name }}",
       key: "{{ field.gen_field.field_name }}",
       render: (text) => (text ? text : "-"),
@@ -106,26 +105,26 @@ const {{ CN }}ImportComponent: React.FC<{{ CN }}ImportProps> = ({
       onError?.(new Error('仅支持xls、xlsx格式文件'));
       return;
     }
-    set{{ CN }}ImportFileList((prev) => [...prev, rcFile]);
+    setImport{{ CN }}FileList((prev) => [...prev, rcFile]);
     setTimeout(() => {
       onSuccess?.(rcFile);
     }, 200);
   };
 
   const handleRemove = (file: UploadFile) => {
-    set{{ CN }}ImportFileList((prev) => prev.filter((f) => f.uid !== file.uid));
+    setImport{{ CN }}FileList((prev) => prev.filter((f) => f.uid !== file.uid));
   };
 
-  const handle{{ CN }}ImportCancel = () => {
-    on{{ CN }}ImportCancel();
+  const handleImport{{ CN }}Cancel = () => {
+    onImport{{ CN }}Cancel();
     setIsUploadShow(true);
   };
 
   return (
     <Modal
       title="{{ function_name }}导入"
-      open={is{{ CN }}ImportModalVisible}
-      onCancel={handle{{ CN }}ImportCancel}
+      open={isImport{{ CN }}ModalVisible}
+      onCancel={handleImport{{ CN }}Cancel}
       footer={footerButtons}
       width={'70%'}
     >
@@ -154,8 +153,8 @@ const {{ CN }}ImportComponent: React.FC<{{ CN }}ImportProps> = ({
       ) : (
         <div>
           <Table
-            columns={ {{ CN }}PageColumns}
-            dataSource={ {{ CN }}CreateList}
+            columns={ {{ CN }}Columns}
+            dataSource={ Create{{ CN }}List}
             pagination={false}
             bordered={false}
             rowKey={'id'}
@@ -166,4 +165,4 @@ const {{ CN }}ImportComponent: React.FC<{{ CN }}ImportProps> = ({
   );
 };
 
-export default {{ CN }}ImportComponent;
+export default Import{{ CN }}Component;

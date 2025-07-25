@@ -1,4 +1,4 @@
-{{ license }}
+{{ licenseTs }}
 {%- set components = {
     'input': False,
     'select': False,
@@ -51,10 +51,10 @@ import { Checkbox } from 'antd';
 import { Radio } from 'antd';
 {%- endif %}
 {%- if components.treeselect %}
-import { DownOutlined } from '@ant-design/icons';
+import { ChevronDown } from 'lucide-react';
 import { TreeSelect } from 'antd';
 import { TreeSelectUtil } from '@/utils/select-util';
-import { {{ CNs }}Page } from '@/types/{{ kebab_case_class_name }}';
+import { {{ CN }} } from '@/types/{{ c_kebab_n }}';
 {%- endif %}
 import {
   AutoComplete,
@@ -67,9 +67,9 @@ import {
   Slider, Switch, TimePicker, Transfer, Upload,
 } from 'antd';
 {%- if components.dict_type %}
-import { useAppSelector } from '@/stores';
+
 {%- endif %}
-import { BatchUpdate{{ CN }} } from '@/types/{{ cN }}';
+import { BatchUpdate{{ CN }} } from '@/types/{{ c_kebab_n }}';
 import { FormInstance } from 'antd/es/form';
 import React, { useMemo } from 'react';
 
@@ -79,9 +79,9 @@ interface BatchUpdate{{ CNs }}Props {
   onBatchUpdate{{ CNs }}Cancel: () => void;
   onBatchUpdate{{ CNs }}Finish: () => void;
   isBatchUpdate{{ CNs }}Loading: boolean;
-  batchUpdate{{ CNs }}Form: FormInstance<BatchUpdate{{ CNs }}>;
+  batchUpdate{{ CNs }}Form: FormInstance<BatchUpdate{{ CN }}>;
 {%- if components.treeselect %}
-  treeSelectDataSource?: {{ CNs }}Page[];
+  treeSelectDataSource?: {{ CN }}[];
 {%- endif %}
 }
 
@@ -116,7 +116,10 @@ const BatchUpdate{{ CNs }}Component: React.FC<BatchUpdate{{ CNs }}Props> = ({
     [isBatchUpdate{{ CNs }}Loading, onBatchUpdate{{ CNs }}Cancel],
   );
 {%- if "" != components.dict_type %}
-  const { dictData } = useAppSelector((state: Record<string, any>) => state.dict);
+  const dictData = {
+    "key1": "value1",
+    "key2": "value2"
+}
 {%- endif %}
 
   return (
@@ -125,7 +128,7 @@ const BatchUpdate{{ CNs }}Component: React.FC<BatchUpdate{{ CNs }}Props> = ({
       open={isBatchUpdate{{ CNs }}ModalVisible}
       onCancel={onBatchUpdate{{ CNs }}Cancel}
       footer={footerButtons}
-      destroyOnClose
+      destroyOnHidden
       width={"60%"}
     >
         <Form
@@ -152,7 +155,7 @@ const BatchUpdate{{ CNs }}Component: React.FC<BatchUpdate{{ CNs }}Props> = ({
           {%- set field_name = field.gen_field.field_name %}
           {%- set html_type = field.gen_field.html_type %}
           {%- set dict_type = field.gen_field.dict_type %}
-          <Form.Item name="{{ field_name }}" label="{{ comment }}" rules={[{ required: false, message: '请输入' }]}>
+          <Form.Item name="{{ field_name }}" label="{% if comment %}{{ comment }}{% else %}{{ field.gen_field.field_name }}{% endif %}" rules={[{ required: false, message: '请输入' }]}>
             {%- if field_name == tree_parent_code and "" != tree_parent_code %}
             <TreeSelect
               placeholder="请选择{{comment}}"

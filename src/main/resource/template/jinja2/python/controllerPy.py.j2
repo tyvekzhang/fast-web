@@ -7,7 +7,7 @@ from fastapi import APIRouter, Query, Form
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.schema import PageResult
-from src.main.app.mapper.{{ c_n }}_mapper import {{ c_n }}Mapper
+from src.main.app.mapper.{{ c_n }}_mapper import {{ cN }}Mapper
 from src.main.app.model.{{ c_n }}_model import {{ CN }}Model
 from src.main.app.schema.{{ c_n }}_schema import (
     List{{ CNs }}Request,
@@ -30,10 +30,10 @@ from src.main.app.service.impl.{{ c_n }}_service_impl import {{ CN }}ServiceImpl
 from src.main.app.service.{{ c_n }}_service import {{ CN }}Service
 
 {{ c_n }}_router = APIRouter()
-{{ c_n }}_service: {{ CN }}Service = {{ CN }}ServiceImpl(mapper={{ c_n }}Mapper)
+{{ c_n }}_service: {{ CN }}Service = {{ CN }}ServiceImpl(mapper={{ cN }}Mapper)
 
 
-@{{ c_n }}_router.get("/{{ c_ns }}/{id}")
+@{{ c_n }}_router.get("/{{ cNs }}/{id}")
 async def get_{{ c_n }}(id: int) -> {{ CN }}Detail:
     """
     Retrieve {{ c_n }} details.
@@ -55,7 +55,7 @@ async def get_{{ c_n }}(id: int) -> {{ CN }}Detail:
     return {{ CN }}Detail(**{{ c_n }}_record.model_dump())
 
 
-@{{ c_n }}_router.get("/{{ c_ns }}")
+@{{ c_n }}_router.get("/{{ cNs }}")
 async def list_{{ c_ns }}(
     req: Annotated[List{{ CNs }}Request, Query()],
 ) -> PageResult[{{ CN }}]:
@@ -83,7 +83,7 @@ async def list_{{ c_ns }}(
     return PageResult(records={{ c_n }}_records_with_children, total=total)
 
 
-@{{ c_n }}_router.post("/{{ c_ns }}")
+@{{ c_n }}_router.post("/{{ cNs }}")
 async def creat_{{ c_n }}(
     req: Create{{ CN }}Request,
 ) -> {{ CN }}:
@@ -107,7 +107,7 @@ async def creat_{{ c_n }}(
     return {{ CN }}(**{{ c_n }}.model_dump())
 
 
-@{{ c_n }}_router.put("/{{ c_ns }}")
+@{{ c_n }}_router.put("/{{ cNs }}")
 async def update_{{ c_n }}(
     req: Update{{ CN }}Request,
 ) -> {{ CN }}:
@@ -131,7 +131,7 @@ async def update_{{ c_n }}(
     return {{ CN }}(**{{ c_n }}.model_dump())
 
 
-@{{ c_n }}_router.delete("/{{ c_ns }}/{id}")
+@{{ c_n }}_router.delete("/{{ cNs }}/{id}")
 async def delete_{{ c_n }}(
     id: int,
 ) -> None:
@@ -150,7 +150,7 @@ async def delete_{{ c_n }}(
     await {{ c_n }}_service.delete_{{ c_n }}(id=id)
 
 
-@{{ c_n }}_router.get("/{{ c_ns }}:batchGet")
+@{{ c_n }}_router.get("/{{ cNs }}:batchGet")
 async def batch_get_{{ c_ns }}(
     ids: list[int] = Query(..., description="List of {{ c_n }} IDs to retrieve"),
 ) -> BatchGet{{ CNs }}Response:
@@ -177,7 +177,7 @@ async def batch_get_{{ c_ns }}(
     return BatchGet{{ CNs }}Response({{ c_ns }}={{ c_n }}_detail_list)
 
 
-@{{ c_n }}_router.post("/{{ c_ns }}:batchCreate")
+@{{ c_n }}_router.post("/{{ cNs }}:batchCreate")
 async def batch_create_{{ c_ns }}(
     req: BatchCreate{{ CNs }}Request,
 ) -> BatchCreate{{ CNs }}Response:
@@ -205,7 +205,7 @@ async def batch_create_{{ c_ns }}(
     return BatchCreate{{ CNs }}Response({{ c_ns }}={{ c_n }}_list)
 
 
-@{{ c_n }}_router.post("/{{ c_ns }}:batchUpdate")
+@{{ c_n }}_router.post("/{{ cNs }}:batchUpdate")
 async def batch_update_{{ c_ns }}(
     req: BatchUpdate{{ CNs }}Request,
 ) -> BatchUpdate{{ CNs }}Response:
@@ -230,7 +230,7 @@ async def batch_update_{{ c_ns }}(
     return BatchUpdate{{ CNs }}Response({{ c_ns }}={{ c_n }}_list)
 
 
-@{{ c_n }}_router.post("/{{ c_ns }}:batchPatch")
+@{{ c_n }}_router.post("/{{ cNs }}:batchPatch")
 async def batch_patch_{{ c_ns }}(
     req: BatchPatch{{ CNs }}Request,
 ) -> BatchUpdate{{ CNs }}Response:
@@ -255,7 +255,7 @@ async def batch_patch_{{ c_ns }}(
     return BatchUpdate{{ CNs }}Response({{ c_ns }}={{ c_n }}_list)
 
 
-@{{ c_n }}_router.post("/{{ c_ns }}:batchDelete")
+@{{ c_n }}_router.post("/{{ cNs }}:batchDelete")
 async def batch_delete_{{ c_ns }}(
     req: BatchDelete{{ CNs }}Request,
 ) -> None:
@@ -272,7 +272,7 @@ async def batch_delete_{{ c_ns }}(
     await {{ c_n }}_service.batch_delete_{{ c_ns }}(req=req)
 
 
-@{{ c_n }}_router.get("/{{ c_ns }}:exportTemplate")
+@{{ c_n }}_router.get("/{{ cNs }}:exportTemplate")
 async def export_{{ c_ns }}_template() -> StreamingResponse:
     """
     Export the Excel template for {{ c_n }} import.
@@ -287,7 +287,7 @@ async def export_{{ c_ns }}_template() -> StreamingResponse:
     return await {{ c_n }}_service.export_{{ c_ns }}_template()
 
 
-@{{ c_n }}_router.get("/{{ c_ns }}:export")
+@{{ c_n }}_router.get("/{{ cNs }}:export")
 async def export_{{ c_ns }}(
     req: Export{{ CNs }}Request = Query(...),
 ) -> StreamingResponse:
@@ -308,7 +308,7 @@ async def export_{{ c_ns }}(
         req=req,
     )
 
-@{{ c_n }}_router.post("/{{ c_ns }}:import")
+@{{ c_n }}_router.post("/{{ cNs }}:import")
 async def import_{{ c_ns }}(
     req: Import{{ CNs }}Request = Form(...),
 ) -> Import{{ CNs }}Response:

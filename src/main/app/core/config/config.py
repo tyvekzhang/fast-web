@@ -8,24 +8,27 @@ from src.main.app.core.config.server_config import ServerConfig
 class GenConfig:
     def __init__(
         self,
-        author: str = "admin",
-        package_name: str = "com.singularity.modules.reading",
-        auto_remove_pre: bool = False,
-        table_prefix: str = "read",
+        author: str,
+        package_name: str,
+        auto_remove_pre: bool,
+        table_prefix: str,
+        add_license: bool,
     ) -> None:
         """
         Initializes the generator configuration with default values.
 
         Args:
-            author (str): The author of the generated code. Default is ''.
-            package_name (str): The base package name for generated code. Default is ''.
-            auto_remove_pre (bool): Whether to automatically remove table prefixes. Default is False.
-            table_prefix (str): The prefix to remove from table names. Default is ''.
+            author (str): The author of the generated code.
+            package_name (str): The base package name for generated code.
+            auto_remove_pre (bool): Whether to automatically remove table prefixes.
+            table_prefix (str): The prefix to remove from table names.
+            add_license (bool): Add a license to the generated code.
         """
         self.author = author
         self.package_name = package_name
         self.auto_remove_pre = auto_remove_pre
         self.table_prefix = table_prefix
+        self.add_license = add_license
 
     def __repr__(self) -> str:
         """

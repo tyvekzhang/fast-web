@@ -32,7 +32,7 @@ class {{ CN }}Detail(BaseModel):
     {%- endfor %}
 
 
-class {{ CN }}Create(BaseModel):
+class Create{{ CN }}(BaseModel):
     {%- for field in fields %}
     {%- if field.gen_field.creatable == 1  %}
     {%- if field.gen_field.html_type == "checkbox" %}
@@ -69,15 +69,14 @@ class BatchGet{{ CNs }}Response(BaseModel):
 
 
 class BatchCreate{{ CNs }}Request(BaseModel):
-    {{ c_ns }}: list[Create{ CN }}]
+    {{ c_ns }}: list[Create{{ CN }}]
 
 
 class BatchCreate{{ CNs }}Response(BaseModel):
     {{ c_ns }}: list[{{ CN }}]
 
 
-class BatchUpdate{{ CNs }}(BaseModel):
-    {{ pks }}: List[int]
+class BatchUpdate{{ CN }}(BaseModel):
     {%- for field in fields %}
     {%- if field.gen_field.batch_updatable == 1  %}
     {%- if field.gen_field.html_type == "checkbox" %}
@@ -116,6 +115,7 @@ class Export{{ CN }}({{ CN }}):
     {%- endif %}
     {%- endif %}
     {%- endfor %}
+    pass
 
 
 class Export{{ CNs }}Request(BaseModel):
