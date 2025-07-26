@@ -10,8 +10,6 @@ from src.main.app.core import result
 from src.main.app.core.result import HttpResponse
 from src.main.app.core.utils.excel_util import export_excel
 from src.main.app.core.utils.time_util import get_date_time
-from src.main.app.controller.field_controller import field_service
-from src.main.app.controller.table_controller import table_service
 from src.main.app.mapper.field_mapper import fieldMapper
 from src.main.app.mapper.gen_field_mapper import genFieldMapper
 from src.main.app.mapper.gen_table_mapper import genTableMapper
@@ -32,6 +30,7 @@ from src.main.app.schema.gen_table_schema import (
 )
 from src.main.app.schema.table_schema import TableQuery
 from src.main.app.schema.user_schema import Ids
+from src.main.app.service import table_service, field_service
 from src.main.app.service.field_service import FieldService
 from src.main.app.service.gen_table_field_service import GenTableFieldService
 from src.main.app.service.gen_table_service import GenTableService

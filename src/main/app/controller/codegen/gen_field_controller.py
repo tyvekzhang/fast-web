@@ -23,13 +23,13 @@ from src.main.app.service.impl.gen_table_field_service_impl import (
 )
 from starlette.responses import StreamingResponse
 
-gen_table_column_router = APIRouter()
+gen_field_router = APIRouter()
 gen_table_column_service: GenTableFieldService = GenTableFieldServiceImpl(
     mapper=genFieldMapper
 )
 
 
-@gen_table_column_router.post("/gen-field/add")
+@gen_field_router.post("/gen-field/add")
 async def add_gen_table_column(
     gen_table_column_add: GenTableColumnAdd,
 ) -> HttpResponse[int]:
@@ -48,7 +48,7 @@ async def add_gen_table_column(
     return HttpResponse(data=gen_table_column.id)
 
 
-@gen_table_column_router.get("/gen-field/gen_table_columns")
+@gen_field_router.get("/gen-field/gen_table_columns")
 async def list_gen_table_columns(
     gen_table_column_query: Annotated[GenTableColumnQuery, Query()],
 ) -> HttpResponse[PageResult]:
@@ -72,7 +72,7 @@ async def list_gen_table_columns(
     )
 
 
-@gen_table_column_router.post("/gen-field/recover")
+@gen_field_router.post("/gen-field/recover")
 async def recover(
     data: GenFieldDO,
 ) -> Dict:
@@ -91,7 +91,7 @@ async def recover(
     return result.success(data=gen_table_column.id)
 
 
-@gen_table_column_router.get("/gen-field/exporttemplate")
+@gen_field_router.get("/gen-field/exporttemplate")
 async def export_template() -> StreamingResponse:
     """
     Export a template for gen_table_column information.
@@ -105,7 +105,7 @@ async def export_template() -> StreamingResponse:
     )
 
 
-@gen_table_column_router.post("/gen-field/import")
+@gen_field_router.post("/gen-field/import")
 async def import_gen_table_column(
     file: UploadFile = Form(),
 ) -> Dict:
@@ -124,7 +124,7 @@ async def import_gen_table_column(
     return result.success(data=f"Success import count: {success_count}")
 
 
-@gen_table_column_router.get("/gen-field/export")
+@gen_field_router.get("/gen-field/export")
 async def export(
     data: Annotated[GenTableColumnQueryForm, Query()],
 ) -> StreamingResponse:
@@ -140,7 +140,7 @@ async def export(
     return await gen_table_column_service.export_gen_table_column(params=data)
 
 
-@gen_table_column_router.put("/gen-field/modify")
+@gen_field_router.put("/gen-field/modify")
 async def modify(
     data: GenTableColumnModify,
 ) -> Dict:
@@ -159,7 +159,7 @@ async def modify(
     return result.success()
 
 
-@gen_table_column_router.put("/gen-field/batchmodify")
+@gen_field_router.put("/gen-field/batchmodify")
 async def batch_modify(ids: Ids, data: GenTableColumnModify) -> Dict:
     cleaned_data = {k: v for k, v in data.model_dump().items() if v is not None}
     if len(cleaned_data) == 0:
@@ -171,7 +171,7 @@ async def batch_modify(ids: Ids, data: GenTableColumnModify) -> Dict:
     return result.success()
 
 
-@gen_table_column_router.delete("/gen-field/remove/{id}")
+@gen_field_router.delete("/gen-field/remove/{id}")
 async def remove(
     id: int,
 ) -> Dict:
@@ -188,7 +188,7 @@ async def remove(
     return result.success()
 
 
-@gen_table_column_router.delete("/gen-field/batchremove")
+@gen_field_router.delete("/gen-field/batchremove")
 async def batch_remove(
     ids: List[int] = Query(...),
 ) -> Dict:

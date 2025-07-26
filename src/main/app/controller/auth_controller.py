@@ -28,7 +28,7 @@ user_service: UserService = UserServiceImpl(mapper=userMapper)
 
 
 @auth_router.post("/auth:signInWithEmailAndPassword")
-async def signin_email_password(
+async def signin_email_and_password(
     req: OAuth2PasswordRequestForm = Depends(),
 ) -> UserCredential:
     """
