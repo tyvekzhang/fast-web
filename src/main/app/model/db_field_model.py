@@ -52,5 +52,5 @@ class FieldBase(SQLModel):
 
 
 class FieldDO(ModelExt, FieldBase, ModelBase, table=True):
-    __tablename__ = "db_field"
+    __tablename__ = "db_meta_fields"
     __table_args__ = ({"comment": "字段信息表"},)

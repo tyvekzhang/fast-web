@@ -4,6 +4,7 @@ import importlib
 import os
 from pathlib import Path
 from typing import Optional
+from loguru import logger
 
 # List of directories to scan for model files
 MODEL_PACKAGES = [
@@ -31,11 +32,10 @@ def import_sql_models(
         package_dir = Path(package_path)
 
         if not package_dir.exists():
-            print(f"Warning: Package directory not found: {package_dir}")
+            logger.warning(f"Package directory not found: {package_dir}")
             continue
 
         for model_file in package_dir.glob("*_model.py"):
-            print(model_file)
             try:
                 # Convert path to module import format (e.g., "src/main/app/models/file_model")
                 module_path = (
@@ -50,7 +50,7 @@ def import_sql_models(
                         globals()[name] = getattr(module, name)
 
             except Exception as e:
-                print(f"Unexpected error processing {model_file}: {e}")
+                logger.error(f"Unexpected error processing {model_file}: {e}")
 
 
 # Import models from default packages

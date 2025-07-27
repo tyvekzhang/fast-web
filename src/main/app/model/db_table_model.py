@@ -27,5 +27,5 @@ class TableBase(SQLModel):
 
 
 class TableDO(ModelExt, TableBase, ModelBase, table=True):
-    __tablename__ = "db_table"
+    __tablename__ = "db_meta_tables"
     __table_args__ = ({"comment": "表结构信息"},)

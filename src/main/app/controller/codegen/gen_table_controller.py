@@ -210,12 +210,12 @@ async def remove_logic(id: int) -> None:
     """
     gen_table: GenTableDO = await gen_table_service.retrieve_by_id(id=id)
     db_table_id = gen_table.db_table_id
-    await table_service.remove_by_id(id=db_table_id)
+    await db_table_service.remove_by_id(id=db_table_id)
     fields: List[FieldDO] = await fieldMapper.select_by_table_id(
         table_id=db_table_id
     )
     field_ids = [field.id for field in fields]
-    await field_service.batch_remove_by_ids(ids=field_ids)
+    await db_field_service.batch_remove_by_ids(ids=field_ids)
     await genFieldMapper.batch_delete_by_field_ids(field_ids=field_ids)
     await gen_table_service.remove_by_id(id=id)
 
@@ -242,14 +242,14 @@ async def sync_table(
     id: int,
 ) -> Dict:
     gen_table_do: GenTableDO = await gen_table_service.retrieve_by_id(id=id)
-    table_do: TableDO = await table_service.retrieve_by_id(
+    table_do: TableDO = await db_table_service.retrieve_by_id(
         id=gen_table_do.db_table_id
     )
     await remove_logic(id)
     table_query = TableQuery(
         database_id=table_do.database_id, current=1, pageSize=200
     )
-    records, total = await table_service.list_tables(data=table_query)
+    records, total = await db_table_service.list_tables(data=table_query)
     table_id: int = 0
     for record in records:
         if record.name == gen_table_do.table_name:
