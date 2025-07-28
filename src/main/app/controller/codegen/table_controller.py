@@ -1,174 +1,206 @@
 """Table operation controller"""
 
-import subprocess
-import sys
+from io import BytesIO
 from typing import Dict, Annotated, List
 
-from fastapi import APIRouter, Query, UploadFile, Form
+from fastapi import APIRouter, Query
+from src.main.app.service.impl.gen_table_field_service_impl import (
+    TableFieldServiceImpl,
+)
+from starlette.responses import StreamingResponse
+
 from src.main.app.core import result
 from src.main.app.core.result import HttpResponse
 from src.main.app.core.utils.excel_util import export_excel
+from src.main.app.core.utils.time_util import get_date_time
+from src.main.app.mapper.field_mapper import fieldMapper
+from src.main.app.mapper.gen_field_mapper import genFieldMapper
+from src.main.app.mapper.gen_table_mapper import genTableMapper
 from src.main.app.mapper.table_mapper import tableMapper
-from src.main.app.model.db_table_model import TableDO
+from src.main.app.model.codegen.table_model import TableModel
+from src.main.app.model.meta_field_model import FieldDO
+from src.main.app.model.meta_table_model import MetaTableModel
 from src.main.app.schema.common_schema import PageResult
-from src.main.app.schema.table_schema import (
+from src.main.app.schema.gen_table_schema import (
     TableAdd,
     TableExport,
     TableQueryForm,
     TableModify,
-    TableQuery,
-    TableGenerate,
+    ListMenusRequest,
+    TableImport,
+    TableDetail,
+    TableExecute,
 )
+from src.main.app.schema.meta_table_schema import TableQuery
 from src.main.app.schema.user_schema import Ids
-from src.main.app.service.table_service import TableService
+from src.main.app.service import table_service
+from src.main.app.service.field_service import FieldService
+from src.main.app.service.impl.field_service_impl import FieldServiceImpl
 from src.main.app.service.impl.table_service_impl import TableServiceImpl
-from starlette.responses import StreamingResponse
+from src.main.app.service.table_service import TableService
 
 table_router = APIRouter()
-table_service: TableService = TableServiceImpl(mapper=tableMapper)
+table_service: TableService = TableServiceImpl(mapper=genTableMapper)
+db_table_service: TableService = TableServiceImpl(mapper=tableMapper)
+gen_table_column_service: FieldService = TableFieldServiceImpl(
+    mapper=genFieldMapper
+)
+db_field_service: FieldService = FieldServiceImpl(mapper=fieldMapper)
 
 
-@table_router.post("/table/add")
-async def add_table(
-    data: TableAdd,
+@table_router.get("/tables")
+async def list_tables(
+    req: Annotated[ListMenusRequest, Query()],
+) -> PageResult:
+    """
+    List tables with pagination.
+
+    Args:
+
+        req: Request object containing pagination, filter and sort parameters.
+
+    Returns:
+
+        PageResult: Paginated list of tables and total count.
+
+    Raises:
+
+        HTTPException(403 Forbidden): If user don't have access rights.
+    """
+    table_records, total_count = await table_service.list_tables(
+        req=req
+    )
+    await table_service.
+    return PageResult(records=table_records, total=total_count)
+
+
+
+@table_router.post("/gen-table/execute")
+async def execute_sql(
+    gen_table_execute: TableExecute,
 ) -> Dict:
+    gen_table_record = await table_service.execute_sql(
+        gen_table_execute=gen_table_execute
+    )
+    return result.success(data=gen_table_record)
+
+
+@table_router.get("/gen-table/detail/{id}")
+async def get_gen_table_detail(
+    id: int,
+) -> HttpResponse[TableDetail]:
+    response: TableDetail = await table_service.get_gen_table_detail(
+        id=id
+    )
+    return HttpResponse(data=response)
+
+
+@table_router.post("/gen-table/add")
+async def add_gen_table(
+    gen_table_add: TableAdd,
+) -> HttpResponse[int]:
     """
     Table add.
 
     Args:
-        data: Data required for add.
+        gen_table_add: Data required for add.
 
     Returns:
-        BaseResponse with new table's ID.
+        BaseResponse with new gen_table's ID.
     """
-    table: TableDO = await table_service.save(data=TableDO(**data.model_dump()))
-    return result.success(data=table.id)
+    gen_table: TableModel = await table_service.save(
+        data=TableModel(**gen_table_add.model_dump())
+    )
+    return HttpResponse(data=gen_table.id)
 
 
-@table_router.get("/table/tables")
-async def list_tables(
-    table_query: Annotated[TableQuery, Query()],
-) -> HttpResponse[PageResult]:
+
+@table_router.get("/gen-table/export-template")
+async def export_template() -> StreamingResponse:
     """
-    Filter tables with pagination.
-
-    Args:
-        table_query: Pagination and filter info to query
+    Export a template for gen_table information.
 
     Returns:
-        BaseResponse with list and total count.
+        StreamingResponse with gen_table field
     """
-    table_list, total_count = await table_service.list_tables(data=table_query)
-
-    return HttpResponse(
-        data=PageResult(records=table_list, total_count=total_count)
+    return await export_excel(
+        schema=TableExport, file_name="gen_table_import_template"
     )
 
 
-@table_router.post("/table/generate")
-async def generate_table(table_generate: TableGenerate) -> Dict:
-    await table_service.generate_table(table_generate)
+@table_router.post("/gen-table/import")
+async def import_gen_table(table_import: TableImport) -> Dict:
+    await table_service.import_gen_table(table_import=table_import)
     return result.success()
 
 
-@table_router.post("/table/run_script")
-async def run_script(script_path: str):
-    try:
-        # 使用 subprocess 执行 Python 脚本
-        result = subprocess.run(
-            [sys.executable, script_path],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        return {"stdout": result.stdout, "stderr": result.stderr}
-    except subprocess.CalledProcessError as e:
-        return {"error": str(e), "stdout": e.stdout, "stderr": e.stderr}
+@table_router.get("/gen-table/preview/{gen_table_id}")
+async def preview_code(gen_table_id: int) -> Dict:
+    res = await table_service.preview_code(gen_table_id=gen_table_id)
+    return result.success(res)
 
 
-@table_router.post("/table/recover")
-async def recover(
-    data: TableDO,
-) -> Dict:
-    """
-    Table recover that be deleted.
-
-    Args:
-        data: Table recover data
-
-    Returns:
-        BaseResponse with table's ID.
-    """
-    table: TableDO = await table_service.save(data=data)
-    return result.success(data=table.id)
+@table_router.get("/gen-table/data/{id}/{current}/{pageSize}")
+async def table_data(id: int, current: int = 1, pageSize: int = 10) -> Dict:
+    res = await table_service.get_table_data(
+        id=id, current=current, pageSize=pageSize
+    )
+    return result.success(res)
 
 
-@table_router.get("/table/exporttemplate")
-async def export_template() -> StreamingResponse:
-    """
-    Export a template for table information.
+@table_router.get("/gen-table/download/{table_id}")
+async def preview_code(table_id: int) -> StreamingResponse:
+    # 生成代码
+    data = await table_service.download_code(table_id)
 
-    Returns:
-        StreamingResponse with table field
-    """
-    return await export_excel(
-        schema=TableExport, file_name="table_import_template"
+    gen_table_DO: TableModel = await table_service.retrieve_by_id(
+        id=table_id
+    )
+    table_name = str(gen_table_DO.table_name)
+
+    return StreamingResponse(
+        BytesIO(data),
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": f"attachment; filename={table_name}_{get_date_time()}.zip"
+        },
     )
 
 
-@table_router.post("/table/import")
-async def import_table(
-    file: UploadFile = Form(),
-) -> Dict:
-    """
-    Import table information from a file.
-
-    Args:
-        file: The file containing table information to import.
-
-    Returns:
-        Success result message
-    """
-    success_count = await table_service.import_table(file=file)
-    return result.success(data=f"Success import count: {success_count}")
-
-
-@table_router.get("/table/export")
+@table_router.get("/gen-table/export")
 async def export(
     data: Annotated[TableQueryForm, Query()],
 ) -> StreamingResponse:
     """
-    Export table information based on provided parameters.
+    Export gen_table information based on provided parameters.
 
     Args:
         data: Filtering and format parameters for export.
 
     Returns:
-        StreamingResponse with table info
+        StreamingResponse with gen_table info
     """
-    return await table_service.export_table(params=data)
+    return await table_service.export_gen_table(params=data)
 
 
-@table_router.put("/table/modify")
-async def modify(
-    data: TableModify,
+@table_router.put("/gen-table/modify")
+async def modify_gen_table(
+    gen_table_detail: TableDetail,
 ) -> Dict:
     """
-    Update table information.
+    Update gen_table information.
 
     Args:
-        data: Command containing updated table info.
+        gen_table_detail: Command containing updated gen_table info.
 
     Returns:
         Success result message
     """
-    await table_service.modify_by_id(
-        data=TableDO(**data.model_dump(exclude_unset=True))
-    )
+    await table_service.modify_gen_table(gen_table_detail=gen_table_detail)
     return result.success()
 
 
-@table_router.put("/table/batchmodify")
+@table_router.put("/gen-table/batchmodify")
 async def batch_modify(ids: Ids, data: TableModify) -> Dict:
     cleaned_data = {k: v for k, v in data.model_dump().items() if v is not None}
     if len(cleaned_data) == 0:
@@ -178,12 +210,28 @@ async def batch_modify(ids: Ids, data: TableModify) -> Dict:
     return result.success()
 
 
-@table_router.delete("/table/remove/{id}")
+async def remove_logic(id: int) -> None:
+    """
+    Shared logic to remove a gen_table by their ID.
+    """
+    gen_table: TableModel = await table_service.retrieve_by_id(id=id)
+    db_table_id = gen_table.db_table_id
+    await db_table_service.remove_by_id(id=db_table_id)
+    fields: List[FieldDO] = await fieldMapper.select_by_table_id(
+        table_id=db_table_id
+    )
+    field_ids = [field.id for field in fields]
+    await db_field_service.batch_remove_by_ids(ids=field_ids)
+    await genFieldMapper.batch_delete_by_field_ids(field_ids=field_ids)
+    await table_service.remove_by_id(id=id)
+
+
+@table_router.delete("/gen-table/remove/{id}")
 async def remove(
     id: int,
 ) -> Dict:
     """
-    Remove a table by their ID.
+    Remove a gen_table by their ID.
 
     Args:
         id: Table ID to remove.
@@ -191,19 +239,60 @@ async def remove(
     Returns:
         Success result message
     """
-    await table_service.remove_by_id(id=id)
+    await remove_logic(id)
     return result.success()
 
 
-@table_router.delete("/table/batchremove")
+@table_router.post("/gen-table/sync/{id}")
+async def sync_table(
+    id: int,
+) -> Dict:
+    gen_table_do: TableModel = await table_service.retrieve_by_id(id=id)
+    table_do: MetaTableModel = await db_table_service.retrieve_by_id(
+        id=gen_table_do.db_table_id
+    )
+    await remove_logic(id)
+    table_query = TableQuery(
+        database_id=table_do.database_id, current=1, pageSize=200
+    )
+    records, total = await db_table_service.list_tables(data=table_query)
+    table_id: int = 0
+    for record in records:
+        if record.name == gen_table_do.table_name:
+            table_id = record.id
+            break
+    table_import = TableImport(
+        database_id=table_do.database_id,
+        table_ids=[table_id],
+        backend=gen_table_do.backend,
+    )
+    await table_service.import_gen_table(table_import=table_import)
+    records, total = await table_service.list_tables(
+        data=ListMenusRequest(current=1, pageSize=200)
+    )
+    gen_table_id: int = 0
+    for record in records:
+        if record.table_name == gen_table_do.table_name:
+            gen_table_id = record.id
+            break
+    new_gen_table_do: TableModel = await table_service.retrieve_by_id(
+        id=gen_table_id
+    )
+    new_gen_table_do.id = gen_table_do.id
+    await table_service.remove_by_id(id=new_gen_table_do.id)
+    await table_service.save(data=new_gen_table_do)
+    return result.success()
+
+
+@table_router.delete("/gen-table/batchremove")
 async def batch_remove(
     ids: List[int] = Query(...),
 ) -> Dict:
     """
-    Delete tables by a list of IDs.
+    Delete gen_tables by a list of IDs.
 
     Args:
-        ids: List of table IDs to delete.
+        ids: List of gen_table IDs to delete.
 
     Returns:
         Success result message

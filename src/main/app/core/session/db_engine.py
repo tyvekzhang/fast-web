@@ -12,8 +12,8 @@ from src.main.app.core.utils.alembic_config_util import get_sqlite_db_path
 from src.main.app.core.config import config_manager
 from src.main.app.mapper.connection_mapper import connectionMapper
 from src.main.app.mapper.database_mapper import databaseMapper
-from src.main.app.model.db_connection_model import ConnectionDO
-from src.main.app.model.db_database_model import DbDatabaseModel
+from src.main.app.model.connection_model import ConnectionDO
+from src.main.app.model.database_model import DbDatabaseModel
 
 # Global engine cache with thread safety
 _engine_map: Dict[str, AsyncEngine] = {}

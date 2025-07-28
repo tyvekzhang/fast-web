@@ -7,7 +7,7 @@ from src.main.app.core.gen.gen_constants import GenConstants
 from src.main.app.core.utils.converter_util import ClassNameConverter
 from src.main.app.core.utils.gen_util import GenUtils, gen_config
 from src.main.app.core.utils.string_util import StringUtils
-from src.main.app.model.db_index_model import IndexDO
+from src.main.app.model.index_model import IndexDO
 from src.main.app.schema.gen_table_schema import TableGen
 
 APACHE_V2 = """

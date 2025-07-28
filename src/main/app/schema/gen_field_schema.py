@@ -2,16 +2,16 @@
 
 from pydantic import BaseModel
 
-from src.main.app.model.db_field_model import FieldDO
-from src.main.app.model.gen_field_model import GenFieldDO
-from src.main.app.schema.common_schema import PageBase
+from src.main.app.model.meta_field_model import FieldDO
+from src.main.app.model.field_model import GenFieldDO
+from src.main.app.core.schema import PaginationRequest
 
 
 class GenTableColumnAdd(BaseModel):
     pass
 
 
-class GenTableColumnQuery(PageBase):
+class GenTableColumnQuery(PaginationRequest):
     pass
 
 

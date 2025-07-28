@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from src.main.app.schema.common_schema import PageBase
+from src.main.app.core.schema import PaginationRequest
 
 # SQL templates for different databases
 DB_CREATE_TEMPLATES = {
@@ -35,7 +35,7 @@ class DatabaseAdd(BaseModel):
     is_template: Optional[bool] = None  # 是否为模板数据库
 
 
-class DatabaseQuery(PageBase):
+class DatabaseQuery(PaginationRequest):
     connection_id: int
 
 

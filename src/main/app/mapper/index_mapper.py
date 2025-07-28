@@ -6,7 +6,7 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.main.app.core.mapper.impl.base_mapper_impl import SqlModelMapper
-from src.main.app.model.db_index_model import IndexDO
+from src.main.app.model.index_model import IndexDO
 
 
 class IndexMapper(SqlModelMapper[IndexDO]):

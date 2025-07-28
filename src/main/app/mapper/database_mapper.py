@@ -6,7 +6,7 @@ from sqlmodel import select, delete
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.main.app.core.mapper.impl.base_mapper_impl import SqlModelMapper
-from src.main.app.model.db_database_model import DbDatabaseModel
+from src.main.app.model.database_model import DbDatabaseModel
 
 
 class DatabaseMapper(SqlModelMapper[DbDatabaseModel]):

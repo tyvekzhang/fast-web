@@ -1,11 +1,11 @@
 """GenTable mapper"""
 
 from src.main.app.core.mapper.impl.base_mapper_impl import SqlModelMapper
-from src.main.app.model.gen_table_model import GenTableDO
+from src.main.app.model.codegen.table_model import TableModel
 
 
-class GenTableMapper(SqlModelMapper[GenTableDO]):
+class GenTableMapper(SqlModelMapper[TableModel]):
     pass
 
 
-genTableMapper = GenTableMapper(GenTableDO)
+genTableMapper = GenTableMapper(TableModel)

@@ -9,7 +9,7 @@ from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.core.session.db_engine import get_cached_async_engine
 from src.main.app.mapper.connection_mapper import connectionMapper
 from src.main.app.mapper.database_mapper import DatabaseMapper
-from src.main.app.model.db_database_model import DbDatabaseModel
+from src.main.app.model.database_model import DbDatabaseModel
 from src.main.app.schema.database_schema import (
     DB_CREATE_TEMPLATES,
     DatabaseQuery,

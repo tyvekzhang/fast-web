@@ -6,7 +6,7 @@ from src.main.app.core.config.config_manager import (
 
 from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.mapper.connection_mapper import ConnectionMapper
-from src.main.app.model.db_connection_model import ConnectionDO
+from src.main.app.model.connection_model import ConnectionDO
 from src.main.app.schema.connection_schema import (
     ConnectionQuery,
     ConnectionQueryResponse,

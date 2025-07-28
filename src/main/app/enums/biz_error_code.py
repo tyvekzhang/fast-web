@@ -13,4 +13,4 @@ class BusinessErrorCode(ExceptionCode):
 
     RESOURCE_NOT_FOUND = (HTTPStatus.NOT_FOUND, "Requested resource not found")
 
-    PARAMETER_ERROR = (HTTPStatus.BAD_REQUEST, "Parameter can not be null")
+    PARAMETER_ERROR = (HTTPStatus.BAD_REQUEST, "Parameter error")

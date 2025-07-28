@@ -1,4 +1,4 @@
-"""UserRole data object"""
+"""UserRole data model"""
 
 from datetime import datetime
 from typing import Optional

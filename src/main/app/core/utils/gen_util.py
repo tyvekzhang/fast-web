@@ -9,9 +9,9 @@ from src.main.app.core.utils.field_type_mapping_util import (
     sql_map2sqlmodel_type,
 )
 from src.main.app.core.utils.string_util import StringUtils, is_empty
-from src.main.app.model.db_field_model import FieldDO
-from src.main.app.model.gen_field_model import GenFieldDO
-from src.main.app.model.gen_table_model import GenTableDO
+from src.main.app.model.meta_field_model import FieldDO
+from src.main.app.model.field_model import GenFieldDO
+from src.main.app.model.codegen.table_model import TableModel
 
 config = load_config()
 gen_config = config.gen
@@ -19,7 +19,7 @@ gen_config = config.gen
 
 class GenUtils:
     @staticmethod
-    def init_table(gen_table: GenTableDO):
+    def init_table(gen_table: TableModel):
         gen_table.class_name = GenUtils.convert_class_name(gen_table.class_name)
         gen_table.package_name = gen_config.package_name
         gen_table.module_name = GenUtils.get_module_name(

@@ -4,9 +4,9 @@ from typing import Optional, List
 
 from pydantic import BaseModel
 
-from src.main.app.schema.common_schema import PageBase
-from src.main.app.schema.field_schema import FieldGenerate
+from src.main.app.core.schema import PaginationRequest
 from src.main.app.schema.index_schema import IndexGenerate
+from src.main.app.schema.meta_field_schema import FieldGenerate
 
 
 class TableAdd(BaseModel):
@@ -15,7 +15,7 @@ class TableAdd(BaseModel):
     comment: Optional[str] = None
 
 
-class TableQuery(PageBase):
+class TableQuery(PaginationRequest):
     database_id: int
 
 

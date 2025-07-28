@@ -4,14 +4,14 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from src.main.app.schema.common_schema import PageBase
+from src.main.app.core.schema import PaginationRequest
 
 
 class IndexAdd(BaseModel):
     pass
 
 
-class IndexQuery(PageBase):
+class IndexQuery(PaginationRequest):
     table_id: int
 
 

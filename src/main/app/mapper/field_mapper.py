@@ -6,7 +6,7 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.main.app.core.mapper.impl.base_mapper_impl import SqlModelMapper
-from src.main.app.model.db_field_model import FieldDO
+from src.main.app.model.meta_field_model import FieldDO
 
 
 class FieldMapper(SqlModelMapper[FieldDO]):

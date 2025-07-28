@@ -4,7 +4,7 @@ from typing import Union, List
 from sqlmodel import select, delete
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.main.app.core.mapper.impl.base_mapper_impl import SqlModelMapper
-from src.main.app.model.gen_field_model import GenFieldDO
+from src.main.app.model.field_model import GenFieldDO
 
 
 class GenFieldMapper(SqlModelMapper[GenFieldDO]):

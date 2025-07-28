@@ -6,8 +6,8 @@ from typing import Optional, List, Union, Any
 from pydantic import BaseModel
 
 from src.main.app.core.schema import PaginationRequest
-from src.main.app.model.gen_field_model import GenFieldDO
-from src.main.app.model.gen_table_model import GenTableDO
+from src.main.app.model.field_model import GenFieldDO
+from src.main.app.model.codegen.table_model import TableModel
 from src.main.app.schema.field_schema import AntTableColumn
 from src.main.app.schema.gen_field_schema import FieldGen
 
@@ -16,11 +16,14 @@ class GenTableAdd(BaseModel):
     pass
 
 
-class GenTableQuery(PaginationRequest):
-    pass
+class ListMenusRequest(PaginationRequest):
+    connection_name: Optional[str] = None
+    database_name: Optional[str] = None
+    table_name: Optional[str] = None
+    table_comment: Optional[str] = None
 
 
-class GenTableQueryResponse(BaseModel):
+class Table(BaseModel):
     id: int
     connection_name: str
     database_name: str
@@ -50,9 +53,9 @@ class TableImport(BaseModel):
 
 
 class TableGen(BaseModel):
-    gen_table: Optional[GenTableDO]
+    gen_table: Optional[TableModel]
     fields: Union[List[FieldGen], None]
-    sub_table: Optional[GenTableDO] = None
+    sub_table: Optional[TableModel] = None
     pk_field: Optional[str] = None
     tree_code: Optional[str] = None
     tree_parent_code: Optional[str] = None
@@ -62,7 +65,7 @@ class TableGen(BaseModel):
 
 
 class GenTableDetail(BaseModel):
-    gen_table: GenTableDO
+    gen_table: TableModel
     gen_field: List[GenFieldDO]
 
 
