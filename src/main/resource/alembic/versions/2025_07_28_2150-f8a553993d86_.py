@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 92be66bd4364
+Revision ID: f8a553993d86
 Revises: 07b069d14db5
-Create Date: 2025-07-27 22:31:42.661229
+Create Date: 2025-07-28 21:50:45.122996
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel # added
 
 
 # revision identifiers, used by Alembic.
-revision = '92be66bd4364'
+revision = 'f8a553993d86'
 down_revision = '07b069d14db5'
 branch_labels = None
 depends_on = None
@@ -34,25 +34,26 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     comment='连接信息表'
     )
-    op.create_table('db_database',
-    sa.Column('id', sa.BigInteger(), nullable=False),
-    sa.Column('connection_id', sa.Integer(), nullable=False),
-    sa.Column('database_name', sa.String(length=64), nullable=False),
-    sa.Column('owner', sa.String(length=64), nullable=True),
-    sa.Column('template', sa.String(length=64), nullable=True),
-    sa.Column('encoding', sa.String(length=32), nullable=True),
-    sa.Column('collation_order', sa.String(length=32), nullable=True),
-    sa.Column('character_classification', sa.String(length=32), nullable=True),
-    sa.Column('tablespace', sa.String(length=64), nullable=True),
-    sa.Column('connection_limit', sa.Integer(), nullable=True),
-    sa.Column('allow_connection', sa.Integer(), nullable=True),
-    sa.Column('is_template', sa.Integer(), nullable=True),
-    sa.Column('create_time', sa.DateTime(), nullable=True),
-    sa.Column('update_time', sa.DateTime(), nullable=True),
+    op.create_table('db_databases',
+    sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
+    sa.Column('connection_id', sa.BigInteger(), nullable=False, comment='数据库连接id'),
+    sa.Column('database_name', sa.String(length=64), nullable=False, comment='数据库名称'),
+    sa.Column('owner', sa.String(length=64), nullable=True, comment='拥有者'),
+    sa.Column('template', sa.String(length=64), nullable=True, comment='使用模板'),
+    sa.Column('encoding', sa.String(length=32), nullable=True, comment='字符编码'),
+    sa.Column('collation_order', sa.String(length=32), nullable=True, comment='排序规则'),
+    sa.Column('character_classification', sa.String(length=32), nullable=True, comment='字符分类'),
+    sa.Column('tablespace', sa.String(length=64), nullable=True, comment='表空间名称'),
+    sa.Column('connection_limit', sa.Integer(), nullable=True, comment='连接限制'),
+    sa.Column('allow_connection', sa.Boolean(), nullable=True, comment='是否允许连接'),
+    sa.Column('is_template', sa.Boolean(), nullable=True, comment='是否为模板数据库'),
+    sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
+    sa.Column('update_time', sa.DateTime(), nullable=True, comment='更新时间'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('ix_db_database_connection_id', 'db_database', ['connection_id'], unique=False)
-    op.create_table('db_index',
+    op.create_index('ix_db_database_connection_id', 'db_databases', ['connection_id'], unique=False)
+    op.create_index(op.f('ix_db_databases_connection_id'), 'db_databases', ['connection_id'], unique=False)
+    op.create_table('db_indexes',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
     sa.Column('table_id', sa.BigInteger(), nullable=False, comment='表id'),
     sa.Column('name', sa.String(length=64), nullable=False, comment='索引名称'),
@@ -94,7 +95,7 @@ def upgrade():
     comment='表结构信息'
     )
     op.create_index(op.f('ix_db_meta_tables_database_id'), 'db_meta_tables', ['database_id'], unique=False)
-    op.create_table('gen_field',
+    op.create_table('gen_fields',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
     sa.Column('db_table_id', sa.BigInteger(), nullable=False, comment='数据库表ID'),
     sa.Column('db_field_id', sa.BigInteger(), nullable=False, comment='数据库字段ID'),
@@ -123,9 +124,9 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     comment='代码生成字段表'
     )
-    op.create_index(op.f('ix_gen_field_db_field_id'), 'gen_field', ['db_field_id'], unique=False)
-    op.create_index(op.f('ix_gen_field_db_table_id'), 'gen_field', ['db_table_id'], unique=False)
-    op.create_table('gen_table',
+    op.create_index(op.f('ix_gen_fields_db_field_id'), 'gen_fields', ['db_field_id'], unique=False)
+    op.create_index(op.f('ix_gen_fields_db_table_id'), 'gen_fields', ['db_table_id'], unique=False)
+    op.create_table('gen_tables',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
     sa.Column('database_id', sa.BigInteger(), nullable=False, comment='数据库ID'),
     sa.Column('db_table_id', sa.BigInteger(), nullable=False, comment='数据库表ID'),
@@ -151,8 +152,8 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     comment='代码生成业务表'
     )
-    op.create_index(op.f('ix_gen_table_database_id'), 'gen_table', ['database_id'], unique=False)
-    op.create_index(op.f('ix_gen_table_db_table_id'), 'gen_table', ['db_table_id'], unique=False)
+    op.create_index(op.f('ix_gen_tables_database_id'), 'gen_tables', ['database_id'], unique=False)
+    op.create_index(op.f('ix_gen_tables_db_table_id'), 'gen_tables', ['db_table_id'], unique=False)
     op.create_table('role_menu',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='自增编号'),
     sa.Column('role_id', sa.BigInteger(), nullable=False, comment='角色ID'),
@@ -193,18 +194,19 @@ def downgrade():
     op.drop_table('user_role')
     op.drop_table('roles')
     op.drop_table('role_menu')
-    op.drop_index(op.f('ix_gen_table_db_table_id'), table_name='gen_table')
-    op.drop_index(op.f('ix_gen_table_database_id'), table_name='gen_table')
-    op.drop_table('gen_table')
-    op.drop_index(op.f('ix_gen_field_db_table_id'), table_name='gen_field')
-    op.drop_index(op.f('ix_gen_field_db_field_id'), table_name='gen_field')
-    op.drop_table('gen_field')
+    op.drop_index(op.f('ix_gen_tables_db_table_id'), table_name='gen_tables')
+    op.drop_index(op.f('ix_gen_tables_database_id'), table_name='gen_tables')
+    op.drop_table('gen_tables')
+    op.drop_index(op.f('ix_gen_fields_db_table_id'), table_name='gen_fields')
+    op.drop_index(op.f('ix_gen_fields_db_field_id'), table_name='gen_fields')
+    op.drop_table('gen_fields')
     op.drop_index(op.f('ix_db_meta_tables_database_id'), table_name='db_meta_tables')
     op.drop_table('db_meta_tables')
     op.drop_index(op.f('ix_db_meta_fields_table_id'), table_name='db_meta_fields')
     op.drop_table('db_meta_fields')
-    op.drop_table('db_index')
-    op.drop_index('ix_db_database_connection_id', table_name='db_database')
-    op.drop_table('db_database')
+    op.drop_table('db_indexes')
+    op.drop_index(op.f('ix_db_databases_connection_id'), table_name='db_databases')
+    op.drop_index('ix_db_database_connection_id', table_name='db_databases')
+    op.drop_table('db_databases')
     op.drop_table('db_connections')
     # ### end Alembic commands ###

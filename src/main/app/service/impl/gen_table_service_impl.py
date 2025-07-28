@@ -289,7 +289,7 @@ class GenTableServiceImpl(
 
     async def modify_gen_table(self, gen_table_detail: GenTableDetail) -> None:
         gen_table: GenTableDO = gen_table_detail.gen_table
-        await self.mapper.update_by_id(record=gen_table)
+        await self.mapper.update_by_id(data=gen_table)
         gen_fields: List[GenFieldDO] = gen_table_detail.gen_field
         for gen_field in gen_fields:
             await genFieldMapper.update_by_id(data=gen_field)

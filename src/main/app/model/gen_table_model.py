@@ -79,5 +79,5 @@ class GenTableBase(SQLModel):
 
 
 class GenTableDO(ModelExt, GenTableBase, ModelBase, table=True):
-    __tablename__ = "gen_table"
+    __tablename__ = "gen_tables"
     __table_args__ = ({"comment": "代码生成业务表"},)

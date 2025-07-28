@@ -95,5 +95,5 @@ class GenFieldBase(SQLModel):
 
 
 class GenFieldDO(ModelExt, GenFieldBase, ModelBase, table=True):
-    __tablename__ = "gen_field"
+    __tablename__ = "gen_fields"
     __table_args__ = ({"comment": "代码生成字段表"},)

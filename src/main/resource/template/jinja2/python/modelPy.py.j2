@@ -65,11 +65,11 @@ class {{ CN }}Model({{ CN }}Base, table=True):
         {%- if index_metadata %}
         {%- for index in index_metadata %}
         {%- if index.type == "unique" %}
-        UniqueConstraint({{ index.field  }}, name="{{ index.name }}"){% if not loop.last or comment %},{% endif %},
+        UniqueConstraint({{ index.field  }}, name="{{ index.name }}"){% if not loop.last or comment %},{% endif %}
         {%- elif index.type == "primary" %}
-        PrimaryKeyConstraint({{ index.field  }}, name="{{ index.name }}"){% if not loop.last or comment %},{% endif %},
+        PrimaryKeyConstraint({{ index.field  }}, name="{{ index.name }}"){% if not loop.last or comment %},{% endif %}
         {%- else %}
-        Index("{{ index.name }}", {{ index.field  }}){% if not loop.last or comment %},{% endif %},
+        Index("{{ index.name }}", {{ index.field  }}){% if not loop.last or comment %},{% endif %}
         {%- endif %}
         {%- endfor %}
         {%- endif %}

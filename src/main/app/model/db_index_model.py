@@ -31,5 +31,5 @@ class IndexBase(SQLModel):
 
 
 class IndexDO(ModelExt, IndexBase, ModelBase, table=True):
-    __tablename__ = "db_index"
+    __tablename__ = "db_indexes"
     __table_args__ = ({"comment": "索引信息表"},)
