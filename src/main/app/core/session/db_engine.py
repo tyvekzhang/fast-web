@@ -10,10 +10,10 @@ from src.main.app.core.session.db_session import db_session
 from src.main.app.core.utils.alembic_config_util import get_sqlite_db_path
 
 from src.main.app.core.config import config_manager
-from src.main.app.mapper.connection_mapper import connectionMapper
-from src.main.app.mapper.database_mapper import databaseMapper
-from src.main.app.model.connection_model import ConnectionDO
-from src.main.app.model.database_model import DbDatabaseModel
+from src.main.app.mapper.codegen.connection_mapper import connectionMapper
+from src.main.app.mapper.codegen.database_mapper import databaseMapper
+from src.main.app.model.codegen.connection_model import ConnectionModel
+from src.main.app.model.codegen.database_model import DatabaseModel
 
 # Global engine cache with thread safety
 _engine_map: Dict[str, AsyncEngine] = {}
@@ -74,12 +74,12 @@ async def get_cached_async_engine(
     with _lock:
         if cache_key in _engine_map:
             return _engine_map[cache_key]
-        database: DbDatabaseModel = await databaseMapper.select_by_id(
+        database: DatabaseModel = await databaseMapper.select_by_id(
             id=database_id
         )
         if database is not None:
             connection_id = database.connection_id
-        connection: ConnectionDO = await connectionMapper.select_by_id(
+        connection: ConnectionModel = await connectionMapper.select_by_id(
             id=connection_id
         )
         if connection is None:
@@ -108,18 +108,18 @@ async def clear_engine_cache() -> None:
 
 async def get_engine_by_database_id(*, env: str, database_id: int):
     async with db_session(env=env) as session:
-        statement = select(DbDatabaseModel).where(
-            DbDatabaseModel.id == database_id
+        statement = select(DatabaseModel).where(
+            DatabaseModel.id == database_id
         )
         exec_response = await session.exec(statement)
-        database: DbDatabaseModel = exec_response.one_or_none()
+        database: DatabaseModel = exec_response.one_or_none()
         if database is None:
             pass
-        statement = select(ConnectionDO).where(
-            ConnectionDO.id == database.connection_id
+        statement = select(ConnectionModel).where(
+            ConnectionModel.id == database.connection_id
         )
         exec_response = await session.exec(statement)
-        connection: ConnectionDO = exec_response.one_or_none()
+        connection: ConnectionModel = exec_response.one_or_none()
         if connection is None:
             pass
         url = get_database_url(database, connection)
@@ -130,7 +130,7 @@ async def get_engine_by_database_id(*, env: str, database_id: int):
 
 
 def get_database_url(
-    database: DbDatabaseModel, connection: ConnectionDO
+    database: DatabaseModel, connection: ConnectionModel
 ) -> str:
     database_type = connection.database_type
     database_type = database_type.lower()

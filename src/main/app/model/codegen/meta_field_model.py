@@ -31,7 +31,7 @@ from sqlmodel import (
 from src.main.app.core.utils.snowflake_util import snowflake_id
 
 
-class FieldBase(SQLModel):
+class MetaFieldBase(SQLModel):
     id: int = Field(
         default_factory=snowflake_id,
         primary_key=True,
@@ -87,6 +87,6 @@ class FieldBase(SQLModel):
     )
 
 
-class FieldDO(FieldBase, table=True):
+class MetaFieldModel(MetaFieldBase, table=True):
     __tablename__ = "db_meta_fields"
     __table_args__ = ({"comment": "字段信息表"},)

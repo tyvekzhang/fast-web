@@ -7,8 +7,8 @@ from src.main.app.core.gen.gen_constants import GenConstants
 from src.main.app.core.utils.converter_util import ClassNameConverter
 from src.main.app.core.utils.gen_util import GenUtils, gen_config
 from src.main.app.core.utils.string_util import StringUtils
-from src.main.app.model.index_model import IndexDO
-from src.main.app.schema.gen_table_schema import TableGen
+from src.main.app.model.codegen.index_model import IndexModel
+from src.main.app.schema.codegen.table_schema import TableGen
 
 APACHE_V2 = """
 # Copyright (c) 2025 {} and/or its affiliates. All rights reserved.
@@ -50,7 +50,7 @@ class Jinja2Utils:
     DEFAULT_PARENT_MENU_ID = "3"
 
     @staticmethod
-    def prepare_context(table_gen: TableGen, index_metadata: List[IndexDO]):
+    def prepare_context(table_gen: TableGen, index_metadata: List[IndexModel]):
         """
         设置模板变量信息
         """

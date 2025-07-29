@@ -7,7 +7,7 @@
 # from src.main.app.core.result import HttpResponse
 # from src.main.app.core.session.db_engine import get_cached_async_engine
 # from src.main.app.mapper.database_mapper import databaseMapper
-# from src.main.app.model.db_database_model import DbDatabaseModel
+# from src.main.app.model.db_database_model import DatabaseModel
 # from src.main.app.schema.common_schema import PageResult
 # from src.main.app.schema.database_schema import DatabaseAdd, DatabaseQuery
 # from src.main.app.service.database_service import DatabaseService
@@ -28,8 +28,8 @@
 #     Returns:
 #         BaseResponse with new database's ID.
 #     """
-#     record = DbDatabaseModel(**database_add.model_dump())
-#     database: DbDatabaseModel = await database_service.add(data=record)
+#     record = DatabaseModel(**database_add.model_dump())
+#     database: DatabaseModel = await database_service.add(data=record)
 #     return HttpResponse(data=database.id)
 #
 #

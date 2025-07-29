@@ -66,6 +66,6 @@ class IndexBase(SQLModel):
     )
 
 
-class IndexDO(IndexBase, table=True):
+class IndexModel(IndexBase, table=True):
     __tablename__ = "db_indexes"
     __table_args__ = ({"comment": "索引信息表"},)

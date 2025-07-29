@@ -9,7 +9,7 @@
 # from src.main.app.core.result import HttpResponse
 # from src.main.app.core.utils.excel_util import export_excel
 # from src.main.app.mapper.index_mapper import indexMapper
-# from src.main.app.model.db_index_model import IndexDO
+# from src.main.app.model.db_index_model import IndexModel
 # from src.main.app.schema.common_schema import PageResult
 # from src.main.app.schema.index_schema import (
 #     IndexAdd,
@@ -40,7 +40,7 @@
 #     Returns:
 #         BaseResponse with new index's ID.
 #     """
-#     index: IndexDO = await index_service.save(data=IndexDO(**data.model_dump()))
+#     index: IndexModel = await index_service.save(data=IndexModel(**data.model_dump()))
 #     return result.success(data=index.id)
 #
 #
@@ -81,7 +81,7 @@
 #
 # @index_router.post("/index/recover")
 # async def recover(
-#     data: IndexDO,
+#     data: IndexModel,
 # ) -> Dict:
 #     """
 #     Index recover that be deleted.
@@ -92,7 +92,7 @@
 #     Returns:
 #         BaseResponse with index's ID.
 #     """
-#     index: IndexDO = await index_service.save(data=data)
+#     index: IndexModel = await index_service.save(data=data)
 #     return result.success(data=index.id)
 #
 #
@@ -156,7 +156,7 @@
 #         Success result message
 #     """
 #     await index_service.modify_by_id(
-#         data=IndexDO(**data.model_dump(exclude_unset=True))
+#         data=IndexModel(**data.model_dump(exclude_unset=True))
 #     )
 #     return result.success()
 #

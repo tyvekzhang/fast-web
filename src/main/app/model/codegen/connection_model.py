@@ -73,6 +73,6 @@ class ConnectionBase(SQLModel):
     )
 
 
-class ConnectionDO(ConnectionBase, table=True):
+class ConnectionModel(ConnectionBase, table=True):
     __tablename__ = "db_connections"
     __table_args__ = ({"comment": "连接信息表"},)

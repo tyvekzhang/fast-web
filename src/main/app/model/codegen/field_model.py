@@ -31,7 +31,7 @@ from sqlmodel import (
 from src.main.app.core.utils.snowflake_util import snowflake_id
 
 
-class GenFieldBase(SQLModel):
+class FieldBase(SQLModel):
     id: int = Field(
         default_factory=snowflake_id,
         primary_key=True,
@@ -130,6 +130,6 @@ class GenFieldBase(SQLModel):
     )
 
 
-class GenFieldDO(GenFieldBase, table=True):
+class FieldModel(FieldBase, table=True):
     __tablename__ = "gen_fields"
     __table_args__ = ({"comment": "代码生成字段表"},)

@@ -29,7 +29,7 @@ from sqlmodel import (
 from src.main.app.core.utils.snowflake_util import snowflake_id
 
 
-class TableBase(SQLModel):
+class MetaTableBase(SQLModel):
     id: int = Field(
         default_factory=snowflake_id,
         primary_key=True,
@@ -62,6 +62,6 @@ class TableBase(SQLModel):
     )
 
 
-class MetaTableModel(TableBase, table=True):
+class MetaTableModel(MetaTableBase, table=True):
     __tablename__ = "db_meta_tables"
     __table_args__ = ({"comment": "表结构信息"},)

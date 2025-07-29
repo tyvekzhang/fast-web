@@ -30,7 +30,7 @@ from sqlmodel import (
 from src.main.app.core.utils.snowflake_util import snowflake_id
 
 
-class DbDatabaseBase(SQLModel):
+class DatabaseBase(SQLModel):
     id: int = Field(
         default_factory=snowflake_id,
         primary_key=True,
@@ -64,6 +64,6 @@ class DbDatabaseBase(SQLModel):
     )
 
 
-class DbDatabaseModel(DbDatabaseBase, table=True):
+class DatabaseModel(DatabaseBase, table=True):
     __tablename__ = "db_databases"
     __table_args__ = (Index("ix_db_database_connection_id", "connection_id"),{"comment": "数据库信息表"})

@@ -9,8 +9,8 @@ from src.main.app.core.utils.field_type_mapping_util import (
     sql_map2sqlmodel_type,
 )
 from src.main.app.core.utils.string_util import StringUtils, is_empty
-from src.main.app.model.meta_field_model import FieldDO
-from src.main.app.model.field_model import GenFieldDO
+from src.main.app.model.meta_field_model import FieldModel
+from src.main.app.model.field_model import GenFieldModel
 from src.main.app.model.codegen.table_model import TableModel
 
 config = load_config()
@@ -32,7 +32,7 @@ class GenUtils:
         gen_table.function_author = gen_config.author
 
     @staticmethod
-    def init_field(gen_field: GenFieldDO, field_record: FieldDO, backend: str):
+    def init_field(gen_field: GenFieldModel, field_record: FieldModel, backend: str):
         """
         Initialize column attribute fields
         """

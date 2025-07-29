@@ -4,48 +4,43 @@ from io import BytesIO
 from typing import Dict, Annotated, List
 
 from fastapi import APIRouter, Query
-from src.main.app.service.impl.gen_table_field_service_impl import (
-    TableFieldServiceImpl,
-)
+
 from starlette.responses import StreamingResponse
 
 from src.main.app.core import result
 from src.main.app.core.result import HttpResponse
+from src.main.app.core.schema import PageResult
 from src.main.app.core.utils.excel_util import export_excel
 from src.main.app.core.utils.time_util import get_date_time
-from src.main.app.mapper.field_mapper import fieldMapper
-from src.main.app.mapper.gen_field_mapper import genFieldMapper
-from src.main.app.mapper.gen_table_mapper import genTableMapper
-from src.main.app.mapper.table_mapper import tableMapper
+from src.main.app.mapper.codegen.field_mapper import fieldMapper
+from src.main.app.mapper.codegen.meta_field_mapper import metaFieldMapper
+
+from src.main.app.mapper.codegen.meta_table_mapper import metaTableMapper
+from src.main.app.mapper.codegen.table_mapper import tableMapper
 from src.main.app.model.codegen.table_model import TableModel
-from src.main.app.model.meta_field_model import FieldDO
-from src.main.app.model.meta_table_model import MetaTableModel
-from src.main.app.schema.common_schema import PageResult
-from src.main.app.schema.gen_table_schema import (
-    TableAdd,
-    TableExport,
-    TableQueryForm,
-    TableModify,
+from src.main.app.model.codegen.meta_table_model import MetaTableModel
+from src.main.app.schema.codegen.table_schema import (
     ListMenusRequest,
-    TableImport,
-    TableDetail,
-    TableExecute,
+    TableImport, Table
 )
-from src.main.app.schema.meta_table_schema import TableQuery
+from src.main.app.schema.codegen.meta_table_schema import TableQuery
 from src.main.app.schema.user_schema import Ids
-from src.main.app.service import table_service
-from src.main.app.service.field_service import FieldService
-from src.main.app.service.impl.field_service_impl import FieldServiceImpl
-from src.main.app.service.impl.table_service_impl import TableServiceImpl
-from src.main.app.service.table_service import TableService
+from src.main.app.service.codegen.field_service import FieldService
+from src.main.app.service.codegen.meta_field_service import MetaFieldService
+from src.main.app.service.codegen.meta_table_service import MetaTableService
+from src.main.app.service.impl.codegen.field_service_impl import FieldServiceImpl
+from src.main.app.service.impl.codegen.meta_field_service_impl import MetaFieldServiceImpl
+from src.main.app.service.impl.codegen.meta_table_service_impl import MetaTableServiceImpl
+from src.main.app.service.impl.codegen.table_service_impl import TableServiceImpl
+from src.main.app.service.codegen.table_service import TableService
 
 table_router = APIRouter()
-table_service: TableService = TableServiceImpl(mapper=genTableMapper)
-db_table_service: TableService = TableServiceImpl(mapper=tableMapper)
-gen_table_column_service: FieldService = TableFieldServiceImpl(
-    mapper=genFieldMapper
+meta_table_service: MetaTableService = MetaTableServiceImpl(mapper=metaTableMapper)
+table_service: TableService = TableServiceImpl(mapper=tableMapper)
+field_service: FieldService = FieldServiceImpl(
+    mapper=fieldMapper
 )
-db_field_service: FieldService = FieldServiceImpl(mapper=fieldMapper)
+meta_field_service: MetaFieldService = MetaFieldServiceImpl(mapper=metaFieldMapper)
 
 
 @table_router.get("/tables")
@@ -70,14 +65,13 @@ async def list_tables(
     table_records, total_count = await table_service.list_tables(
         req=req
     )
-    await table_service.
-    return PageResult(records=table_records, total=total_count)
-
+    results = await table_service.build_tables(tables=table_records)
+    return PageResult(records=results, total=total_count)
 
 
 @table_router.post("/gen-table/execute")
 async def execute_sql(
-    gen_table_execute: TableExecute,
+    gen_table_execute: Table,
 ) -> Dict:
     gen_table_record = await table_service.execute_sql(
         gen_table_execute=gen_table_execute
@@ -112,7 +106,6 @@ async def add_gen_table(
         data=TableModel(**gen_table_add.model_dump())
     )
     return HttpResponse(data=gen_table.id)
-
 
 
 @table_router.get("/gen-table/export-template")
@@ -217,11 +210,11 @@ async def remove_logic(id: int) -> None:
     gen_table: TableModel = await table_service.retrieve_by_id(id=id)
     db_table_id = gen_table.db_table_id
     await db_table_service.remove_by_id(id=db_table_id)
-    fields: List[FieldDO] = await fieldMapper.select_by_table_id(
+    fields: List[FieldModel] = await fieldMapper.select_by_table_id(
         table_id=db_table_id
     )
     field_ids = [field.id for field in fields]
-    await db_field_service.batch_remove_by_ids(ids=field_ids)
+    await meta_field_service.batch_remove_by_ids(ids=field_ids)
     await genFieldMapper.batch_delete_by_field_ids(field_ids=field_ids)
     await table_service.remove_by_id(id=id)
 

@@ -7,7 +7,7 @@
 # from src.main.app.core.result import HttpResponse
 # from src.main.app.core.utils.excel_util import export_excel
 # from src.main.app.mapper.field_mapper import fieldMapper
-# from src.main.app.model.db_field_model import FieldDO
+# from src.main.app.model.db_field_model import FieldModel
 # from src.main.app.schema.common_schema import PageResult
 # from src.main.app.schema.field_schema import (
 #     FieldAdd,
@@ -45,8 +45,8 @@
 #     Returns:
 #         BaseResponse with new field's ID.
 #     """
-#     field: FieldDO = await field_service.save(
-#         data=FieldDO(**field_add.model_dump())
+#     field: FieldModel = await field_service.save(
+#         data=FieldModel(**field_add.model_dump())
 #     )
 #     return HttpResponse(data=field.id)
 #
@@ -72,7 +72,7 @@
 #
 # @field_router.post("/field/recover")
 # async def recover(
-#     data: FieldDO,
+#     data: FieldModel,
 # ) -> Dict:
 #     """
 #     Field recover that be deleted.
@@ -83,7 +83,7 @@
 #     Returns:
 #         BaseResponse with field's ID.
 #     """
-#     field: FieldDO = await field_service.save(data=data)
+#     field: FieldModel = await field_service.save(data=data)
 #     return result.success(data=field.id)
 #
 #
@@ -147,7 +147,7 @@
 #         Success result message
 #     """
 #     await field_service.modify_by_id(
-#         data=FieldDO(**data.model_dump(exclude_unset=True))
+#         data=FieldModel(**data.model_dump(exclude_unset=True))
 #     )
 #     return result.success()
 #

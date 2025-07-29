@@ -7,7 +7,7 @@
 # from src.main.app.core.result import HttpResponse
 # from src.main.app.core.utils.excel_util import export_excel
 # from src.main.app.mapper.gen_field_mapper import genFieldMapper
-# from src.main.app.model.gen_field_model import GenFieldDO
+# from src.main.app.model.gen_field_model import GenFieldModel
 # from src.main.app.schema.common_schema import PageResult
 # from src.main.app.schema.gen_field_schema import (
 #     GenTableColumnAdd,
@@ -42,8 +42,8 @@
 #     Returns:
 #         BaseResponse with new gen_table_column's ID.
 #     """
-#     gen_table_column: GenFieldDO = await gen_table_column_service.save(
-#         data=GenFieldDO(**gen_table_column_add.model_dump())
+#     gen_table_column: GenFieldModel = await gen_table_column_service.save(
+#         data=GenFieldModel(**gen_table_column_add.model_dump())
 #     )
 #     return HttpResponse(data=gen_table_column.id)
 #
@@ -74,7 +74,7 @@
 #
 # @gen_field_router.post("/gen-field/recover")
 # async def recover(
-#     data: GenFieldDO,
+#     data: GenFieldModel,
 # ) -> Dict:
 #     """
 #     GenTableColumn recover that be deleted.
@@ -85,7 +85,7 @@
 #     Returns:
 #         BaseResponse with gen_table_column's ID.
 #     """
-#     gen_table_column: GenFieldDO = await gen_table_column_service.save(
+#     gen_table_column: GenFieldModel = await gen_table_column_service.save(
 #         data=data
 #     )
 #     return result.success(data=gen_table_column.id)
@@ -154,7 +154,7 @@
 #         Success result message
 #     """
 #     await gen_table_column_service.modify_by_id(
-#         data=GenFieldDO(**data.model_dump(exclude_unset=True))
+#         data=GenFieldModel(**data.model_dump(exclude_unset=True))
 #     )
 #     return result.success()
 #

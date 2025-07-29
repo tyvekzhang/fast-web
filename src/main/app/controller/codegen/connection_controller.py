@@ -7,7 +7,7 @@
 # from src.main.app.core.result import HttpResponse
 # from src.main.app.core.utils.excel_util import export_excel
 # from src.main.app.mapper.connection_mapper import connectionMapper
-# from src.main.app.model.db_connection_model import ConnectionDO
+# from src.main.app.model.db_connection_model import ConnectionModel
 # from src.main.app.schema.common_schema import PageResult
 # from src.main.app.schema.connection_schema import (
 #     ConnectionAdd,
@@ -43,8 +43,8 @@
 #     Returns:
 #         BaseResponse with new connection's ID.
 #     """
-#     connection: ConnectionDO = await connection_service.save(
-#         data=ConnectionDO(**connection_add.model_dump())
+#     connection: ConnectionModel = await connection_service.save(
+#         data=ConnectionModel(**connection_add.model_dump())
 #     )
 #     return HttpResponse(data=connection.id)
 #
@@ -82,7 +82,7 @@
 #
 # @connection_router.post("/connection/recover")
 # async def recover(
-#     data: ConnectionDO,
+#     data: ConnectionModel,
 # ) -> Dict:
 #     """
 #     Connection recover that be deleted.
@@ -93,7 +93,7 @@
 #     Returns:
 #         BaseResponse with connection's ID.
 #     """
-#     connection: ConnectionDO = await connection_service.save(data=data)
+#     connection: ConnectionModel = await connection_service.save(data=data)
 #     return result.success(data=connection.id)
 #
 #
@@ -157,7 +157,7 @@
 #         Success result message
 #     """
 #     await connection_service.modify_by_id(
-#         data=ConnectionDO(**data.model_dump(exclude_unset=True))
+#         data=ConnectionModel(**data.model_dump(exclude_unset=True))
 #     )
 #     return result.success()
 #
