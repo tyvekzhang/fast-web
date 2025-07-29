@@ -17,13 +17,13 @@
 from src.main.app.core.config.config_manager import (
     load_config,
 )
+from src.main.app.core.constant import FilterOperators
 
 from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.mapper.codegen.connection_mapper import ConnectionMapper
 from src.main.app.model.codegen.connection_model import ConnectionModel
 from src.main.app.schema.codegen.connection_schema import (
-    ListConnectionRequest,
-    ListConnectionResponse,
+    ListConnectionResponse, ListConnectionsRequest,
 )
 from src.main.app.service.codegen.connection_service import ConnectionService
 
@@ -45,10 +45,17 @@ class ConnectionServiceImpl(
         super().__init__(mapper=mapper)
         self.mapper = mapper
 
-    async def list_connections(self, data: ListConnectionRequest):
+    async def list_connections(self, req: ListConnectionsRequest):
+        filters = {
+            FilterOperators.LIKE: {},
+            FilterOperators.EQ: {},
+        }
+        if not req.connection_name:
+            filters[FilterOperators.LIKE]["connection_name"] = req.connection_name
         records, total_count = await self.mapper.select_by_ordered_page(
-            current=data.current,
-            pageSize=data.pageSize,
+            current=req.current,
+            page_size=req.page_size,
+            **filters,
         )
         if total_count == 0:
             database_config = load_config().database

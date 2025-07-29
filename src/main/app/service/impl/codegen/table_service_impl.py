@@ -102,7 +102,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
                     table_id=record.db_table_id,
                     table_name=table_info.name,
                     entity=record.class_name,
-                    table_comment=table_info.comment,
+                    comment=table_info.comment,
                     create_time=record.create_time,
                 )
             )
@@ -115,18 +115,12 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
         filters = {
             FilterOperators.LIKE: {},
         }
-        if req.connection_name is not None and req.connection_name != "":
-            filters[FilterOperators.LIKE]["connection_name"] = (
-                req.connection_name
-            )
-        if req.database_name is not None and req.database_name != "":
-            filters[FilterOperators.LIKE]["database_name"] = req.database_name
         if req.table_name is not None and req.table_name != "":
             filters[FilterOperators.LIKE]["table_name"] = req.table_name
-        if req.table_comment is not None and req.table_comment != "":
-            filters[FilterOperators.LIKE]["table_comment"] = req.table_comment
+        if req.comment is not None and req.comment != "":
+            filters[FilterOperators.LIKE]["comment"] = req.comment
         return await self.mapper.select_by_ordered_page(
-            current=req.current, page_size=req.page_size
+            current=req.current, page_size=req.page_size, **filters
         )
 
     async def import_gen_table(self, table_import: TableImport):
@@ -275,7 +269,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
         return output_stream.getvalue()
 
     @classmethod
-    async def get_table_data(cls, *, id: int, current: int, pageSize: int):
+    async def get_table_data(cls, *, id: int, current: int, page_size: int):
         # 根据生成表关联的数据库表ID查询表信息
         table_do: MetaTableModel = await metaTableMapper.select_by_id(id=id)
 
@@ -288,16 +282,16 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
         # 使用异步连接
         async with engine.connect() as conn:
             # 计算分页起始位置
-            offset = (current - 1) * pageSize
+            offset = (current - 1) * page_size
 
             # 构建查询语句
             query = text(
-                f"SELECT * FROM {table_name} LIMIT :pageSize OFFSET :offset"
+                f"SELECT * FROM {table_name} LIMIT :page_size OFFSET :offset"
             )
 
             # 执行查询
             result = await conn.execute(
-                query, {"pageSize": pageSize, "offset": offset}
+                query, {"page_size": page_size, "offset": offset}
             )
 
             # 获取总记录数的查询

@@ -26,10 +26,8 @@ from src.main.app.schema.codegen.meta_field_schema import AntTableColumn
 
 
 class ListMenusRequest(PaginationRequest):
-    connection_name: Optional[str] = None
-    database_name: Optional[str] = None
     table_name: Optional[str] = None
-    table_comment: Optional[str] = None
+    comment: Optional[str] = None
 
 
 class Table(BaseModel):
@@ -39,7 +37,7 @@ class Table(BaseModel):
     table_id: int
     table_name: str
     entity: str
-    table_comment: Optional[str] = None
+    comment: Optional[str] = None
     create_time: datetime
 
 

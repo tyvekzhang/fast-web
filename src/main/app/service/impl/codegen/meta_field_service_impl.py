@@ -193,7 +193,7 @@ class MetaFieldServiceImpl(
             await indexMapper.batch_delete_by_ids(ids=need_delete_index_ids)
         return await self.mapper.select_by_ordered_page(
             current=data.current,
-            pageSize=data.pageSize,
+            page_size=data.page_size,
             EQ={"table_id": table_id},
         )
 

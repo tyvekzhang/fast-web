@@ -134,7 +134,8 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
                 )
         if FilterOperators.LIKE in kwargs:
             for column, value in kwargs[FilterOperators.LIKE].items():
-                query = query.filter(getattr(self.model, column).like(value))
+                safe_value = f"{str(value)}%"
+                query = query.filter(getattr(self.model, column).like(safe_value))
 
         # Get total count if requested
         total_count = 0
@@ -209,7 +210,8 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
                 )
         if FilterOperators.LIKE in kwargs:
             for column, value in kwargs[FilterOperators.LIKE].items():
-                query = query.filter(getattr(self.model, column).like(value))
+                safe_value = f"{str(value)}%"
+                query = query.filter(getattr(self.model, column).like(safe_value))
 
         # Get total count if requested
         total_count = 0
@@ -305,7 +307,8 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
                 )
         if FilterOperators.LIKE in kwargs:
             for column, value in kwargs[FilterOperators.LIKE].items():
-                query = query.filter(getattr(self.model, column).like(value))
+                safe_value = f"{str(value)}%"
+                query = query.filter(getattr(self.model, column).like(safe_value))
 
         # Get total count if requested
         total_count = 0

@@ -16,11 +16,11 @@
 
 from abc import ABC, abstractmethod
 
-from src.main.app.schema.codegen.connection_schema import ListConnectionRequest
+from src.main.app.schema.codegen.connection_schema import ListConnectionsRequest
 from src.main.app.core.service.base_service import BaseService
 from src.main.app.model.codegen.connection_model import ConnectionModel
 
 
 class ConnectionService(BaseService[ConnectionModel], ABC):
     @abstractmethod
-    async def list_connections(self, data: ListConnectionRequest): ...
+    async def list_connections(self, req: ListConnectionsRequest): ...

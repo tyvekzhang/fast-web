@@ -107,7 +107,7 @@ class MetaTableServiceImpl(
         # 返回分页查询结果
         return await self.mapper.select_by_ordered_page(
             current=data.current,
-            pageSize=data.pageSize,
+            page_size=data.page_size,
             EQ={"database_id": database_id},
         )
 

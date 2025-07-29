@@ -29,7 +29,7 @@ class IndexServiceImpl(BaseServiceImpl[IndexMapper, IndexModel], IndexService):
     async def list_indexes(self, data: IndexQuery):
         return await self.mapper.select_by_ordered_page(
             current=data.current,
-            pageSize=data.pageSize,
+            page_size=data.page_size,
             order_by=data.order_by,
             sort_order=data.sort_order,
             EQ={"table_id": data.table_id},

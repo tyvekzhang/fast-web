@@ -1,33 +1,44 @@
-# """Connection operation controller"""
-#
-# from typing import Dict, Annotated, List
-#
-# from fastapi import APIRouter, Query, UploadFile, Form
-# from src.main.app.core import result
-# from src.main.app.core.result import HttpResponse
-# from src.main.app.core.utils.excel_util import export_excel
-# from src.main.app.mapper.connection_mapper import connectionMapper
-# from src.main.app.model.db_connection_model import ConnectionModel
-# from src.main.app.schema.common_schema import PageResult
-# from src.main.app.schema.connection_schema import (
-#     ConnectionAdd,
-#     ConnectionExport,
-#     ConnectionQueryForm,
-#     ConnectionModify,
-#     ConnectionQuery,
-#     ConnectionQueryResponse,
-# )
-# from src.main.app.schema.user_schema import Ids
-# from src.main.app.service.connection_service import ConnectionService
-# from src.main.app.service.impl.connection_service_impl import (
-#     ConnectionServiceImpl,
-# )
-# from starlette.responses import StreamingResponse
-#
-# connection_router = APIRouter()
-# connection_service: ConnectionService = ConnectionServiceImpl(
-#     mapper=connectionMapper
-# )
+"""Connection operation controller"""
+from typing import Annotated
+
+from fastapi import APIRouter, Query
+
+from src.main.app.core.schema import PageResult
+from src.main.app.mapper.codegen.connection_mapper import connectionMapper
+from src.main.app.schema.codegen.connection_schema import ListConnectionsRequest, Connection
+from src.main.app.service.codegen.connection_service import ConnectionService
+from src.main.app.service.impl.codegen.connection_service_impl import ConnectionServiceImpl
+
+connection_router = APIRouter()
+connection_service: ConnectionService = ConnectionServiceImpl(
+    mapper=connectionMapper
+)
+
+
+@connection_router.get("/connections")
+async def list_connections(
+    req: Annotated[ListConnectionsRequest, Query()],
+) -> PageResult[Connection]:
+    """
+    List connections with pagination.
+
+    Args:
+
+        req: Request object containing pagination, filter and sort parameters.
+
+    Returns:
+
+        PageResult: Paginated list of connections and total count.
+
+    Raises:
+
+        HTTPException(403 Forbidden): If user don't have access rights.
+    """
+    connection_records, total = await connection_service.list_connections(req=req)
+
+    return PageResult(records=connection_records, total=total)
+
+
 #
 #
 # @connection_router.post("/connection/create")

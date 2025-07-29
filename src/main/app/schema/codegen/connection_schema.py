@@ -22,6 +22,17 @@ from pydantic import BaseModel
 from src.main.app.core.schema import PaginationRequest
 
 
+class ListConnectionsRequest(PaginationRequest):
+    connection_name: Optional[str] = None
+    database_type: Optional[str] = None
+
+
+class Connection(BaseModel):
+    id: int
+    connection_name: str
+    database_type: str
+    connection_database: Optional[str] = None
+
 class CreateConnection(BaseModel):
     connection_name: str
     database_type: str
@@ -30,10 +41,6 @@ class CreateConnection(BaseModel):
     port: Optional[int] = None
     username: Optional[str] = None
     password: Optional[str] = None
-
-
-class ListConnectionRequest(PaginationRequest):
-    pass
 
 
 class ListConnectionResponse(BaseModel):

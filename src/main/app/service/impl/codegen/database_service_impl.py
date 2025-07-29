@@ -190,6 +190,6 @@ class DatabaseServiceImpl(
             await self.mapper.batch_delete_by_ids(ids=need_delete_ids)
         return await self.mapper.select_by_ordered_page(
             current=data.current,
-            pageSize=data.pageSize,
+            page_size=data.page_size,
             EQ={"connection_id": connection_id},
         )

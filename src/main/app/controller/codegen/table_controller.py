@@ -1,3 +1,17 @@
+# Copyright (c) 2025 FastWeb and/or its affiliates. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 """Table operation controller"""
 
 from io import BytesIO
@@ -141,10 +155,10 @@ async def list_tables(
 #     return result.success(res)
 #
 #
-# @table_router.get("/gen-table/data/{id}/{current}/{pageSize}")
-# async def table_data(id: int, current: int = 1, pageSize: int = 10) -> Dict:
+# @table_router.get("/gen-table/data/{id}/{current}/{page_size}")
+# async def table_data(id: int, current: int = 1, page_size: int = 10) -> Dict:
 #     res = await table_service.get_table_data(
-#         id=id, current=current, pageSize=pageSize
+#         id=id, current=current, page_size=page_size
 #     )
 #     return result.success(res)
 #
@@ -252,7 +266,7 @@ async def list_tables(
 #     )
 #     await remove_logic(id)
 #     table_query = TableQuery(
-#         database_id=table_do.database_id, current=1, pageSize=200
+#         database_id=table_do.database_id, current=1, page_size=200
 #     )
 #     records, total = await meta_table_service.list_tables(data=table_query)
 #     table_id: int = 0
@@ -267,7 +281,7 @@ async def list_tables(
 #     )
 #     await table_service.import_gen_table(table_import=table_import)
 #     records, total = await table_service.list_tables(
-#         data=ListMenusRequest(current=1, pageSize=200)
+#         data=ListMenusRequest(current=1, page_size=200)
 #     )
 #     gen_table_id: int = 0
 #     for record in records:
