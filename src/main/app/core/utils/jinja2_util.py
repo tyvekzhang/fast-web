@@ -8,7 +8,7 @@ from src.main.app.core.utils.converter_util import ClassNameConverter
 from src.main.app.core.utils.gen_util import GenUtils, gen_config
 from src.main.app.core.utils.string_util import StringUtils
 from src.main.app.model.codegen.index_model import IndexModel
-from src.main.app.schema.codegen.table_schema import TableGen
+from src.main.app.schema.codegen.table_schema import Table
 
 APACHE_V2 = """
 # Copyright (c) 2025 {} and/or its affiliates. All rights reserved.
@@ -50,7 +50,7 @@ class Jinja2Utils:
     DEFAULT_PARENT_MENU_ID = "3"
 
     @staticmethod
-    def prepare_context(table_gen: TableGen, index_metadata: List[IndexModel]):
+    def prepare_context(table_gen: Table, index_metadata: List[IndexModel]):
         """
         设置模板变量信息
         """
@@ -328,7 +328,7 @@ class Jinja2Utils:
         return package_name[:last_index] if last_index != -1 else package_name
 
     @staticmethod
-    def get_import_list(gen_table: TableGen):
+    def get_import_list(gen_table: Table):
         """
         根据列类型获取导入包
         """

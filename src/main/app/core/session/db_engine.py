@@ -108,9 +108,7 @@ async def clear_engine_cache() -> None:
 
 async def get_engine_by_database_id(*, env: str, database_id: int):
     async with db_session(env=env) as session:
-        statement = select(DatabaseModel).where(
-            DatabaseModel.id == database_id
-        )
+        statement = select(DatabaseModel).where(DatabaseModel.id == database_id)
         exec_response = await session.exec(statement)
         database: DatabaseModel = exec_response.one_or_none()
         if database is None:

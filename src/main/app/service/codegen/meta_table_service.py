@@ -17,7 +17,10 @@
 from abc import ABC, abstractmethod
 from typing import Tuple, List
 
-from src.main.app.schema.codegen.meta_table_schema import TableQuery, TableGenerate
+from src.main.app.schema.codegen.meta_table_schema import (
+    TableQuery,
+    TableGenerate,
+)
 from src.main.app.core.service.base_service import BaseService
 from src.main.app.model.codegen.meta_table_model import MetaTableModel
 

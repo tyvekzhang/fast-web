@@ -15,16 +15,14 @@
 """Table Modelmain schema"""
 
 from datetime import datetime
-from typing import Optional, List, Union, Any
+from typing import Optional, List, Any, Union
 
 from pydantic import BaseModel
 
 from src.main.app.core.schema import PaginationRequest
 from src.main.app.model.codegen.field_model import FieldModel
 from src.main.app.model.codegen.table_model import TableModel
-from src.main.app.schema.codegen.field_schema import Field
 from src.main.app.schema.codegen.meta_field_schema import AntTableColumn
-
 
 
 class ListMenusRequest(PaginationRequest):
@@ -51,9 +49,10 @@ class TableImport(BaseModel):
     backend: str
 
 
-class Table(BaseModel):
+
+class TableData(BaseModel):
     gen_table: Optional[TableModel]
-    fields: Union[List[Field], None]
+    fields: Union[List[FieldModel], None]
     sub_table: Optional[TableModel] = None
     pk_field: Optional[str] = None
     tree_code: Optional[str] = None

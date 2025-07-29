@@ -15,56 +15,57 @@
 """Use when performing database migration"""
 
 import importlib
-import os
 from pathlib import Path
 from typing import Optional
+
 from loguru import logger
+
+current_path = Path(__file__).resolve()
+src_parent = None
+
+for parent in current_path.parents:
+    if parent.name == "src":
+        src_parent = parent.parent
+        break
+
+if not src_parent:
+    raise FileNotFoundError("Can not found src dir")
+
+model_path = src_parent / "src" / "main" / "app" / "model"
+codegen_path = src_parent / "src" / "main" / "app" / "model" / "codegen"
 
 # List of directories to scan for model files
 MODEL_PACKAGES = [
-    "src/main/app/model",
+    model_path,
+    codegen_path
 ]
 
-
-def import_sql_models(
-    packages: Optional[list[str]] = None,
-) -> None:
-    """Dynamically import all model classes from specified packages.
-
-    Scans for Python files matching '*_model.py' pattern in each package directory.
-    Model classes are identified by names ending with 'Model'.
-
-    Args:
-        packages: List of package paths to search. If None, uses default MODEL_PACKAGES.
-
-    Returns:
-        Dictionary mapping class names to class objects for all imported models.
-    """
+def import_sql_models(packages: Optional[list[Path]] = None) -> dict[str, type]:
     packages_to_scan = packages or MODEL_PACKAGES
+    imported_models = {}
 
-    for package_path in packages_to_scan:
-        package_dir = Path(package_path)
-
+    for package_dir in packages_to_scan:
         if not package_dir.exists():
             logger.warning(f"Package directory not found: {package_dir}")
             continue
 
         for model_file in package_dir.glob("*_model.py"):
-            try:
-                # Convert path to module import format (e.g., "src/main/app/models/file_model")
-                module_path = (
-                    str(model_file.with_suffix(""))
-                    .replace("/", ".")
-                    .replace(os.sep, ".")
-                )
-                module = importlib.import_module(module_path)
+            relative_path = model_file.relative_to(src_parent)
+            module_path = ".".join(relative_path.with_suffix("").parts)
 
+            try:
+                module = importlib.import_module(module_path)
                 for name in dir(module):
                     if name.endswith("Model"):
-                        globals()[name] = getattr(module, name)
+                        imported_models[name] = getattr(module, name)
 
+            except ImportError as e:
+                logger.error(f"Failed to import {module_path}: {e}")
             except Exception as e:
-                logger.error(f"Unexpected error processing {model_file}: {e}")
+                logger.exception(f"Error processing {model_file}")
+
+    return imported_models
+
 
 
 # Import models from default packages

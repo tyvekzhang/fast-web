@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""GenTable domain service impl"""
+"""Table domain service impl"""
 
 import io
 import zipfile
 from collections import OrderedDict
 from typing import List, Dict
 
-from sqlalchemy import text
 from loguru import logger
+from sqlalchemy import text
 
 from src.main.app.core.constant import FilterOperators
 from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
@@ -33,27 +33,23 @@ from src.main.app.enums.biz_error_code import BusinessErrorCode
 from src.main.app.exception.biz_exception import BusinessException
 from src.main.app.mapper.codegen.connection_mapper import connectionMapper
 from src.main.app.mapper.codegen.database_mapper import databaseMapper
-from src.main.app.mapper.codegen.meta_field_mapper import fieldMapper
-from src.main.app.mapper.codegen.field_mapper import genFieldMapper
-from src.main.app.mapper.codegen.table_mapper import TableMapper
+from src.main.app.mapper.codegen.field_mapper import fieldMapper
 from src.main.app.mapper.codegen.index_mapper import indexMapper
 from src.main.app.mapper.codegen.meta_table_mapper import metaTableMapper
-from src.main.app.model.meta_field_model import FieldModel
+from src.main.app.mapper.codegen.table_mapper import TableMapper
+from src.main.app.model.codegen.field_model import FieldModel
 from src.main.app.model.codegen.meta_table_model import MetaTableModel
-from src.main.app.model.field_model import GenFieldModel
 from src.main.app.model.codegen.table_model import TableModel
-from src.main.app.schema.codegen.field_schema import FieldQuery, AntTableColumn
-from src.main.app.schema.codegen.field_schema import FieldGen
+from src.main.app.schema.codegen.meta_field_schema import ListFieldRequest, AntTableColumn
 from src.main.app.schema.codegen.table_schema import (
     TableImport,
-    TableGen,
     ListMenusRequest,
     Table,
-    GenTableDetail,
-    GenTableExecute,
-    GenTableRecord,
+    TableDetail,
+    TableExecute,
+    TableRecord,
 )
-from src.main.app.service.codegen.meta_table_service import TableService
+from src.main.app.service.codegen.table_service import TableService
 
 
 class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
@@ -61,7 +57,6 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
         super().__init__(mapper=mapper)
         self.mapper = mapper
 
-    @staticmethod
     async def build_tables(self, tables: List[TableModel]) -> list[Table]:
         if not tables:
             return []
@@ -114,12 +109,16 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
 
         return results
 
-    async def list_tables(self, req: ListMenusRequest) -> tuple[List[TableModel], int]:
+    async def list_tables(
+        self, req: ListMenusRequest
+    ) -> tuple[List[TableModel], int]:
         filters = {
             FilterOperators.LIKE: {},
         }
         if req.connection_name is not None and req.connection_name != "":
-            filters[FilterOperators.LIKE]["connection_name"] = req.connection_name
+            filters[FilterOperators.LIKE]["connection_name"] = (
+                req.connection_name
+            )
         if req.database_name is not None and req.database_name != "":
             filters[FilterOperators.LIKE]["database_name"] = req.database_name
         if req.table_name is not None and req.table_name != "":
@@ -139,10 +138,10 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
         field_service: FieldService = FieldServiceImpl(mapper=fieldMapper)
         table_ids = table_import.table_ids
         for table_id in table_ids:
-            await field_service.list_fields(FieldQuery(table_id=table_id))
-        table_records: List[MetaTableModel] = await metaTableMapper.select_by_ids(
-            ids=table_ids
-        )
+            await field_service.list_fields(ListFieldRequest(table_id=table_id))
+        table_records: List[
+            MetaTableModel
+        ] = await metaTableMapper.select_by_ids(ids=table_ids)
         for table_record in table_records:
             table_name = table_record.name
             comment = table_record.comment
@@ -161,15 +160,17 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             )
             GenUtils.init_table(gen_table_record)
             await self.save(data=gen_table_record)
-            field_records = await fieldMapper.select_by_table_id(table_id=table_id)
+            field_records = await fieldMapper.select_by_table_id(
+                table_id=table_id
+            )
             for field_record in field_records:
-                gen_field_record = GenFieldModel(
+                gen_field_record = FieldModel(
                     db_field_id=field_record.id,
                     db_table_id=field_record.table_id,
                     length=field_record.length,
                 )
                 GenUtils.init_field(gen_field_record, field_record, backend)
-                await genFieldMapper.insert(data=gen_field_record)
+                await fieldMapper.insert(data=gen_field_record)
 
     async def preview_code(self, gen_table_id: int) -> Dict:
         data_map = OrderedDict()
@@ -191,7 +192,9 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             try:
                 template_j2 = load_template_file(template)
                 rendered_template = template_j2.render(context)
-                data_map[GenUtils.trim_jinja2_name(template)] = rendered_template
+                data_map[GenUtils.trim_jinja2_name(template)] = (
+                    rendered_template
+                )
             except Exception as e:
                 print(f"这里出错啦{template} {e}")
         return data_map
@@ -199,7 +202,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
     def set_sub_table(self, *, gen_table: TableModel):
         pass
 
-    def set_pk_column(self, *, gen_table: TableModel, table_gen: TableGen):
+    def set_pk_column(self, *, gen_table: TableModel, table_gen: Table):
         table_gen.pk_field = gen_table
 
     async def generator_code(self, gen_table_id: int):
@@ -216,9 +219,9 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             raise
         field_list = [field_record.id for field_record in field_records]
         # 通过字段的id查询子字段的信息
-        gen_field_records: List[GenFieldModel] = (
-            await genFieldMapper.select_by_db_field_ids(ids=field_list)
-        )
+        gen_field_records: List[
+            FieldModel
+        ] = await fieldMapper.select_by_db_field_ids(ids=field_list)
         if gen_field_records is None or len(gen_field_records) == 0:
             raise
         id_field_dict = {
@@ -229,7 +232,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
         primary_key = ""
         for field_record in field_records:
             field = field_record
-            gen_field: GenFieldModel = id_field_dict.get(field.id)
+            gen_field: FieldModel = id_field_dict.get(field.id)
             if gen_field is None:
                 continue
             if gen_field.primary_key == 1:
@@ -237,9 +240,9 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
                     id=gen_field.db_field_id
                 )
                 primary_key = field_record.name
-            field_gen = FieldGen(field=field, gen_field=gen_field)
+            field_gen = Field(field=field, gen_field=gen_field)
             field_list.append(field_gen)
-        table_gen: TableGen = TableGen(gen_table=gen_table, fields=field_list)
+        table_gen: Table = Table(gen_table=gen_table, fields=field_list)
         table_gen.pk_field = primary_key
         return gen_table, table_gen
 
@@ -256,7 +259,9 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             gen_table.tpl_web_type,
         )
         output_stream = io.BytesIO()
-        with zipfile.ZipFile(output_stream, "w", zipfile.ZIP_DEFLATED) as zip_file:
+        with zipfile.ZipFile(
+            output_stream, "w", zipfile.ZIP_DEFLATED
+        ) as zip_file:
             for template in templates:
                 try:
                     template_j2 = load_template_file(template)
@@ -286,10 +291,14 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             offset = (current - 1) * pageSize
 
             # 构建查询语句
-            query = text(f"SELECT * FROM {table_name} LIMIT :pageSize OFFSET :offset")
+            query = text(
+                f"SELECT * FROM {table_name} LIMIT :pageSize OFFSET :offset"
+            )
 
             # 执行查询
-            result = await conn.execute(query, {"pageSize": pageSize, "offset": offset})
+            result = await conn.execute(
+                query, {"pageSize": pageSize, "offset": offset}
+            )
 
             # 获取总记录数的查询
             count_query = text(f"SELECT COUNT(*) as total FROM {table_name}")
@@ -303,31 +312,35 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             # 返回分页结果
             return {"records": data, "total": total}
 
-    async def get_gen_table_detail(self, *, id: int) -> GenTableDetail:
+    async def get_gen_table_detail(self, *, id: int) -> TableDetail:
         gen_table: TableModel = await self.retrieve_by_id(id=id)
         table_id = gen_table.db_table_id
 
         # 获取数据库表信息
-        db_table: MetaTableModel = await metaTableMapper.select_by_id(id=table_id)
+        db_table: MetaTableModel = await metaTableMapper.select_by_id(
+            id=table_id
+        )
         db_fields: List[FieldModel] = await fieldMapper.select_by_table_id(
             table_id=table_id
         )
 
         # 获取字段对应的生成字段信息
         field_ids = [db_field.id for db_field in db_fields]
-        gen_fields = await genFieldMapper.select_by_db_field_ids(ids=field_ids)
+        gen_fields = await fieldMapper.select_by_db_field_ids(ids=field_ids)
 
         # 返回最终详情
-        return GenTableDetail(gen_table=gen_table, gen_field=gen_fields)
+        return TableDetail(gen_table=gen_table, gen_field=gen_fields)
 
-    async def modify_gen_table(self, gen_table_detail: GenTableDetail) -> None:
+    async def modify_gen_table(self, gen_table_detail: TableDetail) -> None:
         gen_table: TableModel = gen_table_detail.gen_table
         await self.mapper.update_by_id(data=gen_table)
-        gen_fields: List[GenFieldModel] = gen_table_detail.gen_field
+        gen_fields: List[FieldModel] = gen_table_detail.gen_field
         for gen_field in gen_fields:
-            await genFieldMapper.update_by_id(data=gen_field)
+            await fieldMapper.update_by_id(data=gen_field)
 
-    async def execute_sql(self, gen_table_execute: GenTableExecute) -> GenTableRecord:
+    async def execute_sql(
+        self, gen_table_execute: TableExecute
+    ) -> TableRecord:
         sql_statement = gen_table_execute.sql_statement
         SqlUtil.filter_keyword(sql_statement)
         engine = await get_cached_async_engine(
@@ -341,7 +354,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             results = query_response.mappings().fetchall()
             if not results:
                 # 如果结果为空，返回一个空的记录对象
-                return GenTableRecord(fields=[], records=[])
+                return TableRecord(fields=[], records=[])
 
             # 构造字段列表
             fields = [
@@ -351,4 +364,4 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             records = [dict(result) for result in results]
 
             # 返回结果
-            return GenTableRecord(fields=fields, records=records)
+            return TableRecord(fields=fields, records=records)

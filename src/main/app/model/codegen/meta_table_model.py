@@ -17,14 +17,7 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlmodel import (
-    SQLModel,
-    Field,
-    Column,
-    BigInteger,
-    DateTime,
-    String
-)
+from sqlmodel import SQLModel, Field, Column, BigInteger, DateTime, String
 
 from src.main.app.core.utils.snowflake_util import snowflake_id
 

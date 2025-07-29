@@ -21,4 +21,5 @@ from src.main.app.model.codegen.table_model import TableModel
 class TableMapper(SqlModelMapper[TableModel]):
     pass
 
+
 tableMapper = TableMapper(TableModel)

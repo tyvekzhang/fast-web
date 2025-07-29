@@ -20,9 +20,7 @@ from src.main.app.model.codegen.field_model import FieldModel
 from src.main.app.service.codegen.field_service import FieldService
 
 
-class FieldServiceImpl(
-    BaseServiceImpl[FieldMapper, FieldModel], FieldService
-):
+class FieldServiceImpl(BaseServiceImpl[FieldMapper, FieldModel], FieldService):
     def __init__(self, mapper: FieldMapper):
         super().__init__(mapper=mapper)
         self.mapper = mapper

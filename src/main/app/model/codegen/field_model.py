@@ -25,7 +25,7 @@ from sqlmodel import (
     Integer,
     DateTime,
     String,
-    SmallInteger
+    SmallInteger,
 )
 
 from src.main.app.core.utils.snowflake_util import snowflake_id

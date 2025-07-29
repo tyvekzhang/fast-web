@@ -19,7 +19,10 @@ from typing import List
 
 from src.main.app.core.service.base_service import BaseService
 from src.main.app.model.codegen.field_model import FieldModel
-from src.main.app.schema.codegen.meta_field_schema import ListFieldRequest, AntTableColumn
+from src.main.app.schema.codegen.meta_field_schema import (
+    ListFieldRequest,
+    AntTableColumn,
+)
 
 
 class MetaFieldService(BaseService[FieldModel], ABC):

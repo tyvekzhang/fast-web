@@ -30,15 +30,18 @@ from src.main.app.mapper.codegen.database_mapper import databaseMapper
 from src.main.app.mapper.codegen.meta_field_mapper import MetaFieldMapper
 from src.main.app.mapper.codegen.index_mapper import indexMapper
 from src.main.app.mapper.codegen.meta_table_mapper import metaTableMapper
+from src.main.app.model.codegen.field_model import FieldModel
 from src.main.app.model.codegen.index_model import IndexModel
 from src.main.app.model.codegen.meta_field_model import MetaFieldModel
 from src.main.app.model.codegen.meta_table_model import MetaTableModel
-from src.main.app.schema.codegen.meta_field_schema import ListFieldRequest
+from src.main.app.schema.codegen.meta_field_schema import ListFieldRequest, AntTableColumn
 
 from src.main.app.service.codegen.meta_field_service import MetaFieldService
 
 
-class MetaFieldServiceImpl(BaseServiceImpl[MetaFieldMapper, MetaFieldModel], MetaFieldService):
+class MetaFieldServiceImpl(
+    BaseServiceImpl[MetaFieldMapper, MetaFieldModel], MetaFieldService
+):
     def __init__(self, mapper: MetaFieldMapper):
         super().__init__(mapper=mapper)
         self.mapper = mapper
@@ -46,7 +49,9 @@ class MetaFieldServiceImpl(BaseServiceImpl[MetaFieldMapper, MetaFieldModel], Met
     async def list_fields(self, data: ListFieldRequest):
         table_id = data.table_id
         # 查询表信息
-        table_record: MetaTableModel = await metaTableMapper.select_by_id(id=table_id)
+        table_record: MetaTableModel = await metaTableMapper.select_by_id(
+            id=table_id
+        )
         if table_record is None:
             raise
         database_record = await databaseMapper.select_by_id(
@@ -196,7 +201,7 @@ class MetaFieldServiceImpl(BaseServiceImpl[MetaFieldMapper, MetaFieldModel], Met
         field_records = await self.mapper.select_by_table_id(table_id=table_id)
         if field_records is None or len(field_records) == 0:
             await self.list_fields(
-                FieldQuery(
+                ListFieldRequest(
                     table_id=table_id,
                 )
             )

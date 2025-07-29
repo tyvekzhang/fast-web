@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 """Connection data model"""
+
 from datetime import datetime
 from typing import Optional
 

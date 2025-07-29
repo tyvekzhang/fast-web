@@ -16,20 +16,16 @@
 
 from abc import ABC, abstractmethod
 
+from src.main.app.core.service.base_service import BaseService
 from src.main.app.model.codegen.table_model import TableModel
 from src.main.app.schema.codegen.table_schema import (
     Table,
     TableImport,
-    ListMenusRequest,
-    GenTableDetail,
-    GenTableExecute,
-    GenTableRecord,
+    ListMenusRequest, TableDetail, TableExecute, TableRecord,
 )
-from src.main.app.core.service.base_service import BaseService
 
 
 class TableService(BaseService[TableModel], ABC):
-
     @abstractmethod
     async def list_tables(self, req: ListMenusRequest): ...
 
@@ -49,12 +45,14 @@ class TableService(BaseService[TableModel], ABC):
     async def get_table_data(self, *, id: int, current: int, pageSize: int): ...
 
     @abstractmethod
-    async def get_gen_table_detail(self, *, id: int) -> GenTableDetail: ...
+    async def get_gen_table_detail(self, *, id: int) -> TableDetail: ...
 
     @abstractmethod
-    async def modify_gen_table(self, gen_table_detail: GenTableDetail) -> None: ...
+    async def modify_gen_table(
+        self, gen_table_detail: TableDetail
+    ) -> None: ...
 
     @abstractmethod
     async def execute_sql(
-        self, gen_table_execute: GenTableExecute
-    ) -> GenTableRecord: ...
+        self, gen_table_execute: TableExecute
+    ) -> TableRecord: ...

@@ -35,11 +35,17 @@ from src.main.app.core.utils.template_util import (
 from src.main.app.core.utils.time_util import get_current_time
 from src.main.app.mapper.codegen.meta_table_mapper import MetaTableMapper
 from src.main.app.model.codegen.meta_table_model import MetaTableModel
-from src.main.app.schema.codegen.meta_table_schema import TableQuery, TableAdd, TableGenerate
+from src.main.app.schema.codegen.meta_table_schema import (
+    TableQuery,
+    TableAdd,
+    TableGenerate,
+)
 from src.main.app.service.codegen.meta_table_service import MetaTableService
 
 
-class MetaTableServiceImpl(BaseServiceImpl[MetaTableMapper, MetaTableModel], MetaTableService):
+class MetaTableServiceImpl(
+    BaseServiceImpl[MetaTableMapper, MetaTableModel], MetaTableService
+):
     def __init__(self, mapper: MetaTableMapper):
         super().__init__(mapper=mapper)
         self.mapper = mapper

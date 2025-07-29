@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: f8a553993d86
+Revision ID: d907907bc6b3
 Revises: 07b069d14db5
-Create Date: 2025-07-28 21:50:45.122996
+Create Date: 2025-07-29 17:32:11.059804
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel # added
 
 
 # revision identifiers, used by Alembic.
-revision = 'f8a553993d86'
+revision = 'd907907bc6b3'
 down_revision = '07b069d14db5'
 branch_labels = None
 depends_on = None
@@ -49,7 +49,8 @@ def upgrade():
     sa.Column('is_template', sa.Boolean(), nullable=True, comment='是否为模板数据库'),
     sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
     sa.Column('update_time', sa.DateTime(), nullable=True, comment='更新时间'),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    comment='数据库信息表'
     )
     op.create_index('ix_db_database_connection_id', 'db_databases', ['connection_id'], unique=False)
     op.create_index(op.f('ix_db_databases_connection_id'), 'db_databases', ['connection_id'], unique=False)
