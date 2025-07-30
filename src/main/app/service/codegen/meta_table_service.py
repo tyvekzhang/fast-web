@@ -12,28 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Meta Table domain service interface"""
+"""MetaTable domain service interface"""
 
-from abc import ABC, abstractmethod
-from typing import Tuple, List
+from abc import ABC
 
-from src.main.app.schema.codegen.meta_table_schema import (
-    TableQuery,
-    TableGenerate,
-)
 from src.main.app.core.service.base_service import BaseService
 from src.main.app.model.codegen.meta_table_model import MetaTableModel
+from src.main.app.schema.codegen.meta_table_schema import (
+    ListMetaTablesRequest, MetaTable,
+)
 
 
 class MetaTableService(BaseService[MetaTableModel], ABC):
-    @abstractmethod
-    async def list_tables(
-        self, data: TableQuery
-    ) -> Tuple[
-        List[MetaTableModel],
-        int,
-    ]:
-        pass
+    @staticmethod
+    async def list_meta_tables(self, req: ListMetaTablesRequest) -> tuple[list[MetaTableModel], int]: ...
 
-    @abstractmethod
-    async def generate_table(self, table_generate: TableGenerate) -> None: ...
+
+    @staticmethod
+    async def filter_exist_meta_tables(self, req: list[MetaTableModel]) -> list[MetaTableModel]: ...

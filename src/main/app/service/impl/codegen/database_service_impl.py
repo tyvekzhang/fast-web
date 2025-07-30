@@ -21,14 +21,15 @@ from sqlmodel import text
 
 from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.core.session.db_engine import get_cached_async_engine
+from src.main.app.exception import BusinessException
 from src.main.app.mapper.codegen.connection_mapper import connectionMapper
 from src.main.app.mapper.codegen.database_mapper import DatabaseMapper
 from src.main.app.model.codegen.database_model import DatabaseModel
 from src.main.app.schema.codegen.database_schema import (
     DB_CREATE_TEMPLATES,
     DatabaseQuery,
-    DatabaseAdd,
-    SQLSchema,
+    CreateDatabase,
+    SQLSchema, ListDatabasesRequest,
 )
 from src.main.app.service.codegen.database_service import DatabaseService
 
@@ -85,9 +86,9 @@ class DatabaseServiceImpl(
         return database
 
     async def list_databases(
-        self, data: DatabaseQuery
+        self, req: ListDatabasesRequest
     ) -> Tuple[List[Any], int]:
-        connection_id = data.connection_id
+        connection_id = req.connection_id
         connection_record = await connectionMapper.select_by_id(
             id=connection_id
         )
@@ -172,7 +173,7 @@ class DatabaseServiceImpl(
             if record.database_name not in exist_database_names:
                 new_add_databases.append(
                     DatabaseModel(
-                        **DatabaseAdd(
+                        **CreateDatabase(
                             connection_id=connection_id,
                             database_name=record.database_name,
                             encoding=record.encoding,
@@ -189,7 +190,7 @@ class DatabaseServiceImpl(
         if len(need_delete_ids) > 0:
             await self.mapper.batch_delete_by_ids(ids=need_delete_ids)
         return await self.mapper.select_by_ordered_page(
-            current=data.current,
-            page_size=data.page_size,
+            current=req.current,
+            page_size=req.page_size,
             EQ={"connection_id": connection_id},
         )

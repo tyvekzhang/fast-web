@@ -18,7 +18,7 @@ from typing import Annotated
 from fastapi import APIRouter, Query, Form
 from starlette.responses import StreamingResponse
 
-from src.main.app.core.schema import PageResult
+from src.main.app.core.schema import ListResult
 from src.main.app.mapper.menu_mapper import menuMapper
 from src.main.app.model.menu_model import MenuModel
 from src.main.app.schema.menu_schema import (
@@ -71,7 +71,7 @@ async def get_menu(id: int) -> MenuDetail:
 @menu_router.get("/menus")
 async def list_menus(
     req: Annotated[ListMenusRequest, Query()],
-) -> PageResult[Menu]:
+) -> ListResult[Menu]:
     """
     List menus with pagination.
 
@@ -81,7 +81,7 @@ async def list_menus(
 
     Returns:
 
-        PageResult: Paginated list of menus and total count.
+        ListResult: Paginated list of menus and total count.
 
     Raises:
 
@@ -93,7 +93,7 @@ async def list_menus(
     ] = await menu_service.get_children_recursively(
         parent_data=menu_records, schema_class=Menu
     )
-    return PageResult(records=menu_records_with_children, total=total)
+    return ListResult(records=menu_records_with_children, total=total)
 
 
 @menu_router.post("/menus")

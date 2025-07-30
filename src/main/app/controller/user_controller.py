@@ -21,7 +21,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.schema import HttpResponse, UserCredential, CurrentUser
-from src.main.app.core.schema import PageResult
+from src.main.app.core.schema import ListResult
 from src.main.app.core.security import get_current_user
 from src.main.app.core.utils import excel_util
 from src.main.app.core.utils.tree_util import list_to_tree
@@ -145,8 +145,8 @@ async def get_me_info(
 async def get_user_by_page(
     user_query: Annotated[UserQuery, Query()],
     current_user: CurrentUser = Depends(get_current_user()),
-) -> HttpResponse[PageResult]:
-    user_page_result: PageResult = await user_service.get_user_by_page(
+) -> HttpResponse[ListResult]:
+    user_page_result: ListResult = await user_service.get_user_by_page(
         user_query=user_query, current_user=current_user
     )
     return HttpResponse.success(user_page_result)

@@ -8,7 +8,7 @@
 # from src.main.app.core.utils.excel_util import export_excel
 # from src.main.app.mapper.field_mapper import fieldMapper
 # from src.main.app.model.db_field_model import FieldModel
-# from src.main.app.schema.common_schema import PageResult
+# from src.main.app.schema.common_schema import ListResult
 # from src.main.app.schema.field_schema import (
 #     FieldAdd,
 #     FieldExport,
@@ -54,7 +54,7 @@
 # @field_router.get("/field/fields")
 # async def list_fields(
 #     field_query: Annotated[FieldQuery, Query()],
-# ) -> HttpResponse[PageResult]:
+# ) -> HttpResponse[ListResult]:
 #     """
 #     Filter fields with pagination.
 #
@@ -66,7 +66,7 @@
 #     """
 #     records, total_count = await field_service.list_fields(data=field_query)
 #     return HttpResponse(
-#         data=PageResult(records=records, total_count=total_count)
+#         data=ListResult(records=records, total_count=total_count)
 #     )
 #
 #

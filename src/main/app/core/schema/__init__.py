@@ -6,7 +6,7 @@ from .schema import (
     CurrentUser,
     PaginationRequest,
     SortItem,
-    PageResult,
+    ListResult,
 )
 
 __all__ = [
@@ -15,5 +15,5 @@ __all__ = [
     CurrentUser,
     PaginationRequest,
     SortItem,
-    PageResult,
+    ListResult,
 ]

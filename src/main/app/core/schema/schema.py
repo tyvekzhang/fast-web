@@ -20,7 +20,7 @@ from pydantic import BaseModel, Field
 T = TypeVar("T")
 
 
-class PageResult(BaseModel, Generic[T]):
+class ListResult(BaseModel, Generic[T]):
     """Paginated query result container.
 
     Attributes:

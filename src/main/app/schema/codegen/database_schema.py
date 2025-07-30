@@ -18,6 +18,28 @@ from pydantic import BaseModel
 
 from src.main.app.core.schema import PaginationRequest
 
+
+class ListDatabasesRequest(PaginationRequest):
+    connection_id: Optional[int] = None
+
+class Database(BaseModel):
+    id: int
+    database_name: str
+
+
+class CreateDatabase(BaseModel):
+    connection_id: int
+    database_name: str
+    owner: Optional[str] = None
+    template: Optional[str] = None
+    encoding: Optional[str] = None
+    collation_order: Optional[str] = None
+    character_classification: Optional[str] = None
+    tablespace: Optional[str] = None
+    connection_limit: Optional[int] = None
+    allow_connection: Optional[bool] = None
+    is_template: Optional[bool] = None
+
 # SQL templates for different databases
 DB_CREATE_TEMPLATES = {
     "mysql": """
@@ -35,18 +57,7 @@ DB_CREATE_TEMPLATES = {
 }
 
 
-class DatabaseAdd(BaseModel):
-    connection_id: int  # 数据库连接id
-    database_name: str  # 数据库名称
-    owner: Optional[str] = None  # 拥有者
-    template: Optional[str] = None  # 使用模板
-    encoding: Optional[str] = None  # 字符编码
-    collation_order: Optional[str] = None  # 排序规则
-    character_classification: Optional[str] = None  # 字符分类
-    tablespace: Optional[str] = None  # 表空间名称
-    connection_limit: Optional[int] = None  # 连接限制
-    allow_connection: Optional[bool] = None  # 是否允许连接
-    is_template: Optional[bool] = None  # 是否为模板数据库
+
 
 
 class DatabaseQuery(PaginationRequest):

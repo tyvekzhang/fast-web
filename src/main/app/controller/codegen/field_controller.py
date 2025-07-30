@@ -8,7 +8,7 @@
 # from src.main.app.core.utils.excel_util import export_excel
 # from src.main.app.mapper.gen_field_mapper import genFieldMapper
 # from src.main.app.model.gen_field_model import GenFieldModel
-# from src.main.app.schema.common_schema import PageResult
+# from src.main.app.schema.common_schema import ListResult
 # from src.main.app.schema.gen_field_schema import (
 #     GenTableColumnAdd,
 #     GenTableColumnExport,
@@ -51,7 +51,7 @@
 # @gen_field_router.get("/gen-field/gen_table_columns")
 # async def list_gen_table_columns(
 #     gen_table_column_query: Annotated[GenTableColumnQuery, Query()],
-# ) -> HttpResponse[PageResult]:
+# ) -> HttpResponse[ListResult]:
 #     """
 #     Filter gen_table_columns with pagination.
 #
@@ -68,7 +68,7 @@
 #         data=gen_table_column_query
 #     )
 #     return HttpResponse(
-#         data=PageResult(records=records, total_count=total_count)
+#         data=ListResult(records=records, total_count=total_count)
 #     )
 #
 #

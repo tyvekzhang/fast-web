@@ -11,28 +11,50 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-# from typing import Dict, Optional, Annotated
-#
-# from fastapi import APIRouter, Query
-# from sqlmodel import inspect, text
-#
-# from src.main.app.core import result
-# from src.main.app.core.result import HttpResponse
-# from src.main.app.core.session.db_engine import get_cached_async_engine
-# from src.main.app.mapper.database_mapper import databaseMapper
-# from src.main.app.model.db_database_model import DatabaseModel
-# from src.main.app.schema.common_schema import PageResult
-# from src.main.app.schema.database_schema import DatabaseAdd, DatabaseQuery
-# from src.main.app.service.database_service import DatabaseService
-# from src.main.app.service.impl.database_service_impl import DatabaseServiceImpl
-#
-# database_router = APIRouter()
-# database_service: DatabaseService = DatabaseServiceImpl(mapper=databaseMapper)
+"""Database REST API"""
+
+from typing import Annotated
+
+from fastapi import APIRouter, Query
+
+from src.main.app.core.schema import ListResult
+from src.main.app.mapper.codegen.database_mapper import databaseMapper
+from src.main.app.schema.codegen.database_schema import ListDatabasesRequest, Database
+from src.main.app.service.codegen.database_service import DatabaseService
+from src.main.app.service.impl.codegen.database_service_impl import DatabaseServiceImpl
+
+database_router = APIRouter()
+database_service: DatabaseService = DatabaseServiceImpl(mapper=databaseMapper)
+
+
+@database_router.get("/databases")
+async def list_databases(
+    req: Annotated[ListDatabasesRequest, Query()],
+) -> ListResult[Database]:
+    """
+    List databases with pagination.
+
+    Args:
+
+        req: Request object containing pagination, filter and sort parameters.
+
+    Returns:
+
+        ListResult: Paginated list of databases and total count.
+
+    Raises:
+
+        HTTPException(403 Forbidden): If user don't have access rights.
+    """
+    database_records, total = await database_service.list_databases(req=req)
+
+    return ListResult(records=database_records, total=total)
+
+
 #
 #
 # @database_router.post("/database/create")
-# async def add_database(database_add: DatabaseAdd) -> HttpResponse[int]:
+# async def add_database(database_add: CreateDatabase) -> HttpResponse[int]:
 #     """
 #     Database add.
 #
@@ -50,7 +72,7 @@
 # @database_router.get("/database/databases")
 # async def list_databases(
 #     database_query: Annotated[DatabaseQuery, Query()],
-# ) -> HttpResponse[PageResult]:
+# ) -> HttpResponse[ListResult]:
 #     """
 #     Filter databases with pagination.
 #
@@ -65,7 +87,7 @@
 #     )
 #
 #     return HttpResponse(
-#         data=PageResult(records=databases, total_count=total_count)
+#         data=ListResult(records=databases, total_count=total_count)
 #     )
 #
 #

@@ -43,11 +43,10 @@ from src.main.app.model.codegen.table_model import TableModel
 from src.main.app.schema.codegen.meta_field_schema import ListFieldRequest, AntTableColumn
 from src.main.app.schema.codegen.table_schema import (
     TableImport,
-    ListMenusRequest,
     Table,
     TableDetail,
     TableExecute,
-    TableRecord,
+    TableRecord, ListTablesRequest,
 )
 from src.main.app.service.codegen.table_service import TableService
 
@@ -110,7 +109,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
         return results
 
     async def list_tables(
-        self, req: ListMenusRequest
+        self, req: ListTablesRequest
     ) -> tuple[List[TableModel], int]:
         filters = {
             FilterOperators.LIKE: {},

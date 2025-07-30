@@ -1,31 +1,57 @@
-# """Table operation controller"""
+# Copyright (c) 2025 FastWeb and/or its affiliates. All rights reserved.
 #
-# import subprocess
-# import sys
-# from typing import Dict, Annotated, List
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# from fastapi import APIRouter, Query, UploadFile, Form
-# from src.main.app.core import result
-# from src.main.app.core.result import HttpResponse
-# from src.main.app.core.utils.excel_util import export_excel
-# from src.main.app.mapper.table_mapper import tableMapper
-# from src.main.app.model.db_table_model import TableDO
-# from src.main.app.schema.common_schema import PageResult
-# from src.main.app.schema.table_schema import (
-#     TableAdd,
-#     TableExport,
-#     TableQueryForm,
-#     TableModify,
-#     TableQuery,
-#     TableGenerate,
-# )
-# from src.main.app.schema.user_schema import Ids
-# from src.main.app.service.table_service import TableService
-# from src.main.app.service.impl.table_service_impl import TableServiceImpl
-# from starlette.responses import StreamingResponse
+#     http://www.apache.org/licenses/LICENSE-2.0
 #
-# table_router = APIRouter()
-# table_service: TableService = TableServiceImpl(mapper=tableMapper)
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+"""MetaTable REST API"""
+
+from typing import Annotated
+
+from fastapi import APIRouter, Query
+
+from src.main.app.core.schema import ListResult
+from src.main.app.mapper.codegen.meta_table_mapper import metaTableMapper
+from src.main.app.schema.codegen.meta_table_schema import ListMetaTablesRequest, MetaTable
+from src.main.app.service.codegen.meta_table_service import MetaTableService
+from src.main.app.service.impl.codegen.meta_table_service_impl import MetaTableServiceImpl
+
+meta_table_router = APIRouter()
+meta_table_service: MetaTableService = MetaTableServiceImpl(mapper=metaTableMapper)
+
+
+@meta_table_router.get("/metaTables:available")
+async def list_available_meta_tables(
+    req: Annotated[ListMetaTablesRequest, Query()],
+) -> ListResult[MetaTable]:
+    """
+    List metaTables with pagination.
+
+    Args:
+
+        req: Request object containing pagination, filter and sort parameters.
+
+    Returns:
+
+        ListResult: Paginated list of metaTables and total count.
+
+    Raises:
+
+        HTTPException(403 Forbidden): If user don't have access rights.
+    """
+    meta_table_records, total = await meta_table_service.list_meta_tables(req=req)
+    filter_meta_table_records = await meta_table_service.filter_exist_meta_tables(req=meta_table_records)
+    results = [MetaTable(**meta_table.model_dump()) for meta_table in filter_meta_table_records]
+    return ListResult(records=results, total=total)
+
 #
 #
 # @table_router.post("/table/add")
@@ -48,7 +74,7 @@
 # @table_router.get("/table/tables")
 # async def list_tables(
 #     table_query: Annotated[TableQuery, Query()],
-# ) -> HttpResponse[PageResult]:
+# ) -> HttpResponse[ListResult]:
 #     """
 #     Filter tables with pagination.
 #
@@ -61,7 +87,7 @@
 #     table_list, total_count = await table_service.list_tables(data=table_query)
 #
 #     return HttpResponse(
-#         data=PageResult(records=table_list, total_count=total_count)
+#         data=ListResult(records=table_list, total_count=total_count)
 #     )
 #
 #

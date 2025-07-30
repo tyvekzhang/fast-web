@@ -17,9 +17,9 @@
 from abc import ABC, abstractmethod
 from typing import Tuple, List, Any
 
-from src.main.app.schema.codegen.database_schema import DatabaseQuery
 from src.main.app.core.service.base_service import BaseService
 from src.main.app.model.codegen.database_model import DatabaseModel
+from src.main.app.schema.codegen.database_schema import ListDatabasesRequest
 
 
 class DatabaseService(BaseService[DatabaseModel], ABC):
@@ -28,5 +28,5 @@ class DatabaseService(BaseService[DatabaseModel], ABC):
 
     @abstractmethod
     async def list_databases(
-        self, data: DatabaseQuery
+        self, req: ListDatabasesRequest
     ) -> Tuple[List[Any], int]: ...

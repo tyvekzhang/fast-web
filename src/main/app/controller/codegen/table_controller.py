@@ -12,38 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""Table operation controller"""
+"""Table REST API"""
 
-from io import BytesIO
-from typing import Dict, Annotated, List
+from typing import Annotated
 
 from fastapi import APIRouter, Query
 
-from starlette.responses import StreamingResponse
-
-from src.main.app.core import result
-from src.main.app.core.result import HttpResponse
-from src.main.app.core.schema import PageResult
-from src.main.app.core.utils.excel_util import export_excel
-from src.main.app.core.utils.time_util import get_date_time
+from src.main.app.core.schema import ListResult
 from src.main.app.mapper.codegen.field_mapper import fieldMapper
 from src.main.app.mapper.codegen.meta_field_mapper import metaFieldMapper
-
 from src.main.app.mapper.codegen.meta_table_mapper import metaTableMapper
 from src.main.app.mapper.codegen.table_mapper import tableMapper
-from src.main.app.model.codegen.field_model import FieldModel
-from src.main.app.model.codegen.table_model import TableModel
-from src.main.app.model.codegen.meta_table_model import MetaTableModel
-from src.main.app.schema.codegen.table_schema import (
-    ListMenusRequest,
-    TableImport,
-    Table, TableDetail,
-)
-from src.main.app.schema.codegen.meta_table_schema import TableQuery, TableAdd, TableExport, TableQueryForm, TableModify
-from src.main.app.schema.user_schema import Ids
+from src.main.app.schema.codegen.table_schema import ListTablesRequest
 from src.main.app.service.codegen.field_service import FieldService
 from src.main.app.service.codegen.meta_field_service import MetaFieldService
 from src.main.app.service.codegen.meta_table_service import MetaTableService
+from src.main.app.service.codegen.table_service import TableService
 from src.main.app.service.impl.codegen.field_service_impl import (
     FieldServiceImpl,
 )
@@ -56,7 +40,6 @@ from src.main.app.service.impl.codegen.meta_table_service_impl import (
 from src.main.app.service.impl.codegen.table_service_impl import (
     TableServiceImpl,
 )
-from src.main.app.service.codegen.table_service import TableService
 
 table_router = APIRouter()
 meta_table_service: MetaTableService = MetaTableServiceImpl(
@@ -71,8 +54,8 @@ meta_field_service: MetaFieldService = MetaFieldServiceImpl(
 
 @table_router.get("/tables")
 async def list_tables(
-    req: Annotated[ListMenusRequest, Query()],
-) -> PageResult:
+    req: Annotated[ListTablesRequest, Query()],
+) -> ListResult:
     """
     List tables with pagination.
 
@@ -82,7 +65,7 @@ async def list_tables(
 
     Returns:
 
-        PageResult: Paginated list of tables and total count.
+        ListResult: Paginated list of tables and total count.
 
     Raises:
 
@@ -90,7 +73,7 @@ async def list_tables(
     """
     table_records, total_count = await table_service.list_tables(req=req)
     results = await table_service.build_tables(tables=table_records)
-    return PageResult(records=results, total=total_count)
+    return ListResult(records=results, total=total_count)
 
 #
 # @table_router.post("/gen-table/execute")

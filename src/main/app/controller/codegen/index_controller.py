@@ -24,7 +24,7 @@
 # from src.main.app.core.utils.excel_util import export_excel
 # from src.main.app.mapper.index_mapper import indexMapper
 # from src.main.app.model.db_index_model import IndexModel
-# from src.main.app.schema.common_schema import PageResult
+# from src.main.app.schema.common_schema import ListResult
 # from src.main.app.schema.index_schema import (
 #     IndexAdd,
 #     IndexExport,
@@ -61,7 +61,7 @@
 # @index_router.get("/index/indexes")
 # async def list_indexes(
 #     index_query: Annotated[IndexQuery, Query()],
-# ) -> HttpResponse[PageResult]:
+# ) -> HttpResponse[ListResult]:
 #     """
 #     Filter indexes with pagination.
 #
@@ -74,7 +74,7 @@
 #     index_list, total_count = await index_service.list_indexes(data=index_query)
 #
 #     return HttpResponse(
-#         data=PageResult(records=index_list, total_count=total_count)
+#         data=ListResult(records=index_list, total_count=total_count)
 #     )
 #
 #

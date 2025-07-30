@@ -22,7 +22,7 @@ from typing import Optional
 from fastapi import UploadFile
 from starlette.responses import StreamingResponse
 
-from src.main.app.core.schema import PageResult, CurrentUser
+from src.main.app.core.schema import ListResult, CurrentUser
 from src.main.app.core.service.base_service import BaseService
 from src.main.app.model.user_model import UserModel
 from src.main.app.schema.user_schema import (
@@ -45,7 +45,7 @@ class UserService(BaseService[UserModel], ABC):
     @abstractmethod
     async def get_user_by_page(
         self, *, user_query: UserQuery, current_user: CurrentUser
-    ) -> PageResult: ...
+    ) -> ListResult: ...
 
     @abstractmethod
     async def get_user_detail(

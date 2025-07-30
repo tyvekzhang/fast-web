@@ -13,13 +13,23 @@
 # limitations under the License.
 #
 """Table mapper"""
+from typing import Optional
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.main.app.core.mapper.impl.base_mapper_impl import SqlModelMapper
 from src.main.app.model.codegen.table_model import TableModel
 
 
 class TableMapper(SqlModelMapper[TableModel]):
-    pass
+    async def select_by_database_ids(
+        self, *, database_ids: int, db_session: Optional[AsyncSession] = None
+    ) -> Optional[list[TableModel]]:
+        db_session = db_session or self.db.session
+        result = await db_session.exec(
+            select(self.model).where(self.model.database_id.in_(database_ids))
+        )
+        return result.all()
 
 
 tableMapper = TableMapper(TableModel)

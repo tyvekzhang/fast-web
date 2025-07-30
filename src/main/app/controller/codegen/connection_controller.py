@@ -1,9 +1,9 @@
-"""Connection operation controller"""
+"""Connection REST API"""
 from typing import Annotated
 
 from fastapi import APIRouter, Query
 
-from src.main.app.core.schema import PageResult
+from src.main.app.core.schema import ListResult
 from src.main.app.mapper.codegen.connection_mapper import connectionMapper
 from src.main.app.schema.codegen.connection_schema import ListConnectionsRequest, Connection
 from src.main.app.service.codegen.connection_service import ConnectionService
@@ -18,7 +18,7 @@ connection_service: ConnectionService = ConnectionServiceImpl(
 @connection_router.get("/connections")
 async def list_connections(
     req: Annotated[ListConnectionsRequest, Query()],
-) -> PageResult[Connection]:
+) -> ListResult[Connection]:
     """
     List connections with pagination.
 
@@ -28,7 +28,7 @@ async def list_connections(
 
     Returns:
 
-        PageResult: Paginated list of connections and total count.
+        ListResult: Paginated list of connections and total count.
 
     Raises:
 
@@ -36,7 +36,7 @@ async def list_connections(
     """
     connection_records, total = await connection_service.list_connections(req=req)
 
-    return PageResult(records=connection_records, total=total)
+    return ListResult(records=connection_records, total=total)
 
 
 #
@@ -63,7 +63,7 @@ async def list_connections(
 # @connection_router.get("/connection/connections")
 # async def list_connections(
 #     connection_query: Annotated[ConnectionQuery, Query()],
-# ) -> HttpResponse[PageResult]:
+# ) -> HttpResponse[ListResult]:
 #     """
 #     Filter connections with pagination.
 #
@@ -77,7 +77,7 @@ async def list_connections(
 #         data=connection_query
 #     )
 #     return HttpResponse(
-#         data=PageResult(records=records, total_count=total_count)
+#         data=ListResult(records=records, total_count=total_count)
 #     )
 #
 #

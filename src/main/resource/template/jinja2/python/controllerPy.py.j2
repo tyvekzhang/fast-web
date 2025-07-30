@@ -6,7 +6,7 @@ from typing import Annotated
 from fastapi import APIRouter, Query, Form
 from starlette.responses import StreamingResponse
 
-from src.main.app.core.schema import PageResult
+from src.main.app.core.schema import ListResult
 from src.main.app.mapper.{{ c_n }}_mapper import {{ cN }}Mapper
 from src.main.app.model.{{ c_n }}_model import {{ CN }}Model
 from src.main.app.schema.{{ c_n }}_schema import (
@@ -58,7 +58,7 @@ async def get_{{ c_n }}(id: int) -> {{ CN }}Detail:
 @{{ c_n }}_router.get("/{{ cNs }}")
 async def list_{{ c_ns }}(
     req: Annotated[List{{ CNs }}Request, Query()],
-) -> PageResult[{{ CN }}]:
+) -> ListResult[{{ CN }}]:
     """
     List {{ c_ns }} with pagination.
 
@@ -68,7 +68,7 @@ async def list_{{ c_ns }}(
 
     Returns:
 
-        PageResult: Paginated list of {{ c_ns }} and total count.
+        ListResult: Paginated list of {{ c_ns }} and total count.
 
     Raises:
 
@@ -80,7 +80,7 @@ async def list_{{ c_ns }}(
     ] = await {{ c_n }}_service.get_children_recursively(
         parent_data={{ c_n }}_records, schema_class={{ CN }}
     )
-    return PageResult(records={{ c_n }}_records_with_children, total=total)
+    return ListResult(records={{ c_n }}_records_with_children, total=total)
 
 
 @{{ c_n }}_router.post("/{{ cNs }}")

@@ -21,13 +21,13 @@ from src.main.app.model.codegen.table_model import TableModel
 from src.main.app.schema.codegen.table_schema import (
     Table,
     TableImport,
-    ListMenusRequest, TableDetail, TableExecute, TableRecord,
+    TableDetail, TableExecute, TableRecord, ListTablesRequest,
 )
 
 
 class TableService(BaseService[TableModel], ABC):
     @abstractmethod
-    async def list_tables(self, req: ListMenusRequest): ...
+    async def list_tables(self, req: ListTablesRequest): ...
 
     @abstractmethod
     async def build_tables(self, tables: list[TableModel]) -> list[Table]: ...

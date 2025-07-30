@@ -25,9 +25,10 @@ from src.main.app.model.codegen.table_model import TableModel
 from src.main.app.schema.codegen.meta_field_schema import AntTableColumn
 
 
-class ListMenusRequest(PaginationRequest):
+class ListTablesRequest(PaginationRequest):
     table_name: Optional[str] = None
     comment: Optional[str] = None
+    database_id: Optional[int] = None
 
 
 class Table(BaseModel):

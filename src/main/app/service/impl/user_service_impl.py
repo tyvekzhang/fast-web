@@ -30,7 +30,7 @@ from src.main.app.core import security
 from src.main.app.core.config import config_manager
 from src.main.app.core.constant import FilterOperators
 from src.main.app.core.enums import TokenTypeEnum
-from src.main.app.core.schema import PageResult, UserCredential, CurrentUser
+from src.main.app.core.schema import ListResult, UserCredential, CurrentUser
 from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.core.utils import excel_util
 from src.main.app.core.utils.validate_util import ValidateService
@@ -105,7 +105,7 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
 
     async def get_user_by_page(
         self, user_query: UserQuery, current_user: CurrentUser
-    ) -> PageResult:
+    ) -> ListResult:
         sort_list = None
         sort_str = user_query.sort_str
         if sort_str is not None:
@@ -152,9 +152,9 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
             **filters,
         )
         if total == 0 and user_query.count:
-            return PageResult(records=[], total=total)
+            return ListResult(records=[], total=total)
         records = [UserPage(**record.model_dump()) for record in records]
-        return PageResult(records=records, total=total)
+        return ListResult(records=records, total=total)
 
     async def get_user_detail(
         self, *, id: int, current_user: CurrentUser
