@@ -33,7 +33,7 @@ class FieldAdd(BaseModel):
     remark: Optional[str] = None
 
 
-class ListFieldRequest(PaginationRequest):
+class ListFieldsRequest(PaginationRequest):
     table_id: int
 
 

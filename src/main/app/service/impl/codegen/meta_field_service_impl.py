@@ -34,7 +34,7 @@ from src.main.app.model.codegen.field_model import FieldModel
 from src.main.app.model.codegen.index_model import IndexModel
 from src.main.app.model.codegen.meta_field_model import MetaFieldModel
 from src.main.app.model.codegen.meta_table_model import MetaTableModel
-from src.main.app.schema.codegen.meta_field_schema import ListFieldRequest, AntTableColumn
+from src.main.app.schema.codegen.meta_field_schema import ListFieldsRequest, AntTableColumn
 
 from src.main.app.service.codegen.meta_field_service import MetaFieldService
 
@@ -46,8 +46,8 @@ class MetaFieldServiceImpl(
         super().__init__(mapper=mapper)
         self.mapper = mapper
 
-    async def list_fields(self, data: ListFieldRequest):
-        table_id = data.table_id
+    async def list_fields(self, *, req: ListFieldsRequest):
+        table_id = req.table_id
         # 查询表信息
         table_record: MetaTableModel = await metaTableMapper.select_by_id(
             id=table_id
@@ -136,7 +136,7 @@ class MetaFieldServiceImpl(
                 raise
             nullable = column["nullable"]
             new_add_field_records.append(
-                FieldModel(
+                MetaFieldModel(
                     table_id=table_id,
                     name=name,
                     type=type_name,
@@ -192,8 +192,8 @@ class MetaFieldServiceImpl(
         if len(need_delete_index_ids) > 0:
             await indexMapper.batch_delete_by_ids(ids=need_delete_index_ids)
         return await self.mapper.select_by_ordered_page(
-            current=data.current,
-            page_size=data.page_size,
+            current=req.current,
+            page_size=req.page_size,
             EQ={"table_id": table_id},
         )
 
@@ -201,7 +201,7 @@ class MetaFieldServiceImpl(
         field_records = await self.mapper.select_by_table_id(table_id=table_id)
         if field_records is None or len(field_records) == 0:
             await self.list_fields(
-                ListFieldRequest(
+                ListFieldsRequest(
                     table_id=table_id,
                 )
             )

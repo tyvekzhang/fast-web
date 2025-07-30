@@ -15,6 +15,7 @@
 """Meta Table domain service impl"""
 from sqlalchemy import MetaData
 
+from src.main.app.core.constant import FilterOperators
 from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.core.session.db_engine import get_cached_async_engine
 from src.main.app.mapper.codegen.meta_table_mapper import MetaTableMapper
@@ -63,13 +64,18 @@ class MetaTableServiceImpl(
                 need_delete_ids.append(exist_table_names[table_name])
         if len(new_add_tables) > 0:
             await self.mapper.batch_insert(data_list=new_add_tables)
-        if len(need_delete_ids) > 0:
-            pass
-            # await self.mapper.batch_delete_by_ids(ids=need_delete_ids)
+        filters = {
+            FilterOperators.LIKE: {},
+            FilterOperators.EQ: {"database_id": database_id},
+        }
+        if req.table_name:
+            filters[FilterOperators.LIKE]["name"] = req.table_name
+        if req.comment:
+            filters[FilterOperators.LIKE]["comment"] = req.comment
         return await self.mapper.select_by_ordered_page(
             current=req.current,
             page_size=req.page_size,
-            EQ={"database_id": database_id},
+            **filters,
         )
 
     async def filter_exist_meta_tables(self, req: list[MetaTableModel]) -> list[MetaTableModel]:

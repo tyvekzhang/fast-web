@@ -42,12 +42,10 @@ class Table(BaseModel):
     create_time: datetime
 
 
-class TableImport(BaseModel):
+class ImportTable(BaseModel):
     database_id: int
     table_ids: List[int]
     backend: str
-
-
 
 class TableData(BaseModel):
     gen_table: Optional[TableModel]

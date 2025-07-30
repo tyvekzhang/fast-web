@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 """Table domain schema"""
-
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
@@ -23,20 +23,22 @@ from src.main.app.core.schema import PaginationRequest
 
 class ListMetaTablesRequest(PaginationRequest):
     database_id: Optional[int] = None
+    table_name: Optional[str] = None
+    comment: Optional[str] = None
 
 
 class MetaTable(BaseModel):
+    id: Optional[int] = None
     database_id: int
     name: str
     comment: Optional[str] = None
-
+    create_time: Optional[datetime] = None
 
 
 class CreateMetaTable(BaseModel):
     database_id: int
     name: str
     comment: Optional[str] = None
-
 
 # class TableQuery(PaginationRequest):
 #     database_id: int

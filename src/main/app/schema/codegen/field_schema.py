@@ -44,7 +44,7 @@ class GenTableColumnModify(BaseModel):
     pass
 
 
-class FieldGen(BaseModel):
+class GenField(BaseModel):
     #
     field: MetaFieldModel
     gen_field: MetaFieldModel

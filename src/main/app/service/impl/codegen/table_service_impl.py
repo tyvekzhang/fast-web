@@ -35,18 +35,19 @@ from src.main.app.mapper.codegen.connection_mapper import connectionMapper
 from src.main.app.mapper.codegen.database_mapper import databaseMapper
 from src.main.app.mapper.codegen.field_mapper import fieldMapper
 from src.main.app.mapper.codegen.index_mapper import indexMapper
+from src.main.app.mapper.codegen.meta_field_mapper import metaFieldMapper
 from src.main.app.mapper.codegen.meta_table_mapper import metaTableMapper
 from src.main.app.mapper.codegen.table_mapper import TableMapper
 from src.main.app.model.codegen.field_model import FieldModel
 from src.main.app.model.codegen.meta_table_model import MetaTableModel
 from src.main.app.model.codegen.table_model import TableModel
-from src.main.app.schema.codegen.meta_field_schema import ListFieldRequest, AntTableColumn
+from src.main.app.schema.codegen.field_schema import GenField
+from src.main.app.schema.codegen.meta_field_schema import ListFieldsRequest, AntTableColumn
 from src.main.app.schema.codegen.table_schema import (
-    TableImport,
     Table,
     TableDetail,
     TableExecute,
-    TableRecord, ListTablesRequest,
+    TableRecord, ListTablesRequest, ImportTable,
 )
 from src.main.app.service.codegen.table_service import TableService
 
@@ -122,16 +123,8 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             current=req.current, page_size=req.page_size, **filters
         )
 
-    async def import_gen_table(self, table_import: TableImport):
-        from src.main.app.service.codegen.field_service import FieldService
-        from src.main.app.service.impl.codegen.field_service_impl import (
-            FieldServiceImpl,
-        )
-
-        field_service: FieldService = FieldServiceImpl(mapper=fieldMapper)
-        table_ids = table_import.table_ids
-        for table_id in table_ids:
-            await field_service.list_fields(ListFieldRequest(table_id=table_id))
+    async def import_tables(self, req: ImportTable):
+        table_ids = req.table_ids
         table_records: List[
             MetaTableModel
         ] = await metaTableMapper.select_by_ids(ids=table_ids)
@@ -141,9 +134,9 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             if comment is None:
                 comment = "[请填写功能名]"
             table_id = table_record.id
-            backend = table_import.backend
+            backend = req.backend
             gen_table_record = TableModel(
-                database_id=table_import.database_id,
+                database_id=req.database_id,
                 db_table_id=table_id,
                 class_name=table_name,
                 function_name=comment,
@@ -153,7 +146,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             )
             GenUtils.init_table(gen_table_record)
             await self.save(data=gen_table_record)
-            field_records = await fieldMapper.select_by_table_id(
+            field_records = await metaFieldMapper.select_by_table_id(
                 table_id=table_id
             )
             for field_record in field_records:
@@ -233,8 +226,8 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
                     id=gen_field.db_field_id
                 )
                 primary_key = field_record.name
-            field_gen = Field(field=field, gen_field=gen_field)
-            field_list.append(field_gen)
+            field_data = GenField(field=field, gen_field=gen_field)
+            field_list.append(field_data)
         table_gen: Table = Table(gen_table=gen_table, fields=field_list)
         table_gen.pk_field = primary_key
         return gen_table, table_gen

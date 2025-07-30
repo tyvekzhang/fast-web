@@ -19,11 +19,14 @@ from typing import Annotated
 from fastapi import APIRouter, Query
 
 from src.main.app.core.schema import ListResult
+from src.main.app.enums import BusinessErrorCode
+from src.main.app.exception import BusinessException
 from src.main.app.mapper.codegen.field_mapper import fieldMapper
 from src.main.app.mapper.codegen.meta_field_mapper import metaFieldMapper
 from src.main.app.mapper.codegen.meta_table_mapper import metaTableMapper
 from src.main.app.mapper.codegen.table_mapper import tableMapper
-from src.main.app.schema.codegen.table_schema import ListTablesRequest
+from src.main.app.schema.codegen.meta_field_schema import ListFieldsRequest
+from src.main.app.schema.codegen.table_schema import ListTablesRequest, ImportTable
 from src.main.app.service.codegen.field_service import FieldService
 from src.main.app.service.codegen.meta_field_service import MetaFieldService
 from src.main.app.service.codegen.meta_table_service import MetaTableService
@@ -74,6 +77,16 @@ async def list_tables(
     table_records, total_count = await table_service.list_tables(req=req)
     results = await table_service.build_tables(tables=table_records)
     return ListResult(records=results, total=total_count)
+
+
+@table_router.post("/tables:import")
+async def import_tables(req: ImportTable) -> None:
+    table_ids = req.table_ids
+    if not table_ids:
+        raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
+    for table_id in table_ids:
+        await meta_field_service.list_fields(req=ListFieldsRequest(table_id=table_id))
+    await table_service.import_tables(req=req)
 
 #
 # @table_router.post("/gen-table/execute")

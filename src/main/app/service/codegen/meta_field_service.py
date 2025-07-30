@@ -20,14 +20,14 @@ from typing import List
 from src.main.app.core.service.base_service import BaseService
 from src.main.app.model.codegen.field_model import FieldModel
 from src.main.app.schema.codegen.meta_field_schema import (
-    ListFieldRequest,
+    ListFieldsRequest,
     AntTableColumn,
 )
 
 
 class MetaFieldService(BaseService[FieldModel], ABC):
     @abstractmethod
-    async def list_fields(self, data: ListFieldRequest): ...
+    async def list_fields(self, *, req: ListFieldsRequest): ...
 
     @abstractmethod
     async def get_ant_table_fields(

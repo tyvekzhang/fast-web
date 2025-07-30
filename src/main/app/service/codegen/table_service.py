@@ -20,8 +20,7 @@ from src.main.app.core.service.base_service import BaseService
 from src.main.app.model.codegen.table_model import TableModel
 from src.main.app.schema.codegen.table_schema import (
     Table,
-    TableImport,
-    TableDetail, TableExecute, TableRecord, ListTablesRequest,
+    TableDetail, TableExecute, TableRecord, ListTablesRequest, ImportTable,
 )
 
 
@@ -33,7 +32,7 @@ class TableService(BaseService[TableModel], ABC):
     async def build_tables(self, tables: list[TableModel]) -> list[Table]: ...
 
     @abstractmethod
-    async def import_gen_table(self, table_import: TableImport): ...
+    async def import_tables(self, req: ImportTable): ...
 
     @abstractmethod
     async def preview_code(self, gen_table_id: int): ...
