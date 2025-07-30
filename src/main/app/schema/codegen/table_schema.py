@@ -22,6 +22,7 @@ from pydantic import BaseModel
 from src.main.app.core.schema import PaginationRequest
 from src.main.app.model.codegen.field_model import FieldModel
 from src.main.app.model.codegen.table_model import TableModel
+from src.main.app.schema.codegen.field_schema import GenField
 from src.main.app.schema.codegen.meta_field_schema import AntTableColumn
 
 

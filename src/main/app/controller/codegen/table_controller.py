@@ -88,6 +88,12 @@ async def import_tables(req: ImportTable) -> None:
         await meta_field_service.list_fields(req=ListFieldsRequest(table_id=table_id))
     await table_service.import_tables(req=req)
 
+
+@table_router.get("/tables:preview/{id}")
+async def preview_code(id: int) -> dict:
+    result = await table_service.preview_code(id=id)
+    return result
+
 #
 # @table_router.post("/gen-table/execute")
 # async def execute_sql(
@@ -145,10 +151,6 @@ async def import_tables(req: ImportTable) -> None:
 #     return result.success()
 #
 #
-# @table_router.get("/gen-table/preview/{gen_table_id}")
-# async def preview_code(gen_table_id: int) -> Dict:
-#     res = await table_service.preview_code(gen_table_id=gen_table_id)
-#     return result.success(res)
 #
 #
 # @table_router.get("/gen-table/data/{id}/{current}/{page_size}")

@@ -17,7 +17,7 @@
 import io
 import zipfile
 from collections import OrderedDict
-from typing import List, Dict
+from typing import List
 
 from loguru import logger
 from sqlalchemy import text
@@ -42,12 +42,12 @@ from src.main.app.model.codegen.field_model import FieldModel
 from src.main.app.model.codegen.meta_table_model import MetaTableModel
 from src.main.app.model.codegen.table_model import TableModel
 from src.main.app.schema.codegen.field_schema import GenField
-from src.main.app.schema.codegen.meta_field_schema import ListFieldsRequest, AntTableColumn
+from src.main.app.schema.codegen.meta_field_schema import AntTableColumn
 from src.main.app.schema.codegen.table_schema import (
     Table,
     TableDetail,
     TableExecute,
-    TableRecord, ListTablesRequest, ImportTable,
+    TableRecord, ListTablesRequest, ImportTable, TableData,
 )
 from src.main.app.service.codegen.table_service import TableService
 
@@ -158,10 +158,9 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
                 GenUtils.init_field(gen_field_record, field_record, backend)
                 await fieldMapper.insert(data=gen_field_record)
 
-    async def preview_code(self, gen_table_id: int) -> Dict:
+    async def preview_code(self, id: int) -> dict:
         data_map = OrderedDict()
-        # 查询导入的表信息
-        gen_table, table_gen = await self.generator_code(gen_table_id)
+        gen_table, table_gen = await self.generator_code(id)
         index_metadata = await indexMapper.select_by_table_id(
             table_id=gen_table.db_table_id
         )
@@ -182,55 +181,55 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
                     rendered_template
                 )
             except Exception as e:
-                print(f"这里出错啦{template} {e}")
+                logger.error(f"Error rendering template {template}: {e}")
         return data_map
 
-    def set_sub_table(self, *, gen_table: TableModel):
+    def set_sub_table(self, *, table: TableModel):
         pass
 
     def set_pk_column(self, *, gen_table: TableModel, table_gen: Table):
         table_gen.pk_field = gen_table
 
-    async def generator_code(self, gen_table_id: int):
+    async def generator_code(self, table_id: int):
         # 查询导入的表信息
-        gen_table: TableModel = await self.retrieve_by_id(id=gen_table_id)
-        if gen_table is None:
+        table: TableModel = await self.retrieve_by_id(id=table_id)
+        if table is None:
             raise
-        self.set_sub_table(gen_table=gen_table)
+        self.set_sub_table(table=table)
         # 通过表id查询父字段信息
-        field_records = await fieldMapper.select_by_table_id(
-            table_id=gen_table.db_table_id
+        meta_field_records = await metaFieldMapper.select_by_table_id(
+            table_id=table.db_table_id
         )
+        if meta_field_records is None or len(meta_field_records) == 0:
+            raise
+        meta_field_ids = [field_record.id for field_record in meta_field_records]
+        # 通过字段的id查询子字段的信息
+        field_records: List[
+            FieldModel
+        ] = await fieldMapper.select_by_db_field_ids(ids=meta_field_ids)
         if field_records is None or len(field_records) == 0:
             raise
-        field_list = [field_record.id for field_record in field_records]
-        # 通过字段的id查询子字段的信息
-        gen_field_records: List[
-            FieldModel
-        ] = await fieldMapper.select_by_db_field_ids(ids=field_list)
-        if gen_field_records is None or len(gen_field_records) == 0:
-            raise
-        id_field_dict = {
-            gen_field_record.db_field_id: gen_field_record
-            for gen_field_record in gen_field_records
+        meta_id_field_dict = {
+            field_record.db_field_id: field_record
+            for field_record in field_records
         }
-        field_list = []
+        meta_field_list = []
         primary_key = ""
-        for field_record in field_records:
-            field = field_record
-            gen_field: FieldModel = id_field_dict.get(field.id)
-            if gen_field is None:
+        for meta_field_record in meta_field_records:
+            field = meta_field_record.copy()
+            field: FieldModel = meta_id_field_dict.get(field.id)
+            if field is None:
                 continue
-            if gen_field.primary_key == 1:
-                field_record: FieldModel = await fieldMapper.select_by_id(
-                    id=gen_field.db_field_id
+            if field.primary_key == 1:
+                meta_field_record: FieldModel = await metaFieldMapper.select_by_id(
+                    id=field.db_field_id
                 )
-                primary_key = field_record.name
-            field_data = GenField(field=field, gen_field=gen_field)
-            field_list.append(field_data)
-        table_gen: Table = Table(gen_table=gen_table, fields=field_list)
-        table_gen.pk_field = primary_key
-        return gen_table, table_gen
+                primary_key = meta_field_record.name
+            field_data = GenField(meta_field=meta_field_record, gen_field=field)
+            meta_field_list.append(field_data)
+        table_data: TableData = TableData(gen_table=table, fields=meta_field_list)
+        table_data.pk_field = primary_key
+        return table, table_data
 
     async def download_code(self, table_id: int):
         gen_table, table_gen = await self.generator_code(table_id)

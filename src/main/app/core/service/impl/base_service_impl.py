@@ -3,7 +3,7 @@
 from typing import TypeVar, Generic, Dict
 
 from src.main.app.core.mapper.impl.base_mapper_impl import SqlModelMapper
-from src.main.app.core.model import BaseModel
+from pydantic import BaseModel
 from src.main.app.core.schema import SortItem
 from src.main.app.core.service.base_service import BaseService
 

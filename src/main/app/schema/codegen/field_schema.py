@@ -17,6 +17,7 @@
 from pydantic import BaseModel
 
 from src.main.app.core.schema import PaginationRequest
+from src.main.app.model.codegen.field_model import FieldModel
 from src.main.app.model.codegen.meta_field_model import MetaFieldModel
 
 
@@ -46,10 +47,10 @@ class GenTableColumnModify(BaseModel):
 
 class GenField(BaseModel):
     #
-    field: MetaFieldModel
-    gen_field: MetaFieldModel
+    meta_field: MetaFieldModel
+    gen_field: FieldModel
 
 
 class GenFieldDb(BaseModel):
-    gen_field: MetaFieldModel
+    gen_field: FieldModel
     db_field: MetaFieldModel
