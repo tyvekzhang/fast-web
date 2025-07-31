@@ -44,11 +44,11 @@ class TableService(BaseService[TableModel], ABC):
     async def get_table_data(self, *, id: int, current: int, page_size: int): ...
 
     @abstractmethod
-    async def get_gen_table_detail(self, *, id: int) -> TableDetail: ...
+    async def get_table_detail(self, *, id: int) -> TableDetail: ...
 
     @abstractmethod
-    async def modify_gen_table(
-        self, gen_table_detail: TableDetail
+    async def update_table(
+        self, req: TableDetail
     ) -> None: ...
 
     @abstractmethod

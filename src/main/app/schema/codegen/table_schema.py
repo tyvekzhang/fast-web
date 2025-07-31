@@ -48,9 +48,9 @@ class ImportTable(BaseModel):
     table_ids: List[int]
     backend: str
 
-class TableData(BaseModel):
-    gen_table: Optional[TableModel]
-    fields: Union[List[FieldModel], None]
+class GenContext(BaseModel):
+    table: Optional[TableModel]
+    gen_fields: Union[List[GenField], None]
     sub_table: Optional[TableModel] = None
     pk_field: Optional[str] = None
     tree_code: Optional[str] = None
@@ -61,8 +61,8 @@ class TableData(BaseModel):
 
 
 class TableDetail(BaseModel):
-    gen_table: TableModel
-    gen_field: List[FieldModel]
+    table: TableModel
+    fields: List[FieldModel]
 
 
 class TableExecute(BaseModel):

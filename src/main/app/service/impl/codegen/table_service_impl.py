@@ -39,6 +39,7 @@ from src.main.app.mapper.codegen.meta_field_mapper import metaFieldMapper
 from src.main.app.mapper.codegen.meta_table_mapper import metaTableMapper
 from src.main.app.mapper.codegen.table_mapper import TableMapper
 from src.main.app.model.codegen.field_model import FieldModel
+from src.main.app.model.codegen.meta_field_model import MetaFieldModel
 from src.main.app.model.codegen.meta_table_model import MetaTableModel
 from src.main.app.model.codegen.table_model import TableModel
 from src.main.app.schema.codegen.field_schema import GenField
@@ -47,7 +48,7 @@ from src.main.app.schema.codegen.table_schema import (
     Table,
     TableDetail,
     TableExecute,
-    TableRecord, ListTablesRequest, ImportTable, TableData,
+    TableRecord, ListTablesRequest, ImportTable, GenContext,
 )
 from src.main.app.service.codegen.table_service import TableService
 
@@ -160,18 +161,18 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
 
     async def preview_code(self, id: int) -> dict:
         data_map = OrderedDict()
-        gen_table, table_gen = await self.generator_code(id)
+        table_record, gen_context = await self.generator_code(id)
         index_metadata = await indexMapper.select_by_table_id(
-            table_id=gen_table.db_table_id
+            table_id=table_record.db_table_id
         )
-        backend = gen_table.backend
+        backend = table_record.backend
         data_map["backend"] = backend
-        context = Jinja2Utils.prepare_context(table_gen, index_metadata)
+        context = Jinja2Utils.prepare_context(gen_context, index_metadata)
         templates = Jinja2Utils.get_template_list(
             backend,
-            gen_table.tpl_backend_type,
-            gen_table.tpl_category,
-            gen_table.tpl_web_type,
+            table_record.tpl_backend_type,
+            table_record.tpl_category,
+            table_record.tpl_web_type,
         )
         for template in templates:
             try:
@@ -191,45 +192,46 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
         table_gen.pk_field = gen_table
 
     async def generator_code(self, table_id: int):
-        # 查询导入的表信息
-        table: TableModel = await self.retrieve_by_id(id=table_id)
-        if table is None:
-            raise
-        self.set_sub_table(table=table)
-        # 通过表id查询父字段信息
+        # Get import table record
+        table_record: TableModel = await self.mapper.select_by_id(id=table_id)
+        if table_record is None:
+            logger.error(f"Table not found: {table_id}")
+            raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
+        self.set_sub_table(table=table_record)
+        # Get field mete field
         meta_field_records = await metaFieldMapper.select_by_table_id(
-            table_id=table.db_table_id
+            table_id=table_record.db_table_id
         )
         if meta_field_records is None or len(meta_field_records) == 0:
-            raise
+            logger.error(f"Meta table not found: {table_record.db_table_id}")
+            raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
         meta_field_ids = [field_record.id for field_record in meta_field_records]
-        # 通过字段的id查询子字段的信息
+        # Get field records by mete field ids
         field_records: List[
             FieldModel
         ] = await fieldMapper.select_by_db_field_ids(ids=meta_field_ids)
         if field_records is None or len(field_records) == 0:
-            raise
+            raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
         meta_id_field_dict = {
             field_record.db_field_id: field_record
             for field_record in field_records
         }
         meta_field_list = []
         primary_key = ""
-        for meta_field_record in meta_field_records:
-            field = meta_field_record.copy()
-            field: FieldModel = meta_id_field_dict.get(field.id)
-            if field is None:
+        for meta_field in meta_field_records:
+            mapped_field: FieldModel = meta_id_field_dict.get(meta_field.id)
+            if mapped_field is None:
                 continue
-            if field.primary_key == 1:
+            if mapped_field.primary_key == 1:
                 meta_field_record: FieldModel = await metaFieldMapper.select_by_id(
-                    id=field.db_field_id
+                    id=mapped_field.db_field_id
                 )
                 primary_key = meta_field_record.name
-            field_data = GenField(meta_field=meta_field_record, gen_field=field)
+            field_data = GenField(meta_field=meta_field, field=mapped_field)
             meta_field_list.append(field_data)
-        table_data: TableData = TableData(gen_table=table, fields=meta_field_list)
-        table_data.pk_field = primary_key
-        return table, table_data
+        gen_context: GenContext = GenContext(table=table_record, gen_fields=meta_field_list)
+        gen_context.pk_field = primary_key
+        return table_record, gen_context
 
     async def download_code(self, table_id: int):
         gen_table, table_gen = await self.generator_code(table_id)
@@ -297,29 +299,26 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             # 返回分页结果
             return {"records": data, "total": total}
 
-    async def get_gen_table_detail(self, *, id: int) -> TableDetail:
-        gen_table: TableModel = await self.retrieve_by_id(id=id)
-        table_id = gen_table.db_table_id
+    async def get_table_detail(self, *, id: int) -> TableDetail:
+        table_record: TableModel = await self.retrieve_by_id(id=id)
+        meta_table_id = table_record.db_table_id
 
         # 获取数据库表信息
-        db_table: MetaTableModel = await metaTableMapper.select_by_id(
-            id=table_id
-        )
-        db_fields: List[FieldModel] = await fieldMapper.select_by_table_id(
-            table_id=table_id
+        meta_fields: List[MetaFieldModel] = await metaFieldMapper.select_by_table_id(
+            table_id=meta_table_id
         )
 
         # 获取字段对应的生成字段信息
-        field_ids = [db_field.id for db_field in db_fields]
-        gen_fields = await fieldMapper.select_by_db_field_ids(ids=field_ids)
+        field_ids = [db_field.id for db_field in meta_fields]
+        fields = await fieldMapper.select_by_db_field_ids(ids=field_ids)
 
         # 返回最终详情
-        return TableDetail(gen_table=gen_table, gen_field=gen_fields)
+        return TableDetail(table=table_record, fields=fields)
 
-    async def modify_gen_table(self, gen_table_detail: TableDetail) -> None:
-        gen_table: TableModel = gen_table_detail.gen_table
+    async def update_table(self, req: TableDetail) -> None:
+        gen_table: TableModel = req.table
         await self.mapper.update_by_id(data=gen_table)
-        gen_fields: List[FieldModel] = gen_table_detail.gen_field
+        gen_fields: List[FieldModel] = req.fields
         for gen_field in gen_fields:
             await fieldMapper.update_by_id(data=gen_field)
 

@@ -174,7 +174,7 @@ class BaseMapper(ABC, Generic[ModelType]):
         Update multiple records.
 
         Args:
-            data: List of dictionaries with primary key(s) and fields to update.
+            data: List of dictionaries with primary key(s) and gen_fields to update.
             db_session: Optional async database session.
 
         Returns:

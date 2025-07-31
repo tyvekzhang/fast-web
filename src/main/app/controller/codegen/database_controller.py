@@ -132,9 +132,9 @@ async def list_databases(
 #         for col in index["column_names"]:
 #             indexed_columns.add(col)
 #             break
-#     fields = []
+#     gen_fields = []
 #     for column in columns:
-#         fields.append(
+#         gen_fields.append(
 #             {
 #                 "name": column["name"],
 #                 "type": str(column["type"]),
@@ -160,7 +160,7 @@ async def list_databases(
 #     return result.success(
 #         {
 #             "table": table_name,
-#             "fields": fields,
+#             "gen_fields": gen_fields,
 #             "table_options": table_options,
 #             "indexes": all_indexes,
 #         }

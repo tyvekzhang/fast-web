@@ -26,7 +26,7 @@ from src.main.app.mapper.codegen.meta_field_mapper import metaFieldMapper
 from src.main.app.mapper.codegen.meta_table_mapper import metaTableMapper
 from src.main.app.mapper.codegen.table_mapper import tableMapper
 from src.main.app.schema.codegen.meta_field_schema import ListFieldsRequest
-from src.main.app.schema.codegen.table_schema import ListTablesRequest, ImportTable
+from src.main.app.schema.codegen.table_schema import ListTablesRequest, ImportTable, TableDetail
 from src.main.app.service.codegen.field_service import FieldService
 from src.main.app.service.codegen.meta_field_service import MetaFieldService
 from src.main.app.service.codegen.meta_table_service import MetaTableService
@@ -94,6 +94,28 @@ async def preview_code(id: int) -> dict:
     result = await table_service.preview_code(id=id)
     return result
 
+@table_router.get("/tables/{id}")
+async def get_table_detail(
+    id: int,
+) -> TableDetail:
+    result = await table_service.get_table_detail(id=id)
+    return result
+
+@table_router.put("/tables")
+async def update_table(
+    req: TableDetail,
+) -> None:
+    """
+    Update table information.
+
+    Args:
+        req: Command containing updated table info.
+
+    Returns:
+        Success result message
+    """
+    await table_service.update_table(req=req)
+
 #
 # @table_router.post("/gen-table/execute")
 # async def execute_sql(
@@ -124,21 +146,21 @@ async def preview_code(id: int) -> dict:
 #         gen_table_add: Data required for add.
 #
 #     Returns:
-#         BaseResponse with new gen_table's ID.
+#         BaseResponse with new table's ID.
 #     """
-#     gen_table: TableModel = await table_service.save(
+#     table: TableModel = await table_service.save(
 #         data=TableModel(**gen_table_add.model_dump())
 #     )
-#     return HttpResponse(data=gen_table.id)
+#     return HttpResponse(data=table.id)
 #
 #
 # @table_router.get("/gen-table/export-template")
 # async def export_template() -> StreamingResponse:
 #     """
-#     Export a template for gen_table information.
+#     Export a template for table information.
 #
 #     Returns:
-#         StreamingResponse with gen_table field
+#         StreamingResponse with table field
 #     """
 #     return await export_excel(
 #         schema=TableExport, file_name="gen_table_import_template"
@@ -183,31 +205,31 @@ async def preview_code(id: int) -> dict:
 #     data: Annotated[TableQueryForm, Query()],
 # ) -> StreamingResponse:
 #     """
-#     Export gen_table information based on provided parameters.
+#     Export table information based on provided parameters.
 #
 #     Args:
 #         data: Filtering and format parameters for export.
 #
 #     Returns:
-#         StreamingResponse with gen_table info
+#         StreamingResponse with table info
 #     """
 #     return await table_service.export_gen_table(params=data)
 #
 #
 # @table_router.put("/gen-table/modify")
 # async def modify_gen_table(
-#     gen_table_detail: TableDetail,
+#     req: TableDetail,
 # ) -> Dict:
 #     """
-#     Update gen_table information.
+#     Update table information.
 #
 #     Args:
-#         gen_table_detail: Command containing updated gen_table info.
+#         req: Command containing updated table info.
 #
 #     Returns:
 #         Success result message
 #     """
-#     await table_service.modify_gen_table(gen_table_detail=gen_table_detail)
+#     await table_service.modify_gen_table(req=req)
 #     return result.success()
 #
 #
@@ -223,15 +245,15 @@ async def preview_code(id: int) -> dict:
 #
 # async def remove_logic(id: int) -> None:
 #     """
-#     Shared logic to remove a gen_table by their ID.
+#     Shared logic to remove a table by their ID.
 #     """
-#     gen_table: TableModel = await table_service.retrieve_by_id(id=id)
-#     db_table_id = gen_table.db_table_id
+#     table: TableModel = await table_service.retrieve_by_id(id=id)
+#     db_table_id = table.db_table_id
 #     await meta_table_service.remove_by_id(id=db_table_id)
-#     fields: List[FieldModel] = await fieldMapper.select_by_table_id(
+#     gen_fields: List[FieldModel] = await fieldMapper.select_by_table_id(
 #         table_id=db_table_id
 #     )
-#     field_ids = [field.id for field in fields]
+#     field_ids = [field.id for field in gen_fields]
 #     await meta_field_service.batch_remove_by_ids(ids=field_ids)
 #     await fieldMapper.batch_delete_by_field_ids(field_ids=field_ids)
 #     await table_service.remove_by_id(id=id)
@@ -242,7 +264,7 @@ async def preview_code(id: int) -> dict:
 #     id: int,
 # ) -> Dict:
 #     """
-#     Remove a gen_table by their ID.
+#     Remove a table by their ID.
 #
 #     Args:
 #         id: Table ID to remove.
@@ -303,7 +325,7 @@ async def preview_code(id: int) -> dict:
 #     Delete gen_tables by a list of IDs.
 #
 #     Args:
-#         ids: List of gen_table IDs to delete.
+#         ids: List of table IDs to delete.
 #
 #     Returns:
 #         Success result message

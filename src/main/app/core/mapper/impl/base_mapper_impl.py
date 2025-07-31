@@ -387,7 +387,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
                 *[getattr(self.model, pk) == item[pk] for pk in pk_fields]
             )
 
-            # Extract update fields
+            # Extract update gen_fields
             update_data = {k: v for k, v in item.items() if k not in pk_fields}
             if not update_data:
                 continue

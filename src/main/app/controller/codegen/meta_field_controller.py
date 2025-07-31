@@ -28,8 +28,8 @@
 #
 # @field_router.get("/field/antd/{id}")
 # async def get_ant_table_columns(id: int) -> HttpResponse[List[AntTableColumn]]:
-#     fields = await field_service.get_ant_table_fields(table_id=id)
-#     return HttpResponse(data=fields)
+#     gen_fields = await field_service.get_ant_table_fields(table_id=id)
+#     return HttpResponse(data=gen_fields)
 #
 #
 # @field_router.post("/field/add")
@@ -51,12 +51,12 @@
 #     return HttpResponse(data=field.id)
 #
 #
-# @field_router.get("/field/fields")
+# @field_router.get("/field/gen_fields")
 # async def list_fields(
 #     field_query: Annotated[FieldQuery, Query()],
 # ) -> HttpResponse[ListResult]:
 #     """
-#     Filter fields with pagination.
+#     Filter gen_fields with pagination.
 #
 #     Args:
 #         field_query: Pagination and filter info to query
@@ -184,7 +184,7 @@
 #     ids: List[int] = Query(...),
 # ) -> Dict:
 #     """
-#     Delete fields by a list of IDs.
+#     Delete gen_fields by a list of IDs.
 #
 #     Args:
 #         ids: List of field IDs to delete.

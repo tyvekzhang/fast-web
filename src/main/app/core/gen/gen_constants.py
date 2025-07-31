@@ -6,12 +6,12 @@ class GenConstants:
     TPL_TREE = "tree"
     TPL_SUB = "sub"
 
-    # Tree-related fields
+    # Tree-related gen_fields
     TREE_CODE = "treeCode"
     TREE_PARENT_CODE = "treeParentCode"
     TREE_NAME = "treeName"
 
-    # Menu-related fields
+    # Menu-related gen_fields
     PARENT_MENU_ID = "parentMenuId"
     PARENT_MENU_NAME = "parentMenuName"
 
@@ -36,7 +36,7 @@ class GenConstants:
         "int8",
     ]
 
-    # Page settings for fields
+    # Page settings for gen_fields
     COLUMNNAME_NOT_INSERT = [
         "id",
         "create_by",
@@ -84,7 +84,7 @@ class GenConstants:
         "tenant_id",
     ]
 
-    # Base entity fields
+    # Base entity gen_fields
     BASE_ENTITY = [
         "createBy",
         "createTime",

@@ -36,7 +36,7 @@ class GenUtils:
         gen_field: FieldModel, field_record: MetaFieldModel, backend: str
     ):
         """
-        Initialize column attribute fields
+        Initialize column attribute gen_fields
         """
         # 不同的backend影响field_name和field_type
         data_type = field_record.type
@@ -168,21 +168,21 @@ class GenUtils:
         if StringUtils.ends_with_ignore_case(field_name, "name"):
             gen_field.query_type = GenConstants.QUERY_LIKE
 
-        # Set radio button for status fields
+        # Set radio button for status gen_fields
         if StringUtils.ends_with_ignore_case(field_name, "status"):
             gen_field.html_type = GenConstants.HTML_RADIO
-        # Set dropdown for type and sex fields
+        # Set dropdown for type and sex gen_fields
         elif StringUtils.ends_with_ignore_case(
             field_name, "type"
         ) or StringUtils.ends_with_ignore_case(field_name, "sex"):
             gen_field.html_type = GenConstants.HTML_SELECT
-        # Set image upload control for image fields
+        # Set image upload control for image gen_fields
         elif StringUtils.ends_with_ignore_case(field_name, "image"):
             gen_field.html_type = GenConstants.HTML_IMAGE_UPLOAD
-        # Set file upload control for file fields
+        # Set file upload control for file gen_fields
         elif StringUtils.ends_with_ignore_case(field_name, "file"):
             gen_field.html_type = GenConstants.HTML_FILE_UPLOAD
-        # Set rich text control for content fields
+        # Set rich text control for content gen_fields
         elif StringUtils.ends_with_ignore_case(field_name, "content"):
             gen_field.html_type = GenConstants.HTML_MODIFYOR
 

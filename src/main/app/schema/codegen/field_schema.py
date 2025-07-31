@@ -46,9 +46,8 @@ class GenTableColumnModify(BaseModel):
 
 
 class GenField(BaseModel):
-    #
     meta_field: MetaFieldModel
-    gen_field: FieldModel
+    field: FieldModel
 
 
 class GenFieldDb(BaseModel):
