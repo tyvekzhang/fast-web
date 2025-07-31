@@ -20,14 +20,11 @@ from collections import OrderedDict
 from typing import List
 
 from loguru import logger
-from sqlalchemy import text
 
 from src.main.app.core.constant import FilterOperators
 from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
-from src.main.app.core.session.db_engine import get_cached_async_engine
 from src.main.app.core.utils.gen_util import GenUtils
 from src.main.app.core.utils.jinja2_util import Jinja2Utils
-from src.main.app.core.utils.sql_util import SqlUtil
 from src.main.app.core.utils.template_util import load_template_file
 from src.main.app.enums.biz_error_code import BusinessErrorCode
 from src.main.app.exception.biz_exception import BusinessException
@@ -43,12 +40,10 @@ from src.main.app.model.codegen.meta_field_model import MetaFieldModel
 from src.main.app.model.codegen.meta_table_model import MetaTableModel
 from src.main.app.model.codegen.table_model import TableModel
 from src.main.app.schema.codegen.field_schema import GenField
-from src.main.app.schema.codegen.meta_field_schema import AntTableColumn
 from src.main.app.schema.codegen.table_schema import (
     Table,
     TableDetail,
-    TableExecute,
-    TableRecord, ListTablesRequest, ImportTable, GenContext,
+    ListTablesRequest, ImportTable, GenContext,
 )
 from src.main.app.service.codegen.table_service import TableService
 
@@ -112,10 +107,13 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
 
     async def list_tables(
         self, req: ListTablesRequest
-    ) -> tuple[List[TableModel], int]:
+    ) -> tuple[list[TableModel], int]:
         filters = {
             FilterOperators.LIKE: {},
+            FilterOperators.EQ: {},
         }
+        if req.database_id:
+            filters[FilterOperators.EQ]["database_id"] = req.database_id
         if req.table_name is not None and req.table_name != "":
             filters[FilterOperators.LIKE]["table_name"] = req.table_name
         if req.comment is not None and req.comment != "":
@@ -196,7 +194,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
         table_record: TableModel = await self.mapper.select_by_id(id=table_id)
         if table_record is None:
             logger.error(f"Table not found: {table_id}")
-            raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
+            raise BusinessException(BusinessErrorCode.RESOURCE_NOT_FOUND)
         self.set_sub_table(table=table_record)
         # Get field mete field
         meta_field_records = await metaFieldMapper.select_by_table_id(
@@ -204,7 +202,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
         )
         if meta_field_records is None or len(meta_field_records) == 0:
             logger.error(f"Meta table not found: {table_record.db_table_id}")
-            raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
+            raise BusinessException(BusinessErrorCode.RESOURCE_NOT_FOUND)
         meta_field_ids = [field_record.id for field_record in meta_field_records]
         # Get field records by mete field ids
         field_records: List[
@@ -233,71 +231,44 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
         gen_context.pk_field = primary_key
         return table_record, gen_context
 
-    async def download_code(self, table_id: int):
-        gen_table, table_gen = await self.generator_code(table_id)
-        index_metadata = await indexMapper.select_by_table_id(
-            table_id=gen_table.db_table_id
-        )
-        context = Jinja2Utils.prepare_context(table_gen, index_metadata)
-        templates = Jinja2Utils.get_template_list(
-            gen_table.backend,
-            gen_table.tpl_backend_type,
-            gen_table.tpl_category,
-            gen_table.tpl_web_type,
-        )
+    async def download_code(self, table_ids: list[int]):
+        """
+        Generate and download code for multiple tables as a ZIP file
+        """
         output_stream = io.BytesIO()
-        with zipfile.ZipFile(
-            output_stream, "w", zipfile.ZIP_DEFLATED
-        ) as zip_file:
-            for template in templates:
+
+        with zipfile.ZipFile(output_stream, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            for table_id in table_ids:
                 try:
-                    template_j2 = load_template_file(template)
-                    rendered_template = template_j2.render(context)
-                    zip_file.writestr(
-                        Jinja2Utils.get_file_name(template, table_gen),
-                        rendered_template,
+                    # Generate code for each table
+                    table_record, gen_context = await self.generator_code(table_id)
+                    index_metadata = await indexMapper.select_by_table_id(
+                        table_id=table_record.db_table_id
                     )
+                    context = Jinja2Utils.prepare_context(gen_context, index_metadata)
+                    templates = Jinja2Utils.get_template_list(
+                        table_record.backend,
+                        table_record.tpl_backend_type,
+                        table_record.tpl_category,
+                        table_record.tpl_web_type,
+                    )
+
+                    # Add generated files to ZIP archive
+                    for template in templates:
+                        try:
+                            template_j2 = load_template_file(template)
+                            rendered_template = template_j2.render(context)
+                            # Prefix files with table name to avoid conflicts
+                            file_path = f"{table_record.table_name}/{Jinja2Utils.get_file_name(template, gen_context)}"
+                            zip_file.writestr(file_path, rendered_template)
+                        except Exception as e:
+                            logger.error(f"Template rendering failed for {template}: {e}")
+
                 except Exception as e:
-                    print(f"{template}: {e}")
+                    logger.error(f"Code generation failed for table_id {table_id}: {e}")
+                    continue
+
         return output_stream.getvalue()
-
-    @classmethod
-    async def get_table_data(cls, *, id: int, current: int, page_size: int):
-        # 根据生成表关联的数据库表ID查询表信息
-        table_do: MetaTableModel = await metaTableMapper.select_by_id(id=id)
-
-        # 获取数据库异步引擎
-        engine = await get_cached_async_engine(database_id=table_do.database_id)
-
-        # 获取表名
-        table_name = table_do.name
-
-        # 使用异步连接
-        async with engine.connect() as conn:
-            # 计算分页起始位置
-            offset = (current - 1) * page_size
-
-            # 构建查询语句
-            query = text(
-                f"SELECT * FROM {table_name} LIMIT :page_size OFFSET :offset"
-            )
-
-            # 执行查询
-            result = await conn.execute(
-                query, {"page_size": page_size, "offset": offset}
-            )
-
-            # 获取总记录数的查询
-            count_query = text(f"SELECT COUNT(*) as total FROM {table_name}")
-            count_result = await conn.execute(count_query)
-            total = count_result.scalar()
-
-            print(result)
-            # 将结果转换为字典列表
-            data = [row._asdict() for row in result]
-
-            # 返回分页结果
-            return {"records": data, "total": total}
 
     async def get_table_detail(self, *, id: int) -> TableDetail:
         table_record: TableModel = await self.retrieve_by_id(id=id)
@@ -322,30 +293,14 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
         for gen_field in gen_fields:
             await fieldMapper.update_by_id(data=gen_field)
 
-    async def execute_sql(
-        self, gen_table_execute: TableExecute
-    ) -> TableRecord:
-        sql_statement = gen_table_execute.sql_statement
-        SqlUtil.filter_keyword(sql_statement)
-        engine = await get_cached_async_engine(
-            database_id=gen_table_execute.database_id
+    async def delete_table(self, id: int) -> None:
+        table_record: TableModel = await self.retrieve_by_id(id=id)
+
+        await metaTableMapper.delete_by_id(id=table_record.db_table_id)
+        meta_field_fields: list[MetaFieldModel] = await metaFieldMapper.select_by_table_id(
+            table_id=table_record.db_table_id
         )
-        async with engine.connect() as conn:
-            statement = text(sql_statement)
-            query_response = await conn.execute(statement)
-
-            # 获取查询结果
-            results = query_response.mappings().fetchall()
-            if not results:
-                # 如果结果为空，返回一个空的记录对象
-                return TableRecord(fields=[], records=[])
-
-            # 构造字段列表
-            fields = [
-                AntTableColumn(title=field, dataIndex=field, key=field)
-                for field in results[0].keys()
-            ]
-            records = [dict(result) for result in results]
-
-            # 返回结果
-            return TableRecord(fields=fields, records=records)
+        field_ids = [field.id for field in meta_field_fields]
+        await metaFieldMapper.batch_delete_by_ids(ids=field_ids)
+        await fieldMapper.batch_delete_by_field_ids(field_ids=field_ids)
+        await self.remove_by_id(id=id)

@@ -24,3 +24,9 @@ class ExceptionCode(Enum):
 
     def __str__(self) -> str:
         return f"{self.code}: {self.message}"
+
+    def to_dict(self) -> dict:
+        return {
+            "code": self.code,
+            "message": self.message,
+        }
