@@ -259,7 +259,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
                             template_j2 = load_template_file(template)
                             rendered_template = template_j2.render(context)
                             # Prefix files with table name to avoid conflicts
-                            file_path = f"{table_record.table_name}/{Jinja2Utils.get_file_name(template, gen_context)}"
+                            file_path =Jinja2Utils.get_file_name(template, gen_context)
                             zip_file.writestr(file_path, rendered_template)
                         except Exception as e:
                             logger.error(f"Template rendering failed for {template}: {e}")
