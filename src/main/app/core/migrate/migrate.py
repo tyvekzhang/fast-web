@@ -35,10 +35,8 @@ model_path = src_parent / "src" / "main" / "app" / "model"
 codegen_path = src_parent / "src" / "main" / "app" / "model" / "codegen"
 
 # List of directories to scan for model files
-MODEL_PACKAGES = [
-    model_path,
-    codegen_path
-]
+MODEL_PACKAGES = [model_path, codegen_path]
+
 
 def import_sql_models(packages: Optional[list[Path]] = None) -> dict[str, type]:
     packages_to_scan = packages or MODEL_PACKAGES
@@ -61,11 +59,10 @@ def import_sql_models(packages: Optional[list[Path]] = None) -> dict[str, type]:
 
             except ImportError as e:
                 logger.error(f"Failed to import {module_path}: {e}")
-            except Exception as e:
+            except Exception:
                 logger.exception(f"Error processing {model_file}")
 
     return imported_models
-
 
 
 # Import models from default packages

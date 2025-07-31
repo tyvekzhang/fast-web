@@ -19,14 +19,15 @@ from abc import ABC
 from src.main.app.core.service.base_service import BaseService
 from src.main.app.model.codegen.meta_table_model import MetaTableModel
 from src.main.app.schema.codegen.meta_table_schema import (
-    ListMetaTablesRequest, MetaTable,
+    ListMetaTablesRequest,
 )
 
 
 class MetaTableService(BaseService[MetaTableModel], ABC):
     @staticmethod
-    async def list_meta_tables(self, req: ListMetaTablesRequest) -> tuple[list[MetaTableModel], int]: ...
-
+    async def list_meta_tables(
+        self, req: ListMetaTablesRequest
+    ) -> tuple[list[MetaTableModel], int]: ...
 
     @staticmethod
     async def filter_exist_meta_tables(self, req: list[MetaTableModel]) -> list[MetaTableModel]: ...

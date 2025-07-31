@@ -203,9 +203,7 @@ class BaseMapper(ABC, Generic[ModelType]):
         raise NotImplementedError
 
     @abstractmethod
-    async def delete_by_id(
-        self, *, id: IDType, db_session: Optional[AsyncSession] = None
-    ) -> int:
+    async def delete_by_id(self, *, id: IDType, db_session: Optional[AsyncSession] = None) -> int:
         """Delete a data by its ID.
 
         Args:

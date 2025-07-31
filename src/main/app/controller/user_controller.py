@@ -76,9 +76,7 @@ async def create_user(
 
 @user_router.get("/users:menus")
 async def get_menus(current_user: CurrentUser = Depends(get_current_user())):
-    records, _ = await menu_service.retrieve_ordered_data_list(
-        current=1, page_size=1000
-    )
+    records, _ = await menu_service.retrieve_ordered_data_list(current=1, page_size=1000)
     records = [Menu(**record.model_dump()) for record in records]
     records = [record.model_dump() for record in records if record.visible == 1]
     records.sort(key=lambda x: x["sort"])
@@ -122,16 +120,12 @@ async def get_me_info(
     user_id = current_user.user_id
     user_page: UserPage = await user_service.find_by_id(id=user_id)
     roles, role_models = await user_service.get_roles(id=user_id)
-    menus: list[Menu] = await user_service.get_menus(
-        id=user_id, role_models=role_models
-    )
+    menus: list[Menu] = await user_service.get_menus(id=user_id, role_models=role_models)
     if UserInfo.is_admin(user_id):
         permissions = ["*.*.*"]
     else:
         permission_list = [menu.permission for menu in menus]
-        permissions = [
-            permission for permission in permission_list if permission
-        ]
+        permissions = [permission for permission in permission_list if permission]
     user_info = UserInfo(
         **user_page.model_dump(),
         permissions=permissions,
@@ -156,9 +150,7 @@ async def get_user_by_page(
 async def get_user_detail(
     id: int, current_user: CurrentUser = Depends(get_current_user())
 ) -> HttpResponse[UserDetail]:
-    user_detail: UserDetail = await user_service.get_user_detail(
-        id=id, current_user=current_user
-    )
+    user_detail: UserDetail = await user_service.get_user_detail(id=id, current_user=current_user)
     return HttpResponse.success(user_detail)
 
 
@@ -166,9 +158,7 @@ async def get_user_detail(
 async def export_template(
     current_user: CurrentUser = Depends(get_current_user()),
 ) -> StreamingResponse:
-    return await excel_util.export_excel(
-        schema=CreateUserRequest, file_name="user_import_tpl"
-    )
+    return await excel_util.export_excel(schema=CreateUserRequest, file_name="user_import_tpl")
 
 
 @user_router.get("/export")
@@ -176,9 +166,7 @@ async def export_user_page(
     current_user: CurrentUser = Depends(get_current_user()),
     ids: list[int] = Query(...),
 ) -> StreamingResponse:
-    return await user_service.export_user_page(
-        ids=ids, current_user=current_user
-    )
+    return await user_service.export_user_page(ids=ids, current_user=current_user)
 
 
 @user_router.post("/batch-create")
@@ -204,9 +192,7 @@ async def import_user(
 
 
 @user_router.delete("/remove/{id}")
-async def remove(
-    id: int, current_user: CurrentUser = Depends(get_current_user())
-) -> HttpResponse:
+async def remove(id: int, current_user: CurrentUser = Depends(get_current_user())) -> HttpResponse:
     await user_service.remove_by_id(id=id)
     return HttpResponse.success()
 
@@ -225,9 +211,7 @@ async def modify(
     user_modify: UserModify,
     current_user: CurrentUser = Depends(get_current_user()),
 ) -> HttpResponse:
-    await user_service.modify_by_id(
-        data=UserModel(**user_modify.model_dump(exclude_unset=True))
-    )
+    await user_service.modify_by_id(data=UserModel(**user_modify.model_dump(exclude_unset=True)))
     return HttpResponse.success()
 
 
@@ -237,11 +221,7 @@ async def batch_modify(
     current_user: CurrentUser = Depends(get_current_user()),
 ) -> HttpResponse:
     cleaned_data = {
-        k: v
-        for k, v in user_batch_modify.model_dump().items()
-        if v is not None and k != "ids"
+        k: v for k, v in user_batch_modify.model_dump().items() if v is not None and k != "ids"
     }
-    await user_service.batch_modify_by_ids(
-        ids=user_batch_modify.ids, data=cleaned_data
-    )
+    await user_service.batch_modify_by_ids(ids=user_batch_modify.ids, data=cleaned_data)
     return HttpResponse.success()

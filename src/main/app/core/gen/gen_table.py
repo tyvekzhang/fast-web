@@ -74,9 +74,7 @@ class GenTable:
         tree_entity_fields = {"parentName", "parentId", "orderNum", "ancestors"}
 
         if self.is_tree():
-            return java_field.lower() in (
-                tree_entity_fields | base_entity_fields
-            )
+            return java_field.lower() in (tree_entity_fields | base_entity_fields)
         return java_field.lower() in base_entity_fields
 
     def __repr__(self):

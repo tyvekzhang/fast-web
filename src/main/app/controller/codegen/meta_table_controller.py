@@ -48,9 +48,9 @@ async def list_available_meta_tables(
         HTTPException(403 Forbidden): If user don't have access rights.
     """
     meta_table_records, total = await meta_table_service.list_meta_tables(req=req)
-    filter_meta_table_records = await meta_table_service.filter_exist_meta_tables(req=meta_table_records)
-    results = [MetaTable(**meta_table.model_dump()) for meta_table in filter_meta_table_records]
+    results = [MetaTable(**meta_table.model_dump()) for meta_table in meta_table_records]
     return ListResult(records=results, total=total)
+
 
 #
 #

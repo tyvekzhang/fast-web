@@ -33,6 +33,7 @@ class Connection(BaseModel):
     database_type: str
     connection_database: Optional[str] = None
 
+
 class CreateConnection(BaseModel):
     connection_name: str
     database_type: str

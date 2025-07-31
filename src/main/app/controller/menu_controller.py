@@ -88,9 +88,7 @@ async def list_menus(
         HTTPException(403 Forbidden): If user don't have access rights.
     """
     menu_records, total = await menu_service.list_menus(req=req)
-    menu_records_with_children: list[
-        Menu
-    ] = await menu_service.get_children_recursively(
+    menu_records_with_children: list[Menu] = await menu_service.get_children_recursively(
         parent_data=menu_records, schema_class=Menu
     )
     return ListResult(records=menu_records_with_children, total=total)
@@ -212,9 +210,7 @@ async def batch_create_menus(
     """
 
     menu_records = await menu_service.batch_create_menus(req=req)
-    menu_list: list[Menu] = [
-        Menu(**menu_record.model_dump()) for menu_record in menu_records
-    ]
+    menu_list: list[Menu] = [Menu(**menu_record.model_dump()) for menu_record in menu_records]
     return BatchCreateMenusResponse(menus=menu_list)
 
 
@@ -238,9 +234,7 @@ async def batch_update_menus(
         HTTPException 403 (Forbidden): If user lacks permission to modify menus
         HTTPException 404 (Not Found): If any specified menu ID doesn't exist
     """
-    menu_records: list[MenuModel] = await menu_service.batch_update_menus(
-        req=req
-    )
+    menu_records: list[MenuModel] = await menu_service.batch_update_menus(req=req)
     menu_list: list[Menu] = [Menu(**menu.model_dump()) for menu in menu_records]
     return BatchUpdateMenusResponse(menus=menu_list)
 
@@ -265,9 +259,7 @@ async def batch_patch_menus(
         HTTPException 403 (Forbidden): If user lacks permission to modify menus
         HTTPException 404 (Not Found): If any specified menu ID doesn't exist
     """
-    menu_records: list[MenuModel] = await menu_service.batch_patch_menus(
-        req=req
-    )
+    menu_records: list[MenuModel] = await menu_service.batch_patch_menus(req=req)
     menu_list: list[Menu] = [Menu(**menu.model_dump()) for menu in menu_records]
     return BatchUpdateMenusResponse(menus=menu_list)
 
@@ -344,7 +336,5 @@ async def import_menus(
         HTTPException(403 Forbidden): If the current user lacks access rights.
     """
 
-    import_menus_resp: list[ImportMenu] = await menu_service.import_menus(
-        req=req
-    )
+    import_menus_resp: list[ImportMenu] = await menu_service.import_menus(req=req)
     return ImportMenusResponse(menus=import_menus_resp)

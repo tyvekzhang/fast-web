@@ -35,9 +35,7 @@ from src.main.app.schema.user_schema import (
 
 class UserService(BaseService[UserModel], ABC):
     @abstractmethod
-    async def create_user(
-        self, *, create_user: CreateUserRequest
-    ) -> UserModel: ...
+    async def create_user(self, *, create_user: CreateUserRequest) -> UserModel: ...
 
     @abstractmethod
     async def find_by_id(self, *, id: int) -> UserPage: ...

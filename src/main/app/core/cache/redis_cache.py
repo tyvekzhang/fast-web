@@ -67,7 +67,5 @@ class RedisManager:
                         decode_responses=True,
                     )
                 if cls._instance is None:
-                    cls._instance = await redis.Redis.from_pool(
-                        cls._connection_pool
-                    )
+                    cls._instance = await redis.Redis.from_pool(cls._connection_pool)
         return cls._instance

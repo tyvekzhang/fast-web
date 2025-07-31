@@ -48,6 +48,7 @@ class ImportTable(BaseModel):
     table_ids: List[int]
     backend: str
 
+
 class GenContext(BaseModel):
     table: Optional[TableModel]
     gen_fields: Union[List[GenField], None]

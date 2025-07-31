@@ -37,9 +37,7 @@ def list_to_tree(
         else:
             # 否则，找到父节点，将当前节点挂载到父节点的 children 中
             if parent_id in node_map:
-                node_map[parent_id][children_field].append(
-                    node_map[item[id_field]]
-                )
+                node_map[parent_id][children_field].append(node_map[item[id_field]])
             else:
                 # 如果父节点不存在，可以选择忽略或抛出异常
                 # 这里选择忽略，直接将当前节点作为根节点

@@ -31,9 +31,7 @@ class MenuMapper(SqlModelMapper[MenuModel]):
         Retrieve a menu record by name.
         """
         db_session = db_session or self.db.session
-        user = await db_session.exec(
-            select(self.model).where(self.model.name == name)
-        )
+        user = await db_session.exec(select(self.model).where(self.model.name == name))
         return user.one_or_none()
 
     async def select_by_names(
@@ -43,9 +41,7 @@ class MenuMapper(SqlModelMapper[MenuModel]):
         Retrieve menu records by names.
         """
         db_session = db_session or self.db.session
-        result = await db_session.exec(
-            select(self.model).where(self.model.name.in_(names))
-        )
+        result = await db_session.exec(select(self.model).where(self.model.name.in_(names)))
         return result.all()
 
 

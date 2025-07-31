@@ -58,9 +58,7 @@ def register_router(
             if item.is_dir():
                 # If it's a directory, recursively process it
                 process_directory(item)
-            elif item.is_file() and item.name.endswith(
-                f"_{controller_flag}.py"
-            ):
+            elif item.is_file() and item.name.endswith(f"_{controller_flag}.py"):
                 # Process controller files
                 process_controller_file(item)
 
@@ -92,23 +90,17 @@ def register_router(
             module = importlib.import_module(module_path)
             router_var_name = module_name.replace(controller_flag, router_flag)
             for remove_prefix in remove_prefix_set:
-                router_var_name = router_var_name.replace(
-                    f"{remove_prefix}_", ""
-                )
+                router_var_name = router_var_name.replace(f"{remove_prefix}_", "")
 
             if hasattr(module, router_var_name):
                 prefix = f"/{module_name.replace(f'_{controller_flag}', '')}"
                 for remove_prefix in remove_prefix_set:
-                    prefix = prefix.replace(f"{remove_prefix}_", "").replace(
-                        "_", "-"
-                    )
+                    prefix = prefix.replace(f"{remove_prefix}_", "").replace("_", "-")
                 router_instance = getattr(module, router_var_name)
                 router.include_router(
                     router_instance,
                     tags=[
-                        string_util.snake_to_title(
-                            module_name.replace(f"_{controller_flag}", "")
-                        )
+                        string_util.snake_to_title(module_name.replace(f"_{controller_flag}", ""))
                     ],
                     prefix=f"{api_version}",
                 )
@@ -121,9 +113,7 @@ def register_router(
         controller_dir = Path(controller_item).resolve()
         if controller_dir.is_dir():
             process_directory(controller_dir)
-        elif controller_dir.is_file() and controller_dir.name.endswith(
-            f"_{controller_flag}.py"
-        ):
+        elif controller_dir.is_file() and controller_dir.name.endswith(f"_{controller_flag}.py"):
             # Also allow directly specifying controller files
             process_controller_file(controller_dir)
         else:

@@ -71,9 +71,7 @@ app = FastAPI(
 
 # Register middleware
 app.add_middleware(SQLAlchemyMiddleware, custom_engine=get_async_engine())
-origins = [
-    origin.strip() for origin in security_config.backend_cors_origins.split(",")
-]
+origins = [origin.strip() for origin in security_config.backend_cors_origins.split(",")]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

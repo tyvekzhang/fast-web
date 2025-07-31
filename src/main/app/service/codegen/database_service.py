@@ -24,9 +24,4 @@ from src.main.app.schema.codegen.database_schema import ListDatabasesRequest
 
 class DatabaseService(BaseService[DatabaseModel], ABC):
     @abstractmethod
-    async def add(self, *, data: DatabaseModel) -> DatabaseModel: ...
-
-    @abstractmethod
-    async def list_databases(
-        self, req: ListDatabasesRequest
-    ) -> Tuple[List[Any], int]: ...
+    async def list_databases(self, req: ListDatabasesRequest) -> Tuple[List[Any], int]: ...

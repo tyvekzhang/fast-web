@@ -58,18 +58,14 @@ async def signin_email_and_password(
     Raises:
         HttpException(401 Unauthorized): Username or password error.
     """
-    req = SignInWithEmailAndPasswordRequest(
-        username=req.username, password=req.password
-    )
+    req = SignInWithEmailAndPasswordRequest(username=req.username, password=req.password)
 
     return await auth_service.signin_email_password(req=req)
 
 
 @auth_router.get("/users:menus")
 async def get_menus(current_user: CurrentUser = Depends(get_current_user())):
-    records, _ = await menu_service.retrieve_ordered_data_list(
-        current=1, page_size=1000
-    )
+    records, _ = await menu_service.retrieve_ordered_data_list(current=1, page_size=1000)
     records = [Menu(**record.model_dump()) for record in records]
     records = [record.model_dump() for record in records if record.visible == 1]
     records.sort(key=lambda x: x["sort"])
@@ -93,16 +89,12 @@ async def get_me_info(
     user_id = current_user.user_id
     user_page: UserPage = await auth_service.find_by_id(id=user_id)
     roles, role_models = await auth_service.get_roles(id=user_id)
-    menus: list[Menu] = await auth_service.get_menus(
-        id=user_id, role_models=role_models
-    )
+    menus: list[Menu] = await auth_service.get_menus(id=user_id, role_models=role_models)
     if UserInfo.is_admin(user_id):
         permissions = ["*.*.*"]
     else:
         permission_list = [menu.permission for menu in menus]
-        permissions = [
-            permission for permission in permission_list if permission
-        ]
+        permissions = [permission for permission in permission_list if permission]
     user_info = UserInfo(
         **user_page.model_dump(),
         permissions=permissions,

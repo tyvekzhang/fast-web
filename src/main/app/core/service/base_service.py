@@ -59,9 +59,7 @@ class BaseService(Generic[T], ABC):
         ...
 
     @abstractmethod
-    async def batch_modify_by_ids(
-        self, *, ids: list[IDType], data: Dict
-    ) -> None:
+    async def batch_modify_by_ids(self, *, ids: list[IDType], data: Dict) -> None:
         """Update multiple records by their IDs."""
         ...
 

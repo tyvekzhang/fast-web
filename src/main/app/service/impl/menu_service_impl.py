@@ -78,9 +78,7 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
             raise BusinessException(BusinessErrorCode.RESOURCE_NOT_FOUND)
         return menu_record
 
-    async def list_menus(
-        self, req: ListMenusRequest
-    ) -> tuple[list[MenuModel], int]:
+    async def list_menus(self, req: ListMenusRequest) -> tuple[list[MenuModel], int]:
         filters = {
             FilterOperators.EQ: {},
             FilterOperators.NE: {},
@@ -142,9 +140,7 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
         )
 
     async def create_menu(self, req: CreateMenuRequest) -> MenuModel:
-        menu_record: MenuModel = await self.mapper.select_by_name(
-            name=req.menu.name
-        )
+        menu_record: MenuModel = await self.mapper.select_by_name(name=req.menu.name)
         if menu_record is not None:
             raise BusinessException(BusinessErrorCode.MENU_NAME_EXISTS)
         menu: MenuModel = MenuModel(**req.menu.model_dump())
@@ -186,9 +182,7 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
         if not menu_list:
             raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
         menu_names = [menu.name for menu in menu_list]
-        menu_records: list[MenuModel] = await self.mapper.select_by_names(
-            names=menu_names
-        )
+        menu_records: list[MenuModel] = await self.mapper.select_by_names(names=menu_names)
         if menu_records:
             exist_menu_names = [menu.name for menu in menu_records]
             raise BusinessException(
@@ -199,27 +193,19 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
         await self.mapper.batch_insert(data_list=data_list)
         return data_list
 
-    async def batch_update_menus(
-        self, req: BatchUpdateMenusRequest
-    ) -> list[MenuModel]:
+    async def batch_update_menus(self, req: BatchUpdateMenusRequest) -> list[MenuModel]:
         menu: BatchUpdateMenu = req.menu
         ids: list[int] = req.ids
         if not menu or not ids:
             raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
-        await self.mapper.batch_update_by_ids(
-            ids=ids, data=menu.model_dump(exclude_none=True)
-        )
+        await self.mapper.batch_update_by_ids(ids=ids, data=menu.model_dump(exclude_none=True))
         return await self.mapper.select_by_ids(ids=ids)
 
-    async def batch_patch_menus(
-        self, req: BatchPatchMenusRequest
-    ) -> list[MenuModel]:
+    async def batch_patch_menus(self, req: BatchPatchMenusRequest) -> list[MenuModel]:
         menus: list[UpdateMenu] = req.menus
         if not menus:
             raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
-        update_data: list[dict[str, Any]] = [
-            menu.model_dump(exclude_unset=True) for menu in menus
-        ]
+        update_data: list[dict[str, Any]] = [menu.model_dump(exclude_unset=True) for menu in menus]
         await self.mapper.batch_update(items=update_data)
         menu_ids: list[int] = [menu.id for menu in menus]
         return await self.mapper.select_by_ids(ids=menu_ids)
@@ -230,9 +216,7 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
 
     async def export_menus_template(self) -> StreamingResponse:
         file_name = "menu_import_tpl"
-        return await excel_util.export_excel(
-            schema=CreateMenu, file_name=file_name
-        )
+        return await excel_util.export_excel(schema=CreateMenu, file_name=file_name)
 
     async def export_menus(self, req: ExportMenusRequest) -> StreamingResponse:
         ids: list[int] = req.ids
@@ -264,11 +248,7 @@ class MenuServiceImpl(BaseServiceImpl[MenuMapper, MenuModel], MenuService):
                 menu_create = ImportMenu(**menu_record)
                 menu_import_list.append(menu_create)
             except ValidationError as e:
-                valid_data = {
-                    k: v
-                    for k, v in menu_record.items()
-                    if k in ImportMenu.model_fields
-                }
+                valid_data = {k: v for k, v in menu_record.items() if k in ImportMenu.model_fields}
                 menu_create = ImportMenu.model_construct(**valid_data)
                 menu_create.err_msg = ValidateService.get_validate_err_msg(e)
                 menu_import_list.append(menu_create)

@@ -28,9 +28,7 @@ class DatabaseMapper(SqlModelMapper[DatabaseModel]):
         self, connection_id: int, db_session: Union[AsyncSession, None] = None
     ) -> List[DatabaseModel]:
         db_session = db_session or self.db.session
-        statement = select(self.model).where(
-            self.model.connection_id == connection_id
-        )
+        statement = select(self.model).where(self.model.connection_id == connection_id)
         exec_result = await db_session.exec(statement)
         return exec_result.all()
 
@@ -38,9 +36,7 @@ class DatabaseMapper(SqlModelMapper[DatabaseModel]):
         self, connection_id: int, db_session: Union[AsyncSession, None] = None
     ) -> int:
         db_session = db_session or self.db.session
-        statement = delete(self.model).where(
-            self.model.connection_id == connection_id
-        )
+        statement = delete(self.model).where(self.model.connection_id == connection_id)
         exec_result = await db_session.exec(statement)
         return exec_result.rowcount
 

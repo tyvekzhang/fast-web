@@ -31,9 +31,7 @@ class UserMapper(SqlModelMapper[UserModel]):
         Retrieve a user record by username.
         """
         db_session = db_session or self.db.session
-        user = await db_session.exec(
-            select(UserModel).where(UserModel.username == username)
-        )
+        user = await db_session.exec(select(UserModel).where(UserModel.username == username))
         return user.one_or_none()
 
 

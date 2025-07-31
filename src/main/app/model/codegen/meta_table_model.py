@@ -30,16 +30,10 @@ class MetaTableBase(SQLModel):
         sa_column_kwargs={"comment": "主键"},
     )
     database_id: Optional[int] = Field(
-        sa_column=Column(
-            BigInteger, index=True, nullable=False, comment="数据库id"
-        )
+        sa_column=Column(BigInteger, index=True, nullable=False, comment="数据库id")
     )
-    name: str = Field(
-        sa_column=Column(String(64), nullable=False, comment="表名称")
-    )
-    comment: Optional[str] = Field(
-        default=None, sa_column=Column(String(255), comment="备注")
-    )
+    name: str = Field(sa_column=Column(String(64), nullable=False, comment="表名称"))
+    comment: Optional[str] = Field(default=None, sa_column=Column(String(255), comment="备注"))
     create_time: Optional[datetime] = Field(
         sa_type=DateTime,
         default_factory=datetime.utcnow,

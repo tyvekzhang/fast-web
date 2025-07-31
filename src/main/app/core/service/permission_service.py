@@ -9,14 +9,10 @@ class PermissionService:
             return False
         return "*:*:*" in user.permissions or permission in user.permissions
 
-    async def lacks_permission(
-        self, permission: str, user: CurrentUser
-    ) -> bool:
+    async def lacks_permission(self, permission: str, user: CurrentUser) -> bool:
         return not await self.has_permission(permission, user)
 
-    async def has_any_permission(
-        self, permissions: str, user: CurrentUser
-    ) -> bool:
+    async def has_any_permission(self, permissions: str, user: CurrentUser) -> bool:
         if not permissions:
             return False
         if not user or not user.permissions:
@@ -46,9 +42,7 @@ class PermissionService:
                 return True
         return False
 
-    async def check_operation_permission(
-        self, user_id: int, permission: str
-    ) -> bool:
+    async def check_operation_permission(self, user_id: int, permission: str) -> bool:
         if user_id == 9:
             return True
         return False

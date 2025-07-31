@@ -47,12 +47,8 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         Insert data list into the database in a single operation..
         """
         db_session = db_session or self.db.session
-        validated_data_list = [
-            self.model.model_validate(data) for data in data_list
-        ]
-        statement = insert(self.model).values(
-            [data.model_dump() for data in validated_data_list]
-        )
+        validated_data_list = [self.model.model_validate(data) for data in data_list]
+        statement = insert(self.model).values([data.model_dump() for data in validated_data_list])
         exec_response = await db_session.exec(statement)
         return exec_response.rowcount
 
@@ -129,9 +125,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
                 query = query.filter(getattr(self.model, column) <= value)
         if FilterOperators.BETWEEN in kwargs:
             for column, (start, end) in kwargs[FilterOperators.BETWEEN].items():
-                query = query.filter(
-                    getattr(self.model, column).between(start, end)
-                )
+                query = query.filter(getattr(self.model, column).between(start, end))
         if FilterOperators.LIKE in kwargs:
             for column, value in kwargs[FilterOperators.LIKE].items():
                 safe_value = f"{str(value)}%"
@@ -205,9 +199,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
                 query = query.filter(getattr(self.model, column) <= value)
         if FilterOperators.BETWEEN in kwargs:
             for column, (start, end) in kwargs[FilterOperators.BETWEEN].items():
-                query = query.filter(
-                    getattr(self.model, column).between(start, end)
-                )
+                query = query.filter(getattr(self.model, column).between(start, end))
         if FilterOperators.LIKE in kwargs:
             for column, value in kwargs[FilterOperators.LIKE].items():
                 safe_value = f"{str(value)}%"
@@ -225,9 +217,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
             for sort_item in sort_list:
                 column = getattr(self.model, sort_item["field"])
                 query = query.order_by(
-                    column.asc()
-                    if sort_item["order"] == SortEnum.ascending
-                    else column.desc()
+                    column.asc() if sort_item["order"] == SortEnum.ascending else column.desc()
                 )
         else:
             # Default to primary key descending
@@ -275,13 +265,9 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
 
         # Apply filters
         if hasattr(self.model, constant.PARENT_ID) and (
-            constant.PARENT_ID not in kwargs
-            or kwargs[constant.PARENT_ID] is None
+            constant.PARENT_ID not in kwargs or kwargs[constant.PARENT_ID] is None
         ):
-            query = query.filter(
-                getattr(self.model, constant.PARENT_ID)
-                == constant.ROOT_PARENT_ID
-            )
+            query = query.filter(getattr(self.model, constant.PARENT_ID) == constant.ROOT_PARENT_ID)
         if FilterOperators.EQ in kwargs:
             for column, value in kwargs[FilterOperators.EQ].items():
                 query = query.filter(getattr(self.model, column) == value)
@@ -302,9 +288,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
                 query = query.filter(getattr(self.model, column) <= value)
         if FilterOperators.BETWEEN in kwargs:
             for column, (start, end) in kwargs[FilterOperators.BETWEEN].items():
-                query = query.filter(
-                    getattr(self.model, column).between(start, end)
-                )
+                query = query.filter(getattr(self.model, column).between(start, end))
         if FilterOperators.LIKE in kwargs:
             for column, value in kwargs[FilterOperators.LIKE].items():
                 safe_value = f"{str(value)}%"
@@ -317,18 +301,14 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
             total_count_result = await db_session.exec(count_query)
             total_count: int = total_count_result.all()[0]
             if total_count > constant.MAX_PAGE_SIZE:
-                raise ValueError(
-                    f"Total count exceeds {constant.MAX_PAGE_SIZE}"
-                )
+                raise ValueError(f"Total count exceeds {constant.MAX_PAGE_SIZE}")
 
         # Apply sorting
         if sort_list:
             for sort_item in sort_list:
                 column = getattr(self.model, sort_item["field"])
                 query = query.order_by(
-                    column.asc()
-                    if sort_item["order"] == SortEnum.ascending
-                    else column.desc()
+                    column.asc() if sort_item["order"] == SortEnum.ascending else column.desc()
                 )
         else:
             # Default to primary key descending
@@ -383,9 +363,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
                 continue
 
             # Build WHERE clause for composite keys
-            where_clause = and_(
-                *[getattr(self.model, pk) == item[pk] for pk in pk_fields]
-            )
+            where_clause = and_(*[getattr(self.model, pk) == item[pk] for pk in pk_fields])
 
             # Extract update gen_fields
             update_data = {k: v for k, v in item.items() if k not in pk_fields}
@@ -416,9 +394,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
         exec_response = await db_session.exec(statement)
         return exec_response.rowcount
 
-    async def delete_by_id(
-        self, *, id: IDType, db_session: Optional[AsyncSession] = None
-    ) -> int:
+    async def delete_by_id(self, *, id: IDType, db_session: Optional[AsyncSession] = None) -> int:
         """
         Delete a single data by its ID.
         """

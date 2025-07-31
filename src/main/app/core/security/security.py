@@ -118,8 +118,7 @@ def create_token(
         Encoded JWT string
     """
     expire = datetime.utcnow() + (
-        expires_delta
-        or timedelta(minutes=security_config.refresh_token_expire_minutes)
+        expires_delta or timedelta(minutes=security_config.refresh_token_expire_minutes)
     )
     to_encode = {"exp": expire, "sub": str(subject), "type": token_type}
     return jwt.encode(

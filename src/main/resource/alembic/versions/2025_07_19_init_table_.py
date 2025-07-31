@@ -32,9 +32,7 @@ def upgrade():
             comment="权限标识",
         ),
         sa.Column("sort", sa.Integer(), nullable=True, comment="排序"),
-        sa.Column(
-            "path", sa.String(length=200), nullable=True, comment="路由地址"
-        ),
+        sa.Column("path", sa.String(length=200), nullable=True, comment="路由地址"),
         sa.Column(
             "component",
             sa.String(length=255),
@@ -60,18 +58,10 @@ def upgrade():
             comment="是否显示（1显示 0隐藏）",
         ),
         sa.Column("parent_id", sa.Integer(), nullable=True, comment="父ID"),
-        sa.Column(
-            "status", sa.Integer(), nullable=True, comment="状态（1正常 0停用）"
-        ),
-        sa.Column(
-            "create_time", sa.DateTime(), nullable=True, comment="创建时间"
-        ),
-        sa.Column(
-            "update_time", sa.DateTime(), nullable=True, comment="更新时间"
-        ),
-        sa.Column(
-            "comment", sa.String(length=500), nullable=True, comment="备注信息"
-        ),
+        sa.Column("status", sa.Integer(), nullable=True, comment="状态（1正常 0停用）"),
+        sa.Column("create_time", sa.DateTime(), nullable=True, comment="创建时间"),
+        sa.Column("update_time", sa.DateTime(), nullable=True, comment="更新时间"),
+        sa.Column("comment", sa.String(length=500), nullable=True, comment="备注信息"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("name", name="udx_name"),
         comment="系统菜单表",
@@ -80,15 +70,9 @@ def upgrade():
     op.create_table(
         "users",
         sa.Column("id", sa.BigInteger(), nullable=False, comment="主键"),
-        sa.Column(
-            "username", sa.String(length=32), nullable=False, comment="用户名"
-        ),
-        sa.Column(
-            "password", sa.String(length=64), nullable=False, comment="密码"
-        ),
-        sa.Column(
-            "nickname", sa.String(length=32), nullable=False, comment="昵称"
-        ),
+        sa.Column("username", sa.String(length=32), nullable=False, comment="用户名"),
+        sa.Column("password", sa.String(length=64), nullable=False, comment="密码"),
+        sa.Column("nickname", sa.String(length=32), nullable=False, comment="昵称"),
         sa.Column(
             "avatar_url",
             sa.String(length=64),
@@ -101,15 +85,9 @@ def upgrade():
             nullable=True,
             comment="状态(0:停用,1:待审核,2:正常,3:已注销)",
         ),
-        sa.Column(
-            "remark", sa.String(length=255), nullable=True, comment="备注"
-        ),
-        sa.Column(
-            "create_time", sa.DateTime(), nullable=True, comment="创建时间"
-        ),
-        sa.Column(
-            "update_time", sa.DateTime(), nullable=True, comment="更新时间"
-        ),
+        sa.Column("remark", sa.String(length=255), nullable=True, comment="备注"),
+        sa.Column("create_time", sa.DateTime(), nullable=True, comment="创建时间"),
+        sa.Column("update_time", sa.DateTime(), nullable=True, comment="更新时间"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("username", name="ix_sys_user_username"),
         comment="用户信息表",

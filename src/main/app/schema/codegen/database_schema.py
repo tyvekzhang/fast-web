@@ -22,6 +22,7 @@ from src.main.app.core.schema import PaginationRequest
 class ListDatabasesRequest(PaginationRequest):
     connection_id: Optional[int] = None
 
+
 class Database(BaseModel):
     id: int
     database_name: str
@@ -40,6 +41,7 @@ class CreateDatabase(BaseModel):
     allow_connection: Optional[bool] = None
     is_template: Optional[bool] = None
 
+
 # SQL templates for different databases
 DB_CREATE_TEMPLATES = {
     "mysql": """
@@ -55,9 +57,6 @@ DB_CREATE_TEMPLATES = {
     """,
     "sqlite": "-- SQLite does not need CREATE DATABASE",
 }
-
-
-
 
 
 class DatabaseQuery(PaginationRequest):

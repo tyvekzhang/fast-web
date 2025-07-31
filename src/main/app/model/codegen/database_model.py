@@ -39,22 +39,12 @@ class DatabaseBase(SQLModel):
         sa_column_kwargs={"comment": "主键"},
     )
     connection_id: int = Field(
-        sa_column=Column(
-            BigInteger, index=True, nullable=False, comment="数据库连接id"
-        )
+        sa_column=Column(BigInteger, index=True, nullable=False, comment="数据库连接id")
     )
-    database_name: str = Field(
-        sa_column=Column(String(64), nullable=False, comment="数据库名称")
-    )
-    owner: Optional[str] = Field(
-        default=None, sa_column=Column(String(64), comment="拥有者")
-    )
-    template: Optional[str] = Field(
-        default=None, sa_column=Column(String(64), comment="使用模板")
-    )
-    encoding: Optional[str] = Field(
-        default=None, sa_column=Column(String(32), comment="字符编码")
-    )
+    database_name: str = Field(sa_column=Column(String(64), nullable=False, comment="数据库名称"))
+    owner: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="拥有者"))
+    template: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="使用模板"))
+    encoding: Optional[str] = Field(default=None, sa_column=Column(String(32), comment="字符编码"))
     collation_order: Optional[str] = Field(
         default=None, sa_column=Column(String(32), comment="排序规则")
     )

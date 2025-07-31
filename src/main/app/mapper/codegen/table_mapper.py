@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 """Table mapper"""
+
 from typing import Optional
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession

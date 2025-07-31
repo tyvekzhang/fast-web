@@ -23,9 +23,9 @@ async def jwt_middleware(request: Request, call_next):
     ctx_token: UserCredential | None = None
     try:
         raw_url_path = request.url.path
-        if not raw_url_path.__contains__(
-            server_config.api_prefix
-        ) or raw_url_path.__contains__(MediaTypeEnum.JSON.value):
+        if not raw_url_path.__contains__(server_config.api_prefix) or raw_url_path.__contains__(
+            MediaTypeEnum.JSON.value
+        ):
             if security_config.enable_swagger:
                 return await call_next(request)
             else:
@@ -37,12 +37,9 @@ async def jwt_middleware(request: Request, call_next):
                     },
                 )
 
-        white_list_routes = [
-            r.strip() for r in security_config.white_list_routes.split(",")
-        ]
+        white_list_routes = [r.strip() for r in security_config.white_list_routes.split(",")]
         request_url_path = (
-            server_config.api_prefix
-            + raw_url_path.split(server_config.api_prefix)[1]
+            server_config.api_prefix + raw_url_path.split(server_config.api_prefix)[1]
         )
         if request_url_path in white_list_routes:
             return await call_next(request)

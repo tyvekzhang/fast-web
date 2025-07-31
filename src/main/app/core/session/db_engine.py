@@ -74,14 +74,10 @@ async def get_cached_async_engine(
     with _lock:
         if cache_key in _engine_map:
             return _engine_map[cache_key]
-        database: DatabaseModel = await databaseMapper.select_by_id(
-            id=database_id
-        )
+        database: DatabaseModel = await databaseMapper.select_by_id(id=database_id)
         if database is not None:
             connection_id = database.connection_id
-        connection: ConnectionModel = await connectionMapper.select_by_id(
-            id=connection_id
-        )
+        connection: ConnectionModel = await connectionMapper.select_by_id(id=connection_id)
         if connection is None:
             pass
         url = get_database_url(database, connection)
@@ -113,9 +109,7 @@ async def get_engine_by_database_id(*, env: str, database_id: int):
         database: DatabaseModel = exec_response.one_or_none()
         if database is None:
             pass
-        statement = select(ConnectionModel).where(
-            ConnectionModel.id == database.connection_id
-        )
+        statement = select(ConnectionModel).where(ConnectionModel.id == database.connection_id)
         exec_response = await session.exec(statement)
         connection: ConnectionModel = exec_response.one_or_none()
         if connection is None:
@@ -127,9 +121,7 @@ async def get_engine_by_database_id(*, env: str, database_id: int):
         return engine
 
 
-def get_database_url(
-    database: DatabaseModel, connection: ConnectionModel
-) -> str:
+def get_database_url(database: DatabaseModel, connection: ConnectionModel) -> str:
     database_type = connection.database_type
     database_type = database_type.lower()
     if database_type == "sqlite":

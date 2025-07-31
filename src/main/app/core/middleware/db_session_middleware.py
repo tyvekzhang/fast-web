@@ -27,9 +27,7 @@ except ImportError:
 def create_middleware_and_session_proxy():
     """Create and return SQLAlchemy middleware and session proxy classes."""
     _Session: Optional[async_sessionmaker] = None
-    _session: ContextVar[Optional[AsyncSession]] = ContextVar(
-        "_session", default=None
-    )
+    _session: ContextVar[Optional[AsyncSession]] = ContextVar("_session", default=None)
 
     class SQLAlchemyMiddleware(BaseHTTPMiddleware):
         """Middleware for managing SQLAlchemy sessions in FastAPI applications."""
@@ -50,9 +48,7 @@ def create_middleware_and_session_proxy():
             session_args = session_args or {}
 
             if not custom_engine and not db_url:
-                raise ValueError(
-                    "You need to pass a db_url or a custom_engine parameter."
-                )
+                raise ValueError("You need to pass a db_url or a custom_engine parameter.")
             if not custom_engine:
                 engine = create_async_engine(db_url, **engine_args)
             else:
@@ -66,9 +62,7 @@ def create_middleware_and_session_proxy():
                 **session_args,
             )
 
-        async def dispatch(
-            self, request: Request, call_next: RequestResponseEndpoint
-        ):
+        async def dispatch(self, request: Request, call_next: RequestResponseEndpoint):
             """Manage database session for each request."""
             async with DBSession(commit_on_exit=self.commit_on_exit):
                 return await call_next(request)
@@ -91,9 +85,7 @@ def create_middleware_and_session_proxy():
     class DBSession(metaclass=DBSessionMeta):
         """Context manager for database sessions."""
 
-        def __init__(
-            self, session_args: Dict = None, commit_on_exit: bool = False
-        ):
+        def __init__(self, session_args: Dict = None, commit_on_exit: bool = False):
             """Initialize session context manager."""
             self.token = None
             self.session_args = session_args or {}

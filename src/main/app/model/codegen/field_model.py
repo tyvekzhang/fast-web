@@ -39,14 +39,10 @@ class FieldBase(SQLModel):
         sa_column_kwargs={"comment": "主键"},
     )
     db_table_id: int = Field(
-        sa_column=Column(
-            BigInteger, nullable=False, index=True, comment="数据库表ID"
-        )
+        sa_column=Column(BigInteger, nullable=False, index=True, comment="数据库表ID")
     )
     db_field_id: int = Field(
-        sa_column=Column(
-            BigInteger, nullable=False, index=True, comment="数据库字段ID"
-        )
+        sa_column=Column(BigInteger, nullable=False, index=True, comment="数据库字段ID")
     )
     field_name: Optional[str] = Field(
         default=None, sa_column=Column(String(64), comment="字段名称")
@@ -57,21 +53,11 @@ class FieldBase(SQLModel):
     sql_model_type: Optional[str] = Field(
         default=None, sa_column=Column(String(64), comment="模型类型")
     )
-    length: Optional[int] = Field(
-        default=None, sa_column=Column(Integer, comment="字段长度")
-    )
-    scale: Optional[int] = Field(
-        default=None, sa_column=Column(Integer, comment="分数位")
-    )
-    js_type: Optional[str] = Field(
-        default=None, sa_column=Column(String(64), comment="JS类型")
-    )
-    sort: Optional[int] = Field(
-        default=None, sa_column=Column(Integer, comment="排序")
-    )
-    default: Optional[str] = Field(
-        default=None, sa_column=Column(String(64), comment="默认值")
-    )
+    length: Optional[int] = Field(default=None, sa_column=Column(Integer, comment="字段长度"))
+    scale: Optional[int] = Field(default=None, sa_column=Column(Integer, comment="分数位"))
+    js_type: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="JS类型"))
+    sort: Optional[int] = Field(default=None, sa_column=Column(Integer, comment="排序"))
+    default: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="默认值"))
     primary_key: Optional[int] = Field(
         default=0, sa_column=Column(SmallInteger, comment="是否主键(0否,1是)")
     )
@@ -98,9 +84,7 @@ class FieldBase(SQLModel):
     )
     query_type: Optional[str] = Field(
         default=0,
-        sa_column=Column(
-            String(64), comment="查询方式（等于、不等于、大于、小于、范围）"
-        ),
+        sa_column=Column(String(64), comment="查询方式（等于、不等于、大于、小于、范围）"),
     )
     html_type: Optional[str] = Field(
         default=None,
@@ -109,12 +93,8 @@ class FieldBase(SQLModel):
             comment="显示类型(文本框、文本域、下拉框、复选框、单选框、日期控件)",
         ),
     )
-    dict_type: Optional[str] = Field(
-        default=None, sa_column=Column(String(64), comment="字典类型")
-    )
-    comment: Optional[str] = Field(
-        default=None, sa_column=Column(String(255), comment="备注")
-    )
+    dict_type: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="字典类型"))
+    comment: Optional[str] = Field(default=None, sa_column=Column(String(255), comment="备注"))
     create_time: Optional[datetime] = Field(
         sa_type=DateTime,
         default_factory=datetime.utcnow,

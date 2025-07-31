@@ -90,9 +90,7 @@ def collect_request_info(request: Request) -> Dict[str, Any]:
         "method": request.method,
         "query_params": dict(request.query_params),
         "headers": dict(request.headers),
-        "client": f"{request.client.host}:{request.client.port}"
-        if request.client
-        else None,
+        "client": f"{request.client.host}:{request.client.port}" if request.client else None,
     }
 
 
@@ -152,9 +150,7 @@ def build_error_response(
     )
 
 
-async def global_exception_handler(
-    request: Request, exc: Exception
-) -> Response:
+async def global_exception_handler(request: Request, exc: Exception) -> Response:
     """
     Handler for all uncaught exception.
 
@@ -183,9 +179,7 @@ async def global_exception_handler(
     log_exception(exc, request_info)
 
     # Determine response status code and headers
-    status_code = getattr(
-        exc, "status_code", http.HTTPStatus.INTERNAL_SERVER_ERROR
-    )
+    status_code = getattr(exc, "status_code", http.HTTPStatus.INTERNAL_SERVER_ERROR)
     headers = getattr(exc, "headers", None)
 
     # Build and return error response
@@ -237,9 +231,7 @@ async def custom_exception_handler(request: Request, exc: HTTPException):
     )
 
 
-async def custom_http_exception_handler(
-    request: Request, exc: StarletteHTTPException
-):
+async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
     """
     Asynchronous handler for StarletteHTTPException.
 

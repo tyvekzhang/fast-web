@@ -22,9 +22,7 @@ class ClassNameConverter:
         if not s:
             return s
         words = s.split("_")
-        return words[0].lower() + "".join(
-            word.capitalize() for word in words[1:]
-        )
+        return words[0].lower() + "".join(word.capitalize() for word in words[1:])
 
     def to_pascal(self, s: str) -> str:
         """转换为大驼峰命名 (PascalCase)"""

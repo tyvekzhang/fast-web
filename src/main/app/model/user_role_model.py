@@ -35,14 +35,10 @@ class UserRoleBase(SQLModel):
         sa_column_kwargs={"comment": "自增编号"},
     )
     user_id: int = Field(
-        sa_column=Column(
-            BigInteger, nullable=False, default=None, comment="用户ID"
-        )
+        sa_column=Column(BigInteger, nullable=False, default=None, comment="用户ID")
     )
     role_id: int = Field(
-        sa_column=Column(
-            BigInteger, nullable=False, default=None, comment="角色ID"
-        )
+        sa_column=Column(BigInteger, nullable=False, default=None, comment="角色ID")
     )
     create_time: Optional[datetime] = Field(
         sa_type=DateTime,

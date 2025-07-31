@@ -12,9 +12,7 @@ def get_utils_dir() -> str:
 def get_resource_dir() -> str:
     """Get the absolute path of the project's resource directory (3 levels up from utils)."""
     utils_dir = get_utils_dir()
-    return os.path.abspath(
-        os.path.join(utils_dir, os.pardir, os.pardir, os.pardir, "resource")
-    )
+    return os.path.abspath(os.path.join(utils_dir, os.pardir, os.pardir, os.pardir, "resource"))
 
 
 def _find_marker_path(marker_file: str, return_dir: bool = True) -> str:

@@ -75,9 +75,7 @@ class HttpResponse(BaseModel, Generic[T]):
 
     @staticmethod
     def fail_with_error(
-        error: Union[
-            ExceptionCode, tuple[int, str]
-        ],  # Supports multiple error types
+        error: Union[ExceptionCode, tuple[int, str]],  # Supports multiple error types
         extra_msg: Optional[str] = None,
     ) -> "HttpResponse[Any]":
         """Constructs an error response from various error type inputs.

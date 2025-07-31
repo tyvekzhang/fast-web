@@ -73,7 +73,7 @@ docs = [
 ]
 
 [tool.ruff]
-line-length = 80
+line-length = 100
 
 include = [ "apiserver.py", "src/**/*.py" ]
 exclude = [ "doc/**/*.py" ]

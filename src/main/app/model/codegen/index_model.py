@@ -36,21 +36,11 @@ class IndexBase(SQLModel):
         sa_type=BigInteger,
         sa_column_kwargs={"comment": "主键"},
     )
-    table_id: int = Field(
-        sa_column=Column(BigInteger, nullable=False, comment="表id")
-    )
-    name: str = Field(
-        sa_column=Column(String(64), nullable=False, comment="索引名称")
-    )
-    field: str = Field(
-        sa_column=Column(String(64), nullable=False, comment="索引字段")
-    )
-    type: str = Field(
-        sa_column=Column(String(16), nullable=False, comment="索引类型")
-    )
-    remark: Optional[str] = Field(
-        default=None, sa_column=Column(String(255), comment="备注")
-    )
+    table_id: int = Field(sa_column=Column(BigInteger, nullable=False, comment="表id"))
+    name: str = Field(sa_column=Column(String(64), nullable=False, comment="索引名称"))
+    field: str = Field(sa_column=Column(String(64), nullable=False, comment="索引字段"))
+    type: str = Field(sa_column=Column(String(16), nullable=False, comment="索引类型"))
+    remark: Optional[str] = Field(default=None, sa_column=Column(String(255), comment="备注"))
     create_time: Optional[datetime] = Field(
         sa_type=DateTime,
         default_factory=datetime.utcnow,

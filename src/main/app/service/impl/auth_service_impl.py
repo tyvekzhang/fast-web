@@ -51,14 +51,10 @@ class AuthServiceImpl(AuthService):
     async def generate_tokens(cls, user_id: int) -> UserCredential:
         security_config = config_manager.load_security_config()
 
-        access_token = security.create_token(
-            subject=user_id, token_type=TokenTypeEnum.access
-        )
+        access_token = security.create_token(subject=user_id, token_type=TokenTypeEnum.access)
 
         # generate refresh token
-        refresh_token_expires = timedelta(
-            minutes=security_config.refresh_token_expire_minutes
-        )
+        refresh_token_expires = timedelta(minutes=security_config.refresh_token_expire_minutes)
         refresh_token = security.create_token(
             subject=user_id,
             token_type=TokenTypeEnum.refresh,
@@ -86,9 +82,7 @@ class AuthServiceImpl(AuthService):
         username: str = req.username
 
         user_record = await userMapper.get_user_by_username(username=username)
-        if user_record is None or not security.verify_password(
-            req.password, user_record.password
-        ):
+        if user_record is None or not security.verify_password(req.password, user_record.password):
             raise AuthException(AuthErrorCode.AUTH_FAILED)
         return await self.generate_tokens(user_id=user_record.id)
 
@@ -105,9 +99,7 @@ class AuthServiceImpl(AuthService):
             roles.add("admin")
         else:
             # Get roles from database for non-admin users
-            user_roles: list[
-                UserRoleModel
-            ] = await userRoleMapper.select_by_userid(user_id=id)
+            user_roles: list[UserRoleModel] = await userRoleMapper.select_by_userid(user_id=id)
             if not user_roles:
                 return roles, role_models
 
@@ -122,9 +114,7 @@ class AuthServiceImpl(AuthService):
 
         return roles, role_models
 
-    async def get_menus(
-        self, id: int, role_models: list[RoleModel] = None
-    ) -> list[Menu]:
+    async def get_menus(self, id: int, role_models: list[RoleModel] = None) -> list[Menu]:
         """
         Get accessible menus for user based on their roles.
         Returns a list of menu pages.
@@ -145,16 +135,14 @@ class AuthServiceImpl(AuthService):
 
         # Get menus associated with user's roles
         role_ids = [role_model.id for role_model in role_models]
-        role_menu_records: list[RoleMenuModel] = (
-            roleMenuMapper.select_by_role_ids(role_ids=role_ids)
+        role_menu_records: list[RoleMenuModel] = roleMenuMapper.select_by_role_ids(
+            role_ids=role_ids
         )
         if not role_menu_records:
             return menus
 
         # Convert menu models to menu pages
-        menu_id_list = [
-            role_menu_record.menu_id for role_menu_record in role_menu_records
-        ]
+        menu_id_list = [role_menu_record.menu_id for role_menu_record in role_menu_records]
         menu_list: list[MenuModel] = menuMapper.select_by_ids(ids=menu_id_list)
         menus = [Menu(**menu.model_dump()) for menu in menu_list]
         return menus

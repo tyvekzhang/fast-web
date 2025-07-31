@@ -43,7 +43,9 @@ from src.main.app.schema.codegen.field_schema import GenField
 from src.main.app.schema.codegen.table_schema import (
     Table,
     TableDetail,
-    ListTablesRequest, ImportTable, GenContext,
+    ListTablesRequest,
+    ImportTable,
+    GenContext,
 )
 from src.main.app.service.codegen.table_service import TableService
 
@@ -74,9 +76,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
         for record in tables:
             table_info = table_map.get(record.db_table_id)
             if not table_info:
-                logger.error(
-                    f"{BusinessErrorCode.PARAMETER_ERROR.message}: {record.db_table_id}"
-                )
+                logger.error(f"{BusinessErrorCode.PARAMETER_ERROR.message}: {record.db_table_id}")
                 raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
             db_info = db_map.get(table_info.database_id)
             if not db_info:
@@ -105,9 +105,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
 
         return results
 
-    async def list_tables(
-        self, req: ListTablesRequest
-    ) -> tuple[list[TableModel], int]:
+    async def list_tables(self, req: ListTablesRequest) -> tuple[list[TableModel], int]:
         filters = {
             FilterOperators.LIKE: {},
             FilterOperators.EQ: {},
@@ -124,9 +122,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
 
     async def import_tables(self, req: ImportTable):
         table_ids = req.table_ids
-        table_records: List[
-            MetaTableModel
-        ] = await metaTableMapper.select_by_ids(ids=table_ids)
+        table_records: List[MetaTableModel] = await metaTableMapper.select_by_ids(ids=table_ids)
         for table_record in table_records:
             table_name = table_record.name
             comment = table_record.comment
@@ -145,9 +141,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             )
             GenUtils.init_table(gen_table_record)
             await self.save(data=gen_table_record)
-            field_records = await metaFieldMapper.select_by_table_id(
-                table_id=table_id
-            )
+            field_records = await metaFieldMapper.select_by_table_id(table_id=table_id)
             for field_record in field_records:
                 gen_field_record = FieldModel(
                     db_field_id=field_record.id,
@@ -160,9 +154,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
     async def preview_code(self, id: int) -> dict:
         data_map = OrderedDict()
         table_record, gen_context = await self.generator_code(id)
-        index_metadata = await indexMapper.select_by_table_id(
-            table_id=table_record.db_table_id
-        )
+        index_metadata = await indexMapper.select_by_table_id(table_id=table_record.db_table_id)
         backend = table_record.backend
         data_map["backend"] = backend
         context = Jinja2Utils.prepare_context(gen_context, index_metadata)
@@ -176,9 +168,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             try:
                 template_j2 = load_template_file(template)
                 rendered_template = template_j2.render(context)
-                data_map[GenUtils.trim_jinja2_name(template)] = (
-                    rendered_template
-                )
+                data_map[GenUtils.trim_jinja2_name(template)] = rendered_template
             except Exception as e:
                 logger.error(f"Error rendering template {template}: {e}")
         return data_map
@@ -205,14 +195,13 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             raise BusinessException(BusinessErrorCode.RESOURCE_NOT_FOUND)
         meta_field_ids = [field_record.id for field_record in meta_field_records]
         # Get field records by mete field ids
-        field_records: List[
-            FieldModel
-        ] = await fieldMapper.select_by_db_field_ids(ids=meta_field_ids)
+        field_records: List[FieldModel] = await fieldMapper.select_by_db_field_ids(
+            ids=meta_field_ids
+        )
         if field_records is None or len(field_records) == 0:
             raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
         meta_id_field_dict = {
-            field_record.db_field_id: field_record
-            for field_record in field_records
+            field_record.db_field_id: field_record for field_record in field_records
         }
         meta_field_list = []
         primary_key = ""
@@ -259,7 +248,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
                             template_j2 = load_template_file(template)
                             rendered_template = template_j2.render(context)
                             # Prefix files with table name to avoid conflicts
-                            file_path =Jinja2Utils.get_file_name(template, gen_context)
+                            file_path = Jinja2Utils.get_file_name(template, gen_context)
                             zip_file.writestr(file_path, rendered_template)
                         except Exception as e:
                             logger.error(f"Template rendering failed for {template}: {e}")

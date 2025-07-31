@@ -8,7 +8,7 @@ from src.main.app.core.utils.converter_util import ClassNameConverter
 from src.main.app.core.utils.gen_util import GenUtils, gen_config
 from src.main.app.core.utils.string_util import StringUtils
 from src.main.app.model.codegen.index_model import IndexModel
-from src.main.app.schema.codegen.table_schema import Table, GenContext
+from src.main.app.schema.codegen.table_schema import GenContext
 
 APACHE_V2 = """
 # Copyright (c) 2025 {} and/or its affiliates. All rights reserved.
@@ -162,9 +162,7 @@ class Jinja2Utils:
         sub_table_fk_name = gen_table.get("subTableFkName")
 
         sub_class_name = sub_table.get("className")
-        sub_table_fk_class_name = Jinja2Utils.convert_to_camel_case(
-            sub_table_fk_name
-        )
+        sub_table_fk_class_name = Jinja2Utils.convert_to_camel_case(sub_table_fk_name)
 
         context.update(
             {
@@ -172,9 +170,7 @@ class Jinja2Utils:
                 "subTableName": sub_table_name,
                 "subTableFkName": sub_table_fk_name,
                 "subTableFkClassName": sub_table_fk_class_name,
-                "subTableFkclassName": Jinja2Utils.uncapitalize(
-                    sub_table_fk_class_name
-                ),
+                "subTableFkclassName": Jinja2Utils.uncapitalize(sub_table_fk_class_name),
                 "subClassName": sub_class_name,
                 "subclassName": Jinja2Utils.uncapitalize(sub_class_name),
                 "subImportList": Jinja2Utils.get_import_list(sub_table),
@@ -261,25 +257,17 @@ class Jinja2Utils:
         class_name = gen_table.class_name
         table_name = gen_table.table_name
         business_name = gen_table.business_name
-        java_path = (
-            f"{Jinja2Utils.JAVA_PROJECT_PATH}/{package_name.replace('.', '/')}"
-        )
+        java_path = f"{Jinja2Utils.JAVA_PROJECT_PATH}/{package_name.replace('.', '/')}"
         py_path = f"{Jinja2Utils.PY_PROJECT_PATH}"
         client_dir = "src"
-        kebab_case_class_name = converter.to_kebab(
-            converter.to_singular(table_name)
-        )
+        kebab_case_class_name = converter.to_kebab(converter.to_singular(table_name))
 
         auto_remove_pre = gen_config.auto_remove_pre
         table_prefix = gen_config.table_prefix
         if auto_remove_pre and StringUtils.is_not_empty(table_prefix):
             search_list = StringUtils.split(table_prefix, ",")
-            kebab_case_class_name = GenUtils.replace_first(
-                kebab_case_class_name, search_list
-            )
-            kebab_case_class_name = kebab_case_class_name.lstrip("_").lstrip(
-                "-"
-            )
+            kebab_case_class_name = GenUtils.replace_first(kebab_case_class_name, search_list)
+            kebab_case_class_name = kebab_case_class_name.lstrip("_").lstrip("-")
         py_file_name = converter.to_snake(kebab_case_class_name)
 
         if "controllerPy.py.j2" in template:

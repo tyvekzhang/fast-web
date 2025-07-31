@@ -18,9 +18,7 @@ def snake_to_pascal(snake_str: str) -> str:
     """
     if not isinstance(snake_str, str):
         raise TypeError("Input must be a string")
-    return "".join(
-        word.capitalize() for word in snake_str.strip("_").split("_") if word
-    )
+    return "".join(word.capitalize() for word in snake_str.strip("_").split("_") if word)
 
 
 def snake_to_title(snake_str: str) -> str:
@@ -37,9 +35,7 @@ def snake_to_title(snake_str: str) -> str:
     """
     if not isinstance(snake_str, str):
         raise TypeError("Input must be a string")
-    return " ".join(
-        word for word in snake_str.strip("_").split("_") if word
-    ).capitalize()
+    return " ".join(word for word in snake_str.strip("_").split("_") if word).capitalize()
 
 
 def parse_type_params(type_str: str) -> tuple[str, []]:
@@ -82,16 +78,12 @@ class StringUtils:
     @staticmethod
     def to_camel_case(snake_str: str) -> str:
         components = snake_str.split("_")
-        return components[0].lower() + "".join(
-            x.title() for x in components[1:]
-        )
+        return components[0].lower() + "".join(x.title() for x in components[1:])
 
     @staticmethod
     def to_upper_camel_case(snake_str: str) -> str:
         components = snake_str.split("_")
-        return components[0].title() + "".join(
-            x.title() for x in components[1:]
-        )
+        return components[0].title() + "".join(x.title() for x in components[1:])
 
     @staticmethod
     def substring(s: str, start: int, end: int) -> str:
@@ -214,14 +206,11 @@ def hide(string: Union[str, None], start_include: int, end_exclude: int) -> str:
     if start_include > end_exclude:
         return NULLSTR
     return "".join(
-        ASTERISK if start_include <= i < end_exclude else c
-        for i, c in enumerate(string)
+        ASTERISK if start_include <= i < end_exclude else c for i, c in enumerate(string)
     )
 
 
-def substring(
-    string: Optional[str], start: int, end: Optional[int] = None
-) -> str:
+def substring(string: Optional[str], start: int, end: Optional[int] = None) -> str:
     """Substring of a string."""
     if string is None:
         return NULLSTR
@@ -286,9 +275,7 @@ def matches(string: str, patterns: list[str]) -> bool:
 def is_match(pattern: str, string: str) -> bool:
     """Check if a URL matches a pattern using simple wildcards."""
     # This function uses shell-style wildcards for matching
-    pattern = (
-        pattern.replace("**", ".*").replace("*", "[^/]*").replace("?", ".")
-    )
+    pattern = pattern.replace("**", ".*").replace("*", "[^/]*").replace("?", ".")
     return re.fullmatch(pattern, string) is not None
 
 

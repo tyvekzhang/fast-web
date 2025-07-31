@@ -71,14 +71,10 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
     async def generate_tokens(cls, user_id: int) -> UserCredential:
         security_config = config_manager.load_security_config()
 
-        access_token = security.create_token(
-            subject=user_id, token_type=TokenTypeEnum.access
-        )
+        access_token = security.create_token(subject=user_id, token_type=TokenTypeEnum.access)
 
         # generate refresh token
-        refresh_token_expires = timedelta(
-            minutes=security_config.refresh_token_expire_minutes
-        )
+        refresh_token_expires = timedelta(minutes=security_config.refresh_token_expire_minutes)
         refresh_token = security.create_token(
             subject=user_id,
             token_type=TokenTypeEnum.refresh,
@@ -156,9 +152,7 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
         records = [UserPage(**record.model_dump()) for record in records]
         return ListResult(records=records, total=total)
 
-    async def get_user_detail(
-        self, *, id: int, current_user: CurrentUser
-    ) -> Optional[UserDetail]:
+    async def get_user_detail(self, *, id: int, current_user: CurrentUser) -> Optional[UserDetail]:
         user_do: UserModel = await self.mapper.select_by_id(id=id)
         if user_do is None:
             return None
@@ -186,8 +180,7 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
         current_user: CurrentUser,
     ) -> list[int]:
         user_list: list[UserModel] = [
-            UserModel(**user_create.model_dump())
-            for user_create in user_create_list
+            UserModel(**user_create.model_dump()) for user_create in user_create_list
         ]
         await self.batch_save(data_list=user_list)
         return [user.id for user in user_list]
@@ -213,9 +206,7 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
                 user_create_list.append(user_create)
             except Exception as e:
                 valid_data = {
-                    k: v
-                    for k, v in user_record.items()
-                    if k in CreateUserRequest.model_fields
+                    k: v for k, v in user_record.items() if k in CreateUserRequest.model_fields
                 }
                 user_create = CreateUserRequest.model_construct(**valid_data)
                 user_create.err_msg = ValidateService.get_validate_err_msg(e)

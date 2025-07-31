@@ -30,7 +30,6 @@ from src.main.app.mapper.codegen.database_mapper import databaseMapper
 from src.main.app.mapper.codegen.meta_field_mapper import MetaFieldMapper
 from src.main.app.mapper.codegen.index_mapper import indexMapper
 from src.main.app.mapper.codegen.meta_table_mapper import metaTableMapper
-from src.main.app.model.codegen.field_model import FieldModel
 from src.main.app.model.codegen.index_model import IndexModel
 from src.main.app.model.codegen.meta_field_model import MetaFieldModel
 from src.main.app.model.codegen.meta_table_model import MetaTableModel
@@ -39,9 +38,7 @@ from src.main.app.schema.codegen.meta_field_schema import ListFieldsRequest, Ant
 from src.main.app.service.codegen.meta_field_service import MetaFieldService
 
 
-class MetaFieldServiceImpl(
-    BaseServiceImpl[MetaFieldMapper, MetaFieldModel], MetaFieldService
-):
+class MetaFieldServiceImpl(BaseServiceImpl[MetaFieldMapper, MetaFieldModel], MetaFieldService):
     def __init__(self, mapper: MetaFieldMapper):
         super().__init__(mapper=mapper)
         self.mapper = mapper
@@ -49,19 +46,13 @@ class MetaFieldServiceImpl(
     async def list_fields(self, *, req: ListFieldsRequest):
         table_id = req.table_id
         # 查询表信息
-        table_record: MetaTableModel = await metaTableMapper.select_by_id(
-            id=table_id
-        )
+        table_record: MetaTableModel = await metaTableMapper.select_by_id(id=table_id)
         if table_record is None:
             raise
-        database_record = await databaseMapper.select_by_id(
-            id=table_record.database_id
-        )
+        database_record = await databaseMapper.select_by_id(id=table_record.database_id)
         if database_record is None:
             raise
-        connection_record = await connectionMapper.select_by_id(
-            id=database_record.connection_id
-        )
+        connection_record = await connectionMapper.select_by_id(id=database_record.connection_id)
         if connection_record is None:
             raise
         database_type = connection_record.database_type.lower()
@@ -71,13 +62,10 @@ class MetaFieldServiceImpl(
         field_records = await self.mapper.select_by_table_id(table_id=table_id)
         if field_records:
             field_name_id_map = {
-                field_record.name: field_record.id
-                for field_record in field_records
+                field_record.name: field_record.id for field_record in field_records
             }
         # 通过数据库id获取引擎
-        engine = await get_cached_async_engine(
-            database_id=table_record.database_id
-        )
+        engine = await get_cached_async_engine(database_id=table_record.database_id)
         async with engine.connect() as conn:
             try:
                 table_name = table_record.name
@@ -88,9 +76,7 @@ class MetaFieldServiceImpl(
                     lambda sync_conn: inspect(sync_conn).get_indexes(table_name)
                 )
                 pk_index = await conn.run_sync(
-                    lambda sync_conn: inspect(sync_conn).get_pk_constraint(
-                        table_name
-                    )
+                    lambda sync_conn: inspect(sync_conn).get_pk_constraint(table_name)
                 )
             except:
                 columns = []
@@ -126,9 +112,7 @@ class MetaFieldServiceImpl(
             if database_type == "mysql" or database_type == "sqlite":
                 type_name = sqlmodel_map_to_mysql_type(type_name)
             elif database_type == "postgresql" or database_type == "pgsql":
-                if name.__contains__("vector") or name.__contains__(
-                    "embedding"
-                ):
+                if name.__contains__("vector") or name.__contains__("embedding"):
                     type_name = "vector"
                     length = 2560
                 type_name = sqlmodel_map_to_pgsql_type(type_name)
@@ -162,8 +146,7 @@ class MetaFieldServiceImpl(
         index_records = await indexMapper.select_by_table_id(table_id=table_id)
         if index_records is not None:
             index_name_id_map = {
-                index_record.name: index_record.id
-                for index_record in index_records
+                index_record.name: index_record.id for index_record in index_records
             }
         # {'column_names': ['status', 'nickname'], 'name': 'idx_status_nickname', 'unique': False}
         new_add_index_records = []
@@ -176,9 +159,7 @@ class MetaFieldServiceImpl(
             index_do = IndexModel(
                 table_id=table_id,
                 name=name,
-                field=str(index["column_names"])
-                .replace("[", "")
-                .replace("]", ""),
+                field=str(index["column_names"]).replace("[", "").replace("]", ""),
                 type=str(index.get("type", "normal")).lower(),
                 remark=index.get("comment", None),
             )
@@ -205,9 +186,7 @@ class MetaFieldServiceImpl(
                     table_id=table_id,
                 )
             )
-            field_records = await self.mapper.select_by_table_id(
-                table_id=table_id
-            )
+            field_records = await self.mapper.select_by_table_id(table_id=table_id)
         ant_columns = []
         for field in field_records:
             column = AntTableColumn(

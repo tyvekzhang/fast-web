@@ -20,7 +20,9 @@ from src.main.app.core.service.base_service import BaseService
 from src.main.app.model.codegen.table_model import TableModel
 from src.main.app.schema.codegen.table_schema import (
     Table,
-    TableDetail, TableExecute, TableRecord, ListTablesRequest, ImportTable,
+    TableDetail,
+    ListTablesRequest,
+    ImportTable,
 )
 
 
@@ -44,9 +46,6 @@ class TableService(BaseService[TableModel], ABC):
     async def get_table_detail(self, *, id: int) -> TableDetail: ...
 
     @abstractmethod
-    async def update_table(
-        self, req: TableDetail
-    ) -> None: ...
+    async def update_table(self, req: TableDetail) -> None: ...
 
     async def delete_table(self, id: int) -> None: ...
-

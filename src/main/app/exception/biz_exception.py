@@ -1,4 +1,5 @@
 """Business exception for the application."""
+
 from dataclasses import dataclass
 from typing import Optional, Any
 

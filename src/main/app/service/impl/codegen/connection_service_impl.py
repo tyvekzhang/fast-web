@@ -23,14 +23,13 @@ from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.mapper.codegen.connection_mapper import ConnectionMapper
 from src.main.app.model.codegen.connection_model import ConnectionModel
 from src.main.app.schema.codegen.connection_schema import (
-    ListConnectionResponse, ListConnectionsRequest,
+    ListConnectionResponse,
+    ListConnectionsRequest,
 )
 from src.main.app.service.codegen.connection_service import ConnectionService
 
 
-class ConnectionServiceImpl(
-    BaseServiceImpl[ConnectionMapper, ConnectionModel], ConnectionService
-):
+class ConnectionServiceImpl(BaseServiceImpl[ConnectionMapper, ConnectionModel], ConnectionService):
     """
     Implementation of the ConnectionService interface.
     """
@@ -50,7 +49,7 @@ class ConnectionServiceImpl(
             FilterOperators.LIKE: {},
             FilterOperators.EQ: {},
         }
-        if not req.connection_name:
+        if req.connection_name:
             filters[FilterOperators.LIKE]["connection_name"] = req.connection_name
         records, total_count = await self.mapper.select_by_ordered_page(
             current=req.current,
@@ -94,7 +93,5 @@ class ConnectionServiceImpl(
                 )
             await self.mapper.insert(data=connection_do)
             return [connection_do], 1
-        records = [
-            ListConnectionResponse(**record.model_dump()) for record in records
-        ]
+        records = [ListConnectionResponse(**record.model_dump()) for record in records]
         return records, total_count

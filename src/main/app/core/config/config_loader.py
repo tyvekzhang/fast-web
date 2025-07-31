@@ -30,9 +30,7 @@ class ConfigLoader:
             base_config_file (str): Store the base config file path
         """
         if base_config_file is None:
-            base_config_file = os.path.join(
-                constant.RESOURCE_DIR, constant.CONFIG_FILE_NAME
-            )
+            base_config_file = os.path.join(constant.RESOURCE_DIR, constant.CONFIG_FILE_NAME)
             self.default_flag = True
         self.base_config_file = base_config_file
         self.config = {}
@@ -88,9 +86,7 @@ class ConfigLoader:
         if self.default_flag:
             if not environment:
                 environment = self.env
-            env_config_file = constant.CONFIG_FILE_NAME.replace(
-                ".", f"-{environment}."
-            )
+            env_config_file = constant.CONFIG_FILE_NAME.replace(".", f"-{environment}.")
             # Replace the base config file name with the environment-specific one
             env_config_path = self.base_config_file.replace(
                 constant.CONFIG_FILE_NAME, env_config_file

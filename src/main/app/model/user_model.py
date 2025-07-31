@@ -39,24 +39,16 @@ class UserBase(SQLModel):
         sa_column_kwargs={"comment": "主键"},
     )
     username: str = Field(
-        sa_column=Column(
-            String(32), nullable=False, default=None, comment="用户名"
-        )
+        sa_column=Column(String(32), nullable=False, default=None, comment="用户名")
     )
     password: str = Field(
-        sa_column=Column(
-            String(64), nullable=False, default=None, comment="密码"
-        )
+        sa_column=Column(String(64), nullable=False, default=None, comment="密码")
     )
     nickname: str = Field(
-        sa_column=Column(
-            String(32), nullable=False, default=None, comment="昵称"
-        )
+        sa_column=Column(String(32), nullable=False, default=None, comment="昵称")
     )
     avatar_url: Optional[str] = Field(
-        sa_column=Column(
-            String(64), nullable=True, default=None, comment="头像地址"
-        )
+        sa_column=Column(String(64), nullable=True, default=None, comment="头像地址")
     )
     status: Optional[int] = Field(
         sa_column=Column(
@@ -67,9 +59,7 @@ class UserBase(SQLModel):
         )
     )
     remark: Optional[str] = Field(
-        sa_column=Column(
-            String(255), nullable=True, default=None, comment="备注"
-        )
+        sa_column=Column(String(255), nullable=True, default=None, comment="备注")
     )
     create_time: Optional[datetime] = Field(
         sa_type=DateTime,

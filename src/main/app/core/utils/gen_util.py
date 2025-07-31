@@ -22,19 +22,13 @@ class GenUtils:
     def init_table(gen_table: TableModel):
         gen_table.class_name = GenUtils.convert_class_name(gen_table.class_name)
         gen_table.package_name = gen_config.package_name
-        gen_table.module_name = GenUtils.get_module_name(
-            gen_config.package_name
-        )
-        gen_table.business_name = GenUtils.get_business_name(
-            gen_table.class_name
-        )
+        gen_table.module_name = GenUtils.get_module_name(gen_config.package_name)
+        gen_table.business_name = GenUtils.get_business_name(gen_table.class_name)
         gen_table.function_name = GenUtils.replace_text(gen_table.function_name)
         gen_table.function_author = gen_config.author
 
     @staticmethod
-    def init_field(
-        gen_field: FieldModel, field_record: MetaFieldModel, backend: str
-    ):
+    def init_field(gen_field: FieldModel, field_record: MetaFieldModel, backend: str):
         """
         Initialize column attribute gen_fields
         """
@@ -71,9 +65,7 @@ class GenUtils:
         ) or GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TEXT, data_type):
             html_type = (
                 GenConstants.HTML_TEXTAREA
-                if GenUtils.arrays_contains(
-                    GenConstants.COLUMNTYPE_TEXT, data_type
-                )
+                if GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TEXT, data_type)
                 or (field_length is not None and field_length >= 500)
                 else GenConstants.HTML_INPUT
             )
@@ -91,9 +83,7 @@ class GenUtils:
             gen_field.html_type = GenConstants.HTML_DATEPICKER
         elif data_type == GenConstants.TYPE_VECTOR:
             gen_field.field_type = GenConstants.TYPE_VECTOR
-        elif GenUtils.arrays_contains(
-            GenConstants.COLUMNTYPE_NUMBER, data_type
-        ):
+        elif GenUtils.arrays_contains(GenConstants.COLUMNTYPE_NUMBER, data_type):
             gen_field.html_type = GenConstants.HTML_INPUT
             gen_field.js_type = GenConstants.TYPE_JS_NUMBER
             scale = field_record.scale
@@ -106,9 +96,7 @@ class GenUtils:
                 else:
                     raise Exception(f"未支持的后端语言: {backend}")
             elif (
-                data_type == "int4"
-                or data_type == "int2"
-                or (length is not None and length <= 10)
+                data_type == "int4" or data_type == "int2" or (length is not None and length <= 10)
             ):
                 if backend == "python":
                     gen_field.field_type = GenConstants.TYPE_PY_INTEGER
@@ -126,34 +114,24 @@ class GenUtils:
         gen_field.sql_model_type = sql_map2sqlmodel_type(gen_field.field_type)
 
         # Insert field
-        if not GenUtils.arrays_contains(
-            GenConstants.COLUMNNAME_NOT_INSERT, field_name
-        ):
+        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_INSERT, field_name):
             gen_field.creatable = GenConstants.REQUIRE
 
         # Modify field
-        if not GenUtils.arrays_contains(
-            GenConstants.COLUMNNAME_NOT_MODIFY, field_name
-        ):
+        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_MODIFY, field_name):
             gen_field.updatable = GenConstants.REQUIRE
 
         # BatchModify field
-        if not GenUtils.arrays_contains(
-            GenConstants.COLUMNNAME_NOT_BATCH_MODIFY, field_name
-        ):
+        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_BATCH_MODIFY, field_name):
             gen_field.batch_updatable = GenConstants.REQUIRE
 
         # Page field
-        if not GenUtils.arrays_contains(
-            GenConstants.COLUMNNAME_NOT_PAGE, field_name
-        ):
+        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_PAGE, field_name):
             gen_field.critical = GenConstants.REQUIRE
 
         # Detail field
         if (
-            not GenUtils.arrays_contains(
-                GenConstants.COLUMNNAME_NOT_PAGE, field_name
-            )
+            not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_PAGE, field_name)
             and field_name != field_record.primary_key
         ):
             gen_field.detailable = GenConstants.REQUIRE

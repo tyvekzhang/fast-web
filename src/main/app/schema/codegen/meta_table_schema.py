@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 """Table domain schema"""
+
 from datetime import datetime
 from typing import Optional
 
@@ -39,6 +40,7 @@ class CreateMetaTable(BaseModel):
     database_id: int
     name: str
     comment: Optional[str] = None
+
 
 # class TableQuery(PaginationRequest):
 #     database_id: int

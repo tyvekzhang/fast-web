@@ -14,9 +14,7 @@ except ImportError:
 
 
 @asynccontextmanager
-async def db_session(
-    *, env: str = None, db_url: str = None, engine=None
-) -> AsyncSession:
+async def db_session(*, env: str = None, db_url: str = None, engine=None) -> AsyncSession:
     """Creates a context with an open SQLAlchemy async session."""
     if engine is None:
         if db_url is None:

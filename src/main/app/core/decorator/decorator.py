@@ -17,9 +17,7 @@ def pre_authorize(permission: str):
             user_id = current_user_id.get()
 
             if not await ss.check_operation_permission(user_id, permission):
-                raise HTTPException(
-                    status_code=403, detail="No operation permission"
-                )
+                raise HTTPException(status_code=403, detail="No operation permission")
 
             return await func(*args, **kwargs)
 

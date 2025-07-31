@@ -79,18 +79,12 @@ class PaginationRequest(BaseModel):
         count: Flag to request total count of items.
     """
 
-    current: int = Field(
-        default=1, gt=0, description="Current page number (1-based)"
-    )
+    current: int = Field(default=1, gt=0, description="Current page number (1-based)")
     page_size: int = Field(
         default=10,
         ge=1,
         le=1000,
         description="Number of items per page (1-1000)",
     )
-    count: bool = Field(
-        default=True, description="Flag to request total count of items"
-    )
-    sort_str: Optional[str] = Field(
-        default=None, description="Optional sorting string, eg:"
-    )
+    count: bool = Field(default=True, description="Flag to request total count of items")
+    sort_str: Optional[str] = Field(default=None, description="Optional sorting string, eg:")

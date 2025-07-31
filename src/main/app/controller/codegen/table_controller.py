@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 """Table REST API"""
+
 from io import BytesIO
 from typing import Annotated, Union
 
@@ -49,14 +50,10 @@ from src.main.app.service.impl.codegen.table_service_impl import (
 )
 
 table_router = APIRouter()
-meta_table_service: MetaTableService = MetaTableServiceImpl(
-    mapper=metaTableMapper
-)
+meta_table_service: MetaTableService = MetaTableServiceImpl(mapper=metaTableMapper)
 table_service: TableService = TableServiceImpl(mapper=tableMapper)
 field_service: FieldService = FieldServiceImpl(mapper=fieldMapper)
-meta_field_service: MetaFieldService = MetaFieldServiceImpl(
-    mapper=metaFieldMapper
-)
+meta_field_service: MetaFieldService = MetaFieldServiceImpl(mapper=metaFieldMapper)
 
 
 @table_router.get("/tables")
@@ -111,15 +108,22 @@ async def sync_table(
     id: int,
 ) -> None:
     table_record: TableModel = await table_service.retrieve_by_id(id=id)
-    req = ListMetaTablesRequest(database_id=table_record.database_id, table_name=table_record.table_name)
+    req = ListMetaTablesRequest(
+        database_id=table_record.database_id, table_name=table_record.table_name
+    )
     await table_service.delete_table(id)
     records, total = await meta_table_service.list_meta_tables(req=req)
     if not records:
         raise BusinessException(BusinessErrorCode.RESOURCE_NOT_FOUND)
-    table_import = ImportTable(database_id=table_record.database_id, table_ids=[records[0].id],
-                               backend=table_record.backend)
+    table_import = ImportTable(
+        database_id=table_record.database_id,
+        table_ids=[records[0].id],
+        backend=table_record.backend,
+    )
     await table_service.import_tables(req=table_import)
-    req = ListTablesRequest(database_id=table_record.database_id, table_name=table_record.table_name)
+    req = ListTablesRequest(
+        database_id=table_record.database_id, table_name=table_record.table_name
+    )
     records, total = await table_service.list_tables(req=req)
     if not records:
         raise BusinessException(BusinessErrorCode.RESOURCE_NOT_FOUND)
@@ -208,9 +212,7 @@ async def delete_table(
 
 
 @table_router.get("/tables:download")
-async def download_code(
-    table_id: Union[int, list[int]] = Query(...)
-) -> StreamingResponse:
+async def download_code(table_id: Union[int, list[int]] = Query(...)) -> StreamingResponse:
     """
     Download generated code for one or multiple tables as ZIP archive.
 

@@ -21,22 +21,18 @@ from sqlmodel import text
 
 from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.core.session.db_engine import get_cached_async_engine
-from src.main.app.exception import BusinessException
 from src.main.app.mapper.codegen.connection_mapper import connectionMapper
 from src.main.app.mapper.codegen.database_mapper import DatabaseMapper
 from src.main.app.model.codegen.database_model import DatabaseModel
 from src.main.app.schema.codegen.database_schema import (
-    DB_CREATE_TEMPLATES,
-    DatabaseQuery,
     CreateDatabase,
-    SQLSchema, ListDatabasesRequest,
+    SQLSchema,
+    ListDatabasesRequest,
 )
 from src.main.app.service.codegen.database_service import DatabaseService
 
 
-class DatabaseServiceImpl(
-    BaseServiceImpl[DatabaseMapper, DatabaseModel], DatabaseService
-):
+class DatabaseServiceImpl(BaseServiceImpl[DatabaseMapper, DatabaseModel], DatabaseService):
     """
     Implementation of the DatabaseService interface.
     """
@@ -51,47 +47,9 @@ class DatabaseServiceImpl(
         super().__init__(mapper=mapper)
         self.mapper = mapper
 
-    async def add(self, *, data: DatabaseModel) -> DatabaseModel:
-        engine = await get_cached_async_engine(connection_id=data.connection_id)
-        database = await self.mapper.insert(data=data)
-        async with engine.connect() as conn:
-            # Get database type
-            dialect_name = engine.dialect.name.lower()
-
-            # Check if db exists for MySQL
-            if dialect_name == "mysql":
-                db_result = await conn.execute(
-                    text(
-                        f"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{data.database_name}'"
-                    )
-                )
-                if db_result.fetchone():
-                    raise
-
-            # Execute create SQL
-            if dialect_name in DB_CREATE_TEMPLATES:
-                create_sql = DB_CREATE_TEMPLATES[dialect_name].format(
-                    database_name=data.database_name,
-                    encoding=data.encoding,
-                    collation_order=data.collation_order,
-                )
-
-                if dialect_name != "sqlite":
-                    await conn.execute(text("COMMIT;"))
-                    await conn.execute(text(create_sql))
-                    await conn.commit()
-
-            else:
-                raise
-        return database
-
-    async def list_databases(
-        self, req: ListDatabasesRequest
-    ) -> Tuple[List[Any], int]:
+    async def list_databases(self, req: ListDatabasesRequest) -> Tuple[List[Any], int]:
         connection_id = req.connection_id
-        connection_record = await connectionMapper.select_by_id(
-            id=connection_id
-        )
+        connection_record = await connectionMapper.select_by_id(id=connection_id)
         if connection_record is None:
             raise
         engine = await get_cached_async_engine(connection_id=connection_id)
@@ -154,21 +112,15 @@ class DatabaseServiceImpl(
                 database_records = [SQLSchema(**row) for row in rows]
 
             else:
-                raise ValueError(
-                    f"Unsupported database dialect: {dialect_name}"
-                )
+                raise ValueError(f"Unsupported database dialect: {dialect_name}")
         new_add_databases = []
         need_delete_ids = []
-        records: List[
-            DatabaseModel
-        ] = await self.mapper.select_by_connection_id(
+        records: List[DatabaseModel] = await self.mapper.select_by_connection_id(
             connection_id=connection_id
         )
         exist_database_names = set()
         if records is not None:
-            exist_database_names = {
-                record.database_name: record.id for record in records
-            }
+            exist_database_names = {record.database_name: record.id for record in records}
         for record in database_records:
             if record.database_name not in exist_database_names:
                 new_add_databases.append(

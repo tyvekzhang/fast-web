@@ -30,18 +30,12 @@ class TableBase(SQLModel):
         sa_column_kwargs={"comment": "主键"},
     )
     database_id: Optional[int] = Field(
-        sa_column=Column(
-            BigInteger, index=True, nullable=False, comment="数据库ID"
-        )
+        sa_column=Column(BigInteger, index=True, nullable=False, comment="数据库ID")
     )
     db_table_id: Optional[int] = Field(
-        sa_column=Column(
-            BigInteger, index=True, nullable=False, comment="数据库表ID"
-        )
+        sa_column=Column(BigInteger, index=True, nullable=False, comment="数据库表ID")
     )
-    table_name: Optional[str] = Field(
-        default=None, sa_column=Column(String(64), comment="表名")
-    )
+    table_name: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="表名"))
     sub_table_name: Optional[str] = Field(
         default=None, sa_column=Column(String(64), comment="关联子表的表名")
     )
@@ -51,14 +45,10 @@ class TableBase(SQLModel):
     class_name: Optional[str] = Field(
         default="", sa_column=Column(String(64), comment="实体类名称")
     )
-    backend: Optional[str] = Field(
-        default=None, sa_column=Column(String(16), comment="后端语言")
-    )
+    backend: Optional[str] = Field(default=None, sa_column=Column(String(16), comment="后端语言"))
     tpl_category: Optional[str] = Field(
         default="crud",
-        sa_column=Column(
-            String(64), comment="使用的模板（crud单表操作 tree树表操作）"
-        ),
+        sa_column=Column(String(64), comment="使用的模板（crud单表操作 tree树表操作）"),
     )
     tpl_web_type: Optional[str] = Field(
         default="", sa_column=Column(String(32), comment="前端模板类型")
@@ -83,9 +73,7 @@ class TableBase(SQLModel):
     )
     gen_type: str = Field(
         default="0",
-        sa_column=Column(
-            String(1), comment="生成代码方式（0zip压缩包 1自定义路径）"
-        ),
+        sa_column=Column(String(1), comment="生成代码方式（0zip压缩包 1自定义路径）"),
     )
     gen_path: str = Field(
         default="/",
@@ -94,9 +82,7 @@ class TableBase(SQLModel):
     options: Optional[str] = Field(
         default=None, sa_column=Column(String(255), comment="其它生成选项")
     )
-    comment: Optional[str] = Field(
-        default=None, sa_column=Column(String(64), comment="表描述")
-    )
+    comment: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="表描述"))
     create_time: Optional[datetime] = Field(
         sa_type=DateTime,
         default_factory=datetime.utcnow,

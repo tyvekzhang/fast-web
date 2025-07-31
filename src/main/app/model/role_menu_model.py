@@ -35,14 +35,10 @@ class RoleMenuBase(SQLModel):
         sa_column_kwargs={"comment": "自增编号"},
     )
     role_id: int = Field(
-        sa_column=Column(
-            BigInteger, nullable=False, default=None, comment="角色ID"
-        )
+        sa_column=Column(BigInteger, nullable=False, default=None, comment="角色ID")
     )
     menu_id: int = Field(
-        sa_column=Column(
-            BigInteger, nullable=False, default=None, comment="菜单ID"
-        )
+        sa_column=Column(BigInteger, nullable=False, default=None, comment="菜单ID")
     )
     create_time: Optional[datetime] = Field(
         sa_type=DateTime,

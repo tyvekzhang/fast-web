@@ -37,20 +37,12 @@ class RoleBase(SQLModel):
         sa_column_kwargs={"comment": "角色ID"},
     )
     name: str = Field(
-        sa_column=Column(
-            String(30), nullable=False, default=None, comment="角色名称"
-        )
+        sa_column=Column(String(30), nullable=False, default=None, comment="角色名称")
     )
     code: str = Field(
-        sa_column=Column(
-            String(100), nullable=False, default=None, comment="角色权限字符串"
-        )
+        sa_column=Column(String(100), nullable=False, default=None, comment="角色权限字符串")
     )
-    sort: int = Field(
-        sa_column=Column(
-            Integer, nullable=False, default=None, comment="显示顺序"
-        )
-    )
+    sort: int = Field(sa_column=Column(Integer, nullable=False, default=None, comment="显示顺序"))
     data_scope: Optional[int] = Field(
         sa_column=Column(
             Integer,
@@ -76,9 +68,7 @@ class RoleBase(SQLModel):
         )
     )
     comment: Optional[str] = Field(
-        sa_column=Column(
-            String(500), nullable=True, default=None, comment="备注"
-        )
+        sa_column=Column(String(500), nullable=True, default=None, comment="备注")
     )
     create_time: Optional[datetime] = Field(
         sa_type=DateTime,

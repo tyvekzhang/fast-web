@@ -39,33 +39,21 @@ class MenuBase(SQLModel):
         sa_type=BigInteger,
         sa_column_kwargs={"comment": "主键"},
     )
-    name: str = Field(
-        sa_column=Column(
-            String(50), nullable=False, default=None, comment="名称"
-        )
-    )
+    name: str = Field(sa_column=Column(String(50), nullable=False, default=None, comment="名称"))
     icon: Optional[str] = Field(
-        sa_column=Column(
-            String(100), nullable=True, default=None, comment="图标"
-        )
+        sa_column=Column(String(100), nullable=True, default=None, comment="图标")
     )
     permission: Optional[str] = Field(
-        sa_column=Column(
-            String(100), nullable=True, default=None, comment="权限标识"
-        )
+        sa_column=Column(String(100), nullable=True, default=None, comment="权限标识")
     )
     sort: Optional[int] = Field(
         sa_column=Column(Integer, nullable=True, default=None, comment="排序")
     )
     path: Optional[str] = Field(
-        sa_column=Column(
-            String(200), nullable=True, default=None, comment="路由地址"
-        )
+        sa_column=Column(String(200), nullable=True, default=None, comment="路由地址")
     )
     component: Optional[str] = Field(
-        sa_column=Column(
-            String(255), nullable=True, default=None, comment="组件路径"
-        )
+        sa_column=Column(String(255), nullable=True, default=None, comment="组件路径")
     )
     type: Optional[int] = Field(
         sa_column=Column(
@@ -95,9 +83,7 @@ class MenuBase(SQLModel):
         sa_column=Column(Integer, nullable=True, default=None, comment="父ID")
     )
     status: Optional[int] = Field(
-        sa_column=Column(
-            Integer, nullable=True, default=None, comment="状态（1正常 0停用）"
-        )
+        sa_column=Column(Integer, nullable=True, default=None, comment="状态（1正常 0停用）")
     )
     create_time: Optional[datetime] = Field(
         sa_type=DateTime,
@@ -113,9 +99,7 @@ class MenuBase(SQLModel):
         },
     )
     comment: Optional[str] = Field(
-        sa_column=Column(
-            String(500), nullable=True, default=None, comment="备注信息"
-        )
+        sa_column=Column(String(500), nullable=True, default=None, comment="备注信息")
     )
 
 

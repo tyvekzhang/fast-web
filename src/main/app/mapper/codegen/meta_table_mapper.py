@@ -28,9 +28,7 @@ class MetaTableMapper(SqlModelMapper[MetaTableModel]):
         self, database_id: int, db_session: Union[AsyncSession, None] = None
     ) -> List[MetaTableModel]:
         db_session = db_session or self.db.session
-        statement = select(self.model).where(
-            self.model.database_id == database_id
-        )
+        statement = select(self.model).where(self.model.database_id == database_id)
         exec_result = await db_session.exec(statement)
         return exec_result.all()
 
