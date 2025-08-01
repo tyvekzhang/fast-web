@@ -1,12 +1,10 @@
 """Base exception class for the application."""
 
-from dataclasses import dataclass
 from typing import Optional, Any
 
 from src.main.app.core.enums import ExceptionCode
 
 
-@dataclass
 class HTTPException(Exception):
     """
     Base exception class for all custom exception in the application.
@@ -17,9 +15,24 @@ class HTTPException(Exception):
         details: Optional extra error details.
     """
 
-    code: ExceptionCode
-    message: Optional[str] = None
-    details: Optional[Any] = None
+    def __init__(
+        self,
+        code: ExceptionCode,
+        message: Optional[str] = None,
+        details: Optional[Any] = None
+    ):
+        """
+        Initialize the HTTPException.
+
+        Args:
+            code: The error code enum member.
+            message: Optional additional message about the error.
+            details: Optional extra error details.
+        """
+        self.code = code
+        self.message = message
+        self.details = details
+        self.__post_init__()
 
     def __post_init__(self):
         if self.message is None:

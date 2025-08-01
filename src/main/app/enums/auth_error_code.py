@@ -18,10 +18,10 @@ from http import HTTPStatus
 from src.main.app.core.enums.base_error_code import ExceptionCode
 
 
-class AuthErrorCode(ExceptionCode):
+class AuthErrorCode:
     """Authentication and authorization error codes."""
 
-    AUTH_FAILED = (HTTPStatus.UNAUTHORIZED, "Username or password error")
-    TOKEN_EXPIRED = (20002, "Token has expired")
-    OPENAPI_FORBIDDEN = (20003, "OpenAPI is not ready")
-    MISSING_TOKEN = (20004, "Authentication token is missing")
+    AUTH_FAILED = ExceptionCode(code=HTTPStatus.UNAUTHORIZED, message="Username or password error")
+    TOKEN_EXPIRED = ExceptionCode(code=HTTPStatus.UNAUTHORIZED, message="Token has expired")
+    OPENAPI_FORBIDDEN = ExceptionCode(code=HTTPStatus.FORBIDDEN, message="OpenAPI is not ready")
+    MISSING_TOKEN = ExceptionCode(code=HTTPStatus.UNAUTHORIZED, message="Authentication token is missing")

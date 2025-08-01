@@ -1,32 +1,13 @@
 """Base error code enumerations for API responses."""
 
-from enum import Enum
+from pydantic import BaseModel
 
 
-class ExceptionCode(Enum):
+class ExceptionCode(BaseModel):
     """Base class for error code enumerations.
 
     Provides common interface for all error codes where each enum member is defined as a tuple of
-    (error_code, error_message). This enables consistent error handling across the codebase.
+    (code, message). This enables consistent error handling across the codebase.
     """
-
-    @property
-    def code(self) -> int:
-        """Retrieves the numeric error code."""
-
-        return self.value[0]
-
-    @property
-    def message(self) -> str:
-        """Retrieves the human-readable error message."""
-
-        return self.value[1]
-
-    def __str__(self) -> str:
-        return f"{self.code}: {self.message}"
-
-    def to_dict(self) -> dict:
-        return {
-            "code": self.code,
-            "message": self.message,
-        }
+    code: int
+    message: str

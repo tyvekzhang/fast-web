@@ -2,8 +2,8 @@
 
 from typing import Optional, Any
 
+from src.main.app.core.enums import ExceptionCode
 from src.main.app.core.exception import HTTPException
-from src.main.app.enums.auth_error_code import AuthErrorCode
 
 
 class AuthException(HTTPException):
@@ -16,7 +16,8 @@ class AuthException(HTTPException):
 
     def __init__(
         self,
-        code: AuthErrorCode,
-        msg: Optional[Any] = None,
+        code: ExceptionCode,
+        message: Optional[str] = None,
+        details: Optional[Any] = None
     ):
-        super().__init__(code=code, msg=msg)
+        super().__init__(code=code, message=message, details=details)

@@ -47,7 +47,7 @@ class MediaTypeEnum(str, Enum):
     JSON = ".json"
 
 
-class CommonErrorCode(ExceptionCode):
+class CommonErrorCode:
     """Error codes for core domain."""
 
-    INTERNAL_SERVER_ERROR = (-1, "Internal server exception")
+    INTERNAL_SERVER_ERROR = ExceptionCode(code=-1, message="Internal server exception")
