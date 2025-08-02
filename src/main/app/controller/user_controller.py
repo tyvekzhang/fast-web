@@ -24,7 +24,6 @@ from src.main.app.core.schema import HttpResponse, UserCredential, CurrentUser
 from src.main.app.core.schema import ListResult
 from src.main.app.core.security import get_current_user
 from src.main.app.core.utils import excel_util
-from src.main.app.core.utils.tree_util import list_to_tree
 from src.main.app.mapper.menu_mapper import menuMapper
 from src.main.app.mapper.user_mapper import userMapper
 from src.main.app.model.user_model import UserModel
@@ -72,16 +71,6 @@ async def create_user(
     result = user.copy()
     result.password = None
     return result
-
-
-@user_router.get("/users:menus")
-async def get_menus(current_user: CurrentUser = Depends(get_current_user())):
-    records, _ = await menu_service.retrieve_ordered_data_list(current=1, page_size=1000)
-    records = [Menu(**record.model_dump()) for record in records]
-    records = [record.model_dump() for record in records if record.visible == 1]
-    records.sort(key=lambda x: x["sort"])
-    result = list_to_tree(records)
-    return HttpResponse(data=result)
 
 
 @user_router.post("/users:login")

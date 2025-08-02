@@ -3,26 +3,32 @@ repos:
     rev: v5.0.0
     hooks:
       - id: name-tests-test
-      - id: check-added-large-files
-        exclude: ^src/main/resource/static/.*$
       - id: check-toml
       - id: check-yaml
       - id: end-of-file-fixer
+        files: \.(py)$
+        exclude: ^\.venv/.*
       - id: trailing-whitespace
+        files: \.(py)$
+        exclude: ^\.venv/.*
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
     hooks:
       - id: codespell
         additional_dependencies: ["tomli>=2.0.1"]
-        exclude: ^src/main/resource/static/.*$
+        files: \.(py)$
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.11.12
     hooks:
       - id: ruff
-        args: [ --fix ]
+        args: [--fix]
+        files: \.py$
+        exclude: ^\.venv/.*
       - id: ruff-format
+        files: \.py$
+        exclude: ^\.venv/.*
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "v2.5.1"
+    rev: v2.5.1
     hooks:
       - id: pyproject-fmt
   - repo: meta

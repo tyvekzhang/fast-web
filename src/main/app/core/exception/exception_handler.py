@@ -1,8 +1,8 @@
 """Exception handlers module for FastAPI application."""
 
-import http
 import textwrap
 import traceback
+from http import HTTPStatus
 from typing import Dict, Any, Optional
 
 from fastapi import Request
@@ -24,16 +24,8 @@ config = load_config()
 async def extract_request_data(request: Request) -> Dict[str, Any]:
     """
     Extract request data based on content type.
-
-    Args:
-        request: The FastAPI request object
-
-    Returns:
-        Dictionary containing parsed request data
     """
     data = {}
-
-    # Try to get request data based on content type
     content_type = request.headers.get("content-type", "")
 
     try:
@@ -43,28 +35,22 @@ async def extract_request_data(request: Request) -> Dict[str, Any]:
             "application/x-www-form-urlencoded" in content_type
             or "multipart/form-data" in content_type
         ):
-            # Get form data but exclude files
             form = await request.form()
             form_data = {}
             for key, value in form.items():
-                # Check if it's a file upload (UploadFile instance)
                 if (
                     not hasattr(value, "filename")
                     and not hasattr(value, "file")
                     and not hasattr(value, "files")
-                ):  # Not a file
+                ):
                     form_data[key] = value
                 else:
-                    # Record that a file was present but not included
                     form_data[key] = f"<file: {value.filename}>"
-
             if form_data:
                 data["form"] = form_data
         else:
-            # Get raw body
             body = await request.body()
             if body:
-                # Try to decode as string, if fails save as binary indicator
                 try:
                     data["body"] = body.decode("utf-8")
                 except UnicodeDecodeError:
@@ -78,12 +64,6 @@ async def extract_request_data(request: Request) -> Dict[str, Any]:
 def collect_request_info(request: Request) -> Dict[str, Any]:
     """
     Collect comprehensive request information for logging.
-
-    Args:
-        request: The FastAPI request object
-
-    Returns:
-        Dictionary containing request metadata
     """
     return {
         "path": request.url.path,
@@ -97,10 +77,6 @@ def collect_request_info(request: Request) -> Dict[str, Any]:
 def log_exception(exc: Exception, request_info: Dict[str, Any]) -> None:
     """
     Log exception with full context information.
-
-    Args:
-        exc: The exception that was raised
-        request_info: Dictionary containing request information
     """
     logger.error(
         textwrap.dedent(f"""\
@@ -121,53 +97,30 @@ def build_error_response(
 ) -> Response:
     """
     Build standardized error response.
-
-    Args:
-        exc: The exception that was raised
-        request: The FastAPI request object
-        status_code: HTTP status code for the response
-        headers: Optional response headers
-
-    Returns:
-        JSONResponse with error details
     """
-    # Check if response body is allowed for this status code
     if not is_body_allowed_for_status_code(status_code):
         return Response(status_code=status_code, headers=headers)
 
-    # Don't expose detailed error messages in production
     error_message = "Internal server error"
     if config.server.debug:
         error_message = str(exc)
 
     return JSONResponse(
-        {
-            "code": CommonErrorCode.INTERNAL_SERVER_ERROR.code,
-            "message": error_message,
-        },
-        status_code=status_code,
-        headers=headers,
+        content={
+            "error": {
+                "code": CommonErrorCode.INTERNAL_SERVER_ERROR.code,
+                "message": error_message,
+            }
+        }
     )
 
 
 async def global_exception_handler(request: Request, exc: Exception) -> Response:
     """
-    Handler for all uncaught exception.
-
-    This handler captures all unhandled exception, logs them with request context,
-    and returns a standardized error response to the client.
-
-    Args:
-        request: The FastAPI request object
-        exc: The exception that was raised
-
-    Returns:
-        Response object with appropriate error information
+    Handler for all uncaught exceptions.
     """
-    # Collect request information
     request_info = collect_request_info(request)
 
-    # Get request data
     try:
         request_data = await extract_request_data(request)
         if request_data:
@@ -175,109 +128,138 @@ async def global_exception_handler(request: Request, exc: Exception) -> Response
     except Exception as e:
         request_info["data_error"] = str(e)
 
-    # Log the exception with context
+    # ✅ 记录日志
     log_exception(exc, request_info)
 
-    # Determine response status code and headers
-    status_code = getattr(exc, "status_code", http.HTTPStatus.INTERNAL_SERVER_ERROR)
+    status_code = getattr(exc, "status_code", HTTPStatus.INTERNAL_SERVER_ERROR)
     headers = getattr(exc, "headers", None)
-
-    # Build and return error response
     return build_error_response(exc, request, status_code, headers)
 
 
 async def validation_exception_handler(request: Request, exc: ValidationError):
     """
-    Asynchronous exception handler for validation exception.
-
-    Args:
-        request (Request): The request instance containing all request details.
-        exc (ValidationError): The exception instance.
-
-    Returns:
-        Response: A Response object which could be a basic Response or a JSONResponse,
-                  depending on whether a response body is allowed for the given status code.
+    Handler for pydantic ValidationError.
     """
-    status_code = http.HTTPStatus.INTERNAL_SERVER_ERROR
-    headers = getattr(exc, "headers", None)
-    if not is_body_allowed_for_status_code(status_code):
-        return Response(status_code=status_code, headers=headers)
-    return JSONResponse(
-        {
-            "code": CommonErrorCode.INTERNAL_SERVER_ERROR.code,
-            "message": str(exc).split("For further")[0],
-        },
-        status_code=status_code,
-    )
+    request_info = collect_request_info(request)
+    try:
+        request_data = await extract_request_data(request)
+        if request_data:
+            request_info["data"] = request_data
+    except Exception as e:
+        request_info["data_error"] = str(e)
+
+    # ✅ 记录日志
+    log_exception(exc, request_info)
+
+    code = HTTPStatus.INTERNAL_SERVER_ERROR.value
+    return JSONResponse(content={"error": {"code": code, "message": str(exc.errors())}})
 
 
-def is_auth_errors_code(exc: HTTPException) -> bool:
-    if str(exc.code).startswith("20"):
+def is_auth_errors_code(exc: HTTPException):
+    code, _ = exc.code.value
+    if code == HTTPStatus.UNAUTHORIZED:
         return True
-    return False
 
 
 async def custom_exception_handler(request: Request, exc: HTTPException):
     """
-    Asynchronous handler for CustomException.
+    Handler for custom HTTPException.
     """
+    request_info = collect_request_info(request)
+    try:
+        request_data = await extract_request_data(request)
+        if request_data:
+            request_info["data"] = request_data
+    except Exception as e:
+        request_info["data_error"] = str(e)
+
+    # ✅ 记录日志
+    log_exception(exc, request_info)
+
     if is_auth_errors_code(exc):
         return JSONResponse(
-            status_code=http.HTTPStatus.UNAUTHORIZED,
+            status_code=HTTPStatus.UNAUTHORIZED.value,
             content={"code": exc.code, "message": exc.message},
         )
+    code, _ = exc.code.value
     return JSONResponse(
-        {"code": exc.code, "message": exc.message},
+        content={
+            "error": {
+                "code": code.value,
+                "message": exc.message,
+            }
+        }
     )
-
-
-async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
-    """
-    Asynchronous handler for StarletteHTTPException.
-
-    Args:
-        request (Request): The request instance containing all request details.
-        exc (StarletteHTTPException): The StarletteHTTPException instance.
-
-    Returns:
-        Response: A Response object which could be a basic Response or a JSONResponse,
-                  depending on whether a response body is allowed for the given status code.
-    """
-    return await http_exception_handler(request, exc)
 
 
 async def request_validation_exception_handler(
     request: Request, exc: RequestValidationError
 ) -> JSONResponse:
     """
-    Asynchronous handler for RequestValidationError.
-
-    Args:
-        request (Request): The request instance containing all request details.
-        exc (RequestValidationError): The RequestValidationError instance.
-
-    Returns:
-        Response: A JSONResponse object which contain code and msg,
+    Handler for RequestValidationError.
     """
+    request_info = collect_request_info(request)
+    try:
+        request_data = await extract_request_data(request)
+        if request_data:
+            request_info["data"] = request_data
+    except Exception as e:
+        request_info["data_error"] = str(e)
+
+    # ✅ 记录日志
+    log_exception(exc, request_info)
+
     return JSONResponse(
-        {
-            "code": http.HTTPStatus.UNPROCESSABLE_ENTITY,
-            "message": str(exc.errors()),
-        },
+        content={
+            "error": {
+                "code": HTTPStatus.UNPROCESSABLE_ENTITY.value,
+                "message": str(exc.errors()),
+            }
+        }
     )
 
 
-async def jwt_exception_handler() -> JSONResponse:
+async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
     """
-    Asynchronous handler for JWT-related exception.
+    Handler for StarletteHTTPException.
+    """
+    request_info = collect_request_info(request)
+    try:
+        request_data = await extract_request_data(request)
+        if request_data:
+            request_info["data"] = request_data
+    except Exception as e:
+        request_info["data_error"] = str(e)
 
-    Returns:
-        JSONResponse: A JSON response with an error code and message.
+    # ✅ 记录日志
+    log_exception(exc, request_info)
+
+    return await http_exception_handler(request, exc)
+
+
+# 修改为：
+async def jwt_exception_handler(request: Request):
     """
+    Handler for JWT-related exceptions.
+    """
+    request_info = collect_request_info(request)
+    try:
+        request_data = await extract_request_data(request)
+        if request_data:
+            request_info["data"] = request_data
+    except Exception as e:
+        request_info["data_error"] = str(e)
+
+    # ✅ 可以记录一个模拟异常
+    class JWTException(Exception):
+        pass
+
+    log_exception(JWTException("JWT token expired or invalid"), request_info)
+
     return JSONResponse(
-        status_code=http.HTTPStatus.UNAUTHORIZED,
+        status_code=HTTPStatus.UNAUTHORIZED.value,
         content={
-            "code": http.HTTPStatus.UNAUTHORIZED,
+            "code": HTTPStatus.UNAUTHORIZED.value,
             "message": "Your token has expired. Please log in again.",
         },
     )

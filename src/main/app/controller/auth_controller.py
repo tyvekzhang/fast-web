@@ -70,7 +70,7 @@ async def get_menus(current_user: CurrentUser = Depends(get_current_user())):
     records = [record.model_dump() for record in records if record.visible == 1]
     records.sort(key=lambda x: x["sort"])
     result = list_to_tree(records)
-    return HttpResponse(data=result)
+    return result
 
 
 @auth_router.get("/users:me")
