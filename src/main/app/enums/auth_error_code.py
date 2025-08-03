@@ -24,4 +24,6 @@ class AuthErrorCode:
     AUTH_FAILED = ExceptionCode(code=HTTPStatus.UNAUTHORIZED, message="Username or password error")
     TOKEN_EXPIRED = ExceptionCode(code=HTTPStatus.UNAUTHORIZED, message="Token has expired")
     OPENAPI_FORBIDDEN = ExceptionCode(code=HTTPStatus.FORBIDDEN, message="OpenAPI is not ready")
-    MISSING_TOKEN = ExceptionCode(code=HTTPStatus.UNAUTHORIZED, message="Authentication token is missing")
+    MISSING_TOKEN = ExceptionCode(
+        code=HTTPStatus.UNAUTHORIZED, message="Authentication token is missing"
+    )

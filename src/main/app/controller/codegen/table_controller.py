@@ -120,6 +120,8 @@ async def sync_table(
         table_ids=[records[0].id],
         backend=table_record.backend,
     )
+    list_fields_request = ListFieldsRequest(table_id=records[0].id)
+    await meta_field_service.list_fields(req=list_fields_request)
     await table_service.import_tables(req=table_import)
     req = ListTablesRequest(
         database_id=table_record.database_id, table_name=table_record.table_name

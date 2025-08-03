@@ -63,24 +63,24 @@ const Import{{ CN }}Component: React.FC<Import{{ CN }}Props> = ({
       render: (_: number, _record: Create{{ CN }}, rowIndex: number) => rowIndex + 1,
       width: "8%",
     },
-    {%- for field in fields %}
+    {%- for context in fields %}
     {%- set comment = "" %}
-    {%- if field.gen_field.pageable == 1 and field.gen_field.field_name != primary_key %}
-    {%- if field.field.comment and field.field.comment != "" %}
-      {%- set parentheseIndex_en = field.field.comment.find("(") %}
-      {%- set parentheseIndex_cn = field.field.comment.find("（") %}
+    {%- if context.field.pageable == 1 and context.field.field_name != primary_key %}
+    {%- if context.field.comment and context.field.comment != "" %}
+      {%- set parentheseIndex_en = context.field.comment.find("(") %}
+      {%- set parentheseIndex_cn = context.field.comment.find("（") %}
       {%- if parentheseIndex_en!= -1 %}
-          {%- set comment = field.field.comment[:parentheseIndex_en] %}
+          {%- set comment = context.field.comment[:parentheseIndex_en] %}
       {%- elif parentheseIndex_cn!= -1 %}
-          {%- set comment = field.field.comment[:parentheseIndex_cn] %}
+          {%- set comment = context.field.comment[:parentheseIndex_cn] %}
       {%- else %}
-          {%- set comment = field.field.comment %}
+          {%- set comment = context.field.comment %}
       {%- endif %}
     {%- endif %}
     {
-      title: "{% if comment %}{{ comment }}{% else %}{{ field.gen_field.field_name }}{% endif %}",
-      dataIndex: "{{ field.gen_field.field_name }}",
-      key: "{{ field.gen_field.field_name }}",
+      title: "{% if comment %}{{ comment }}{% else %}{{ context.field.field_name }}{% endif %}",
+      dataIndex: "{{ context.field.field_name }}",
+      key: "{{ context.field.field_name }}",
       render: (text) => (text ? text : "-"),
     },
     {%- endif%}

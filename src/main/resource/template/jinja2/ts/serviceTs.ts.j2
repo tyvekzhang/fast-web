@@ -1,5 +1,5 @@
 {{ licenseTs }}
-import httpClient from '@/lib/http';
+import httpClient, { fetcher } from '@/lib/http';
 import { downloadBlob } from '@/service/util';
 import { PageResult } from '@/types';
 import {
@@ -17,18 +17,29 @@ import {
   Update{{ CN }}Request,
 } from '@/types/{{ c_kebab_n }}';
 import { AxiosResponse } from 'axios';
+import useSWR from 'swr';
 
 
 /**
  * Retrieve {{ cN }} details.
  *
- * @param Unique ID of the {{ cN }} resource.
+ * @param ID of the {{ cN }} resource.
  * @returns The {{ cN }} object containing all its details.
  */
-export function get{{ CN }}(id: string) {
-  return httpClient.get<{{ CN }}Detail>(`/{{ cNs }}/${id}`);
-}
+export function use{{ CN }}(id: string) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<{{ CN }}Detail>(
+    id ? `/{{ cNs }}/${id}` : null,
+    fetcher,
+  );
 
+  return {
+    {{ cN }}: data,
+    isLoading,
+    isError: error,
+    isValidating,
+    mutateMenu: mutate,
+  };
+}
 
 /**
  * List {{ cNs }} with pagination.
@@ -36,8 +47,19 @@ export function get{{ CN }}(id: string) {
  * @param req Request object containing pagination, filter and sort parameters.
  * @returns Paginated list of {{ cNs }} and total count.
  */
-export function list{{ CNs }}(req: Partial<List{{ CNs }}Request>) {
-  return httpClient.get<PageResult<{{ CN }}>>('/{{ cNs }}', req);
+export function use{{ CNs }}(req: Partial<List{{ CNs }}Request>) {
+  const { data, error, isLoading, isValidating, mutate } = useSWR<
+    PageResult<{{ CN }}>
+  >(['/{{ cNs }}', req], ([url, params]) => fetcher(url, params));
+
+  return {
+    {{ cNs }}: data?.records,
+    total: data?.total,
+    isLoading,
+    isError: error,
+    isValidating,
+    mutate{{ CNs }}: mutate,
+  };
 }
 
 

@@ -8,8 +8,8 @@ from typing import Type
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.service.base_service import BaseService
-from src.main.app.model.{{ c_n }}_model import {{ CN }}Model
-from src.main.app.schema.{{ c_n }}_schema import (
+from src.main.app.model.{{ module_name }}.{{ c_n }}_model import {{ CN }}Model
+from src.main.app.schema.{{ module_name }}.{{ c_n }}_schema import (
     List{{ CNs }}Request,
     Create{{ CN }}Request,
     {{ CN }},

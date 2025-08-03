@@ -25,12 +25,12 @@
 {%- set _ = components.update({'treeselect': True}) %}
 {%- endif %}
 
-{%- for field in fields %}
-    {%- set html_type = field.gen_field.html_type %}
+{%- for context in fields %}
+    {%- set html_type = context.field.html_type %}
     {%- if html_type in components %}
         {%- set _ = components.update({html_type: True}) %}
     {%- endif %}
-    {%- if field.dict_type != "" %}
+    {%- if context.field.dict_type != "" %}
         {%- set _ = components.update({'dict_type': True}) %}
     {%- endif %}
 {%- endfor %}
@@ -74,27 +74,32 @@ import {
   Slider, Switch, TimePicker, Transfer, Upload,
 } from 'antd';
 import { FormInstance } from 'antd/es/form';
+import { RotateCcw, Search } from 'lucide-react';
 import React from 'react';
 
-interface {{ CN }}QueryProps {
-  on{{ CN }}QueryFinish: () => void;
-  on{{ CN }}QueryReset: () => void;
-  {{ cN }}QueryForm: FormInstance;
+interface Query{{ CN }}Props {
+  onQuery{{ CN }}Finish: (values: any) => void;
+  onQuery{{ CN }}Reset: () => void;
+  onQuery{{ CN }}Form: FormInstance;
 }
 
-const {{ cN }}QueryFormItemLayout = {
+const query{{ CN }}FormItemLayout = {
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
 };
 
-const {{ CN }}QueryComponent: React.FC<{{ CN }}QueryProps> = ({
-  on{{ CN }}QueryFinish,
-  on{{ CN }}QueryReset,
-  {{ cN }}QueryForm,
+const Query{{ CN }}Component: React.FC<Query{{ CN }}Props> = ({
+  onQuery{{ CN }}Finish,
+  onQuery{{ CN }}Reset,
+  onQuery{{ CN }}Form,
 }) => {
-  const handle{{ CN }}QueryReset = () => {
-    on{{ CN }}QueryReset();
-    on{{ CN }}QueryFinish();
+  const handleQuery{{ CN }}Reset = () => {
+    onQuery{{ CN }}Reset();
+  };
+
+  const handleQuery{{ CN }}Submit = async () => {
+    const values = await onQuery{{ CN }}Form.validateFields();
+    onQuery{{ CN }}Finish(values);
   };
 
 {%- if "" != components.dict_type %}
@@ -106,87 +111,97 @@ const {{ CN }}QueryComponent: React.FC<{{ CN }}QueryProps> = ({
 
   return (
     <Form
-      {...{{ cN }}QueryFormItemLayout}
-      form={ {{ cN }}QueryForm}
-      name="{{ cN }}Query"
-      onFinish={on{{ CN }}QueryFinish}
-      layout="horizontal"
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-0 gap-x-4 pt-4 px-2"
+      {...query{{ CN }}FormItemLayout}
+      form={ onQuery{{ CN }}Form}
+      name="query{{ CN }}"
+      onFinish={onQuery{{ CN }}Finish}
     >
-      {%- for field in fields %}
-      {%- set dictType = field.dictType %}
-      {%- set comment = "" %}
-      {%- if field.gen_field.queryable == 1 and field.gen_field.field_name != primary_key %}
-      {%- if field.field.comment and field.field.comment != "" %}
-          {%- set parentheseIndex_en = field.field.comment.find("(") %}
-          {%- set parentheseIndex_cn = field.field.comment.find("（") %}
-          {%- if parentheseIndex_en!= -1 %}
-              {%- set comment = field.field.comment[:parentheseIndex_en] %}
-          {%- elif parentheseIndex_cn!= -1 %}
-              {%- set comment = field.field.comment[:parentheseIndex_cn] %}
+      <div className='flex flex-wrap items-center gap-4 pt-6 justify-between'>
+        {%- for context in fields %}
+        {%- set dictType = context.field.dictType %}
+        {%- set comment = "" %}
+        {%- if context.field.queryable == 1 and context.field.field_name != primary_key %}
+        {%- if context.field.comment and context.field.comment != "" %}
+            {%- set parentheseIndex_en = context.field.comment.find("(") %}
+            {%- set parentheseIndex_cn = context.field.comment.find("（") %}
+            {%- if parentheseIndex_en!= -1 %}
+                {%- set comment = context.field.comment[:parentheseIndex_en] %}
+            {%- elif parentheseIndex_cn!= -1 %}
+                {%- set comment = context.field.comment[:parentheseIndex_cn] %}
+            {%- else %}
+                {%- set comment = context.field.comment %}
+            {%- endif %}
+        {%- endif %}
+        {%- set field_name = context.field.field_name %}
+        {%- set html_type = context.field.html_type %}
+        {%- set dict_type = context.field.dict_type %}
+        <Form.Item name="{{ context.field.field_name }}" label="{% if comment %}{{ comment }}{% else %}{{ context.field.field_name }}{% endif %}" >
+          {%- if html_type == 'input' %}
+          <Input placeholder="请输入{{ comment }}" allowClear />
+          {%- elif html_type =='select' or html_type == 'radio' %}
+          {%- if dict_type %}
+          <Select
+              allowClear
+              placeholder="请选择{{ comment }}"
+              options={ dictData["{{ dict_type }}"] }
+          />
           {%- else %}
-              {%- set comment = field.field.comment %}
+          <Select placeholder="请选择{{ comment }}" allowClear />
           {%- endif %}
-      {%- endif %}
-      {%- set field_name = field.gen_field.field_name %}
-      {%- set html_type = field.gen_field.html_type %}
-      {%- set dict_type = field.gen_field.dict_type %}
-      <Form.Item name="{{ field.gen_field.field_name }}" label="{% if comment %}{{ comment }}{% else %}{{ field.gen_field.field_name }}{% endif %}" >
-        {%- if html_type == 'input' %}
-        <Input placeholder="请输入{{ comment }}" allowClear />
-        {%- elif html_type =='select' or html_type == 'radio' %}
-        {%- if dict_type %}
-        <Select
+          {%- elif html_type == 'datepicker' or html_type == 'datetime' %}
+          {%- if context.field.query_type == "BETWEEN" %}
+          <DatePicker.RangePicker
             allowClear
+            format="YYYY-MM-DD"
+            placeholder={["请选择开始时间", "请选择结束时间"]}
+            presets={[
+                { label: '最近7天', value: [dayjs().add(-7, 'd'), dayjs()] },
+                { label: '最近14天', value: [dayjs().add(-14, 'd'), dayjs()] },
+                { label: '最近30天', value: [dayjs().add(-30, 'd'), dayjs()] },
+                { label: '最近90天', value: [dayjs().add(-90, 'd'), dayjs()] },
+            ]}
+          />
+          {%- else %}
+          <DatePicker
+            allowClear
+            format="YYYY-MM-DD"
             placeholder="请选择{{ comment }}"
-            options={ dictData["{{ dict_type }}"] }
-        />
-        {%- else %}
-        <Select placeholder="请选择{{ comment }}" allowClear />
+            presets={[
+              { label: '昨天', value: dayjs().add(-1, 'd') },
+              { label: '上周', value: dayjs().add(-7, 'd') },
+              { label: '上月', value: dayjs().add(-1, 'month') },
+            ]}
+          />
+          {%- endif %}
+          {%- elif html_type == 'inputnumber' %}
+          <InputNumber placeholder="请输入数字" allowClear />
+          {%- else %}
+          <Input placeholder="请输入{{ comment }}" allowClear />
+          {%- endif %}
+        </Form.Item>
         {%- endif %}
-        {%- elif html_type == 'datepicker' or html_type == 'datetime' %}
-        {%- if field.gen_field.query_type == "BETWEEN" %}
-        <DatePicker.RangePicker
-          allowClear
-          format="YYYY-MM-DD"
-          placeholder={["请选择开始时间", "请选择结束时间"]}
-          presets={[
-              { label: '最近7天', value: [dayjs().add(-7, 'd'), dayjs()] },
-              { label: '最近14天', value: [dayjs().add(-14, 'd'), dayjs()] },
-              { label: '最近30天', value: [dayjs().add(-30, 'd'), dayjs()] },
-              { label: '最近90天', value: [dayjs().add(-90, 'd'), dayjs()] },
-          ]}
-        />
-        {%- else %}
-        <DatePicker
-          allowClear
-          format="YYYY-MM-DD"
-          placeholder="请选择{{ comment }}"
-          presets={[
-            { label: '昨天', value: dayjs().add(-1, 'd') },
-            { label: '上周', value: dayjs().add(-7, 'd') },
-            { label: '上月', value: dayjs().add(-1, 'month') },
-          ]}
-        />
-        {%- endif %}
-        {%- elif html_type == 'inputnumber' %}
-        <InputNumber placeholder="请输入数字" allowClear />
-        {%- else %}
-        <Input placeholder="请输入{{ comment }}" allowClear />
-        {%- endif %}
-      </Form.Item>
-      {%- endif %}
-      {%- endfor %}
-      <Form.Item className="flex justify-end">
-        <Space className="inline-flex">
-          <Button onClick={handle{{ CN }}QueryReset}>重置</Button>
-          <Button type="primary" htmlType="submit">
-            查询
-          </Button>
-        </Space>
-      </Form.Item>
+        {%- endfor %}
+        <Form.Item>
+          <div className='flex items-center gap-2 justify-start pr-4'>
+            <Button
+              onClick={handleQuery{{ CN }}Reset}
+              className="bg-gray-50"
+              icon={<RotateCcw size={14} />}
+            >
+              重置
+            </Button>
+            <Button
+              type="primary"
+              icon={<Search size={14} />}
+              onClick={handleQuery{{ CN }}Submit}
+            >
+              查询
+            </Button>
+          </div>
+        </Form.Item>
+      </div>
     </Form>
   );
 };
 
-export default {{ CN }}QueryComponent;
+export default Query{{ CN }}Component;

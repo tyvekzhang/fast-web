@@ -9,5 +9,6 @@ class ExceptionCode(BaseModel):
     Provides common interface for all error codes where each enum member is defined as a tuple of
     (code, message). This enables consistent error handling across the codebase.
     """
+
     code: int
     message: str

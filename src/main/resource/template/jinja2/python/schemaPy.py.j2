@@ -2,87 +2,90 @@
 """{{ CN }} schema"""
 
 from __future__ import annotations
+
+from datetime import datetime
+from typing import Optional
 from fastapi import UploadFile
-from typing import Optional, List
 from pydantic import BaseModel, Field
+
 from src.main.app.core.schema import PaginationRequest
 
 
 class List{{ CNs }}Request(PaginationRequest):
-    {%- for field in fields %}
-    {%- if field.gen_field.queryable == 1  %}
-    {{ field.gen_field.field_name }}: Optional[{{ field.gen_field.field_type }}] = None
+    {%- for context in fields %}
+    {%- if context.field.queryable == 1  %}
+    {{ context.field.field_name }}: Optional[{{ context.field.field_type }}] = None
     {%- endif %}
     {%- endfor %}
 
 
 class {{ CN }}(BaseModel):
-    {%- for field in fields %}
-    {%- if field.gen_field.critical == 1  %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {%- for context in fields %}
+    {%- if context.field.listable == 1  %}
+    {{ context.field.field_name }}: {% if context.field.nullable %}Optional[{{ context.field.field_type }}] = {{ context.field.default }}{% else %}{{ context.field.field_type }}{% endif %}
     {%- endif %}
     {%- endfor %}
 
 
 class {{ CN }}Detail(BaseModel):
-    {%- for field in fields %}
-    {%- if field.gen_field.detailable == 1  %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {%- for context in fields %}
+    {%- if context.field.detailable == 1  %}
+    {{ context.field.field_name }}: {% if context.field.nullable %}Optional[{{ context.field.field_type }}] = {{ context.field.default }}{% else %}{{ context.field.field_type }}{% endif %}
     {%- endif %}
     {%- endfor %}
 
 
 class Create{{ CN }}(BaseModel):
-    {%- for field in fields %}
-    {%- if field.gen_field.creatable == 1  %}
-    {%- if field.gen_field.html_type == "checkbox" %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[List[{{ field.gen_field.field_type }}]] = {{ field.gen_field.default }}{% else %}List[{{ field.gen_field.field_type }}]{% endif %}
+    {%- for context in fields %}
+    {%- if context.field.creatable == 1  %}
+    {%- if context.field.html_type == "checkbox" %}
+    {{ context.field.field_name }}: {% if context.field.nullable %}Optional[List[{{ context.field.field_type }}]] = {{ context.field.default }}{% else %}List[{{ context.field.field_type }}]{% endif %}
     {%- else %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {{ context.field.field_name }}: {% if context.field.nullable %}Optional[{{ context.field.field_type }}] = {{ context.field.default }}{% else %}{{ context.field.field_type }}{% endif %}
     {%- endif %}
     {%- endif %}
     {%- endfor %}
 
 
 class Create{{ CN }}Request(BaseModel):
-    {{ c_n }}: Create{{ CN }}
+    {{ c_n }}: Create{{ CN }} = Field(alias="{{ cN }}")
 
 
 class Update{{ CN }}(BaseModel):
-    {%- for field in fields %}
-    {%- if field.gen_field.updatable == 1  %}
-    {%- if field.gen_field.html_type == "checkbox" %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[List[{{ field.gen_field.field_type }}]] = {{ field.gen_field.default }}{% else %}List[{{ field.gen_field.field_type }}]{% endif %}
+    {%- for context in fields %}
+    {%- if context.field.updatable == 1  %}
+    {%- if context.field.html_type == "checkbox" %}
+    {{ context.field.field_name }}: {% if context.field.nullable %}Optional[List[{{ context.field.field_type }}]] = {{ context.field.default }}{% else %}List[{{ context.field.field_type }}]{% endif %}
     {%- else %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {{ context.field.field_name }}: {% if context.field.nullable %}Optional[{{ context.field.field_type }}] = {{ context.field.default }}{% else %}{{ context.field.field_type }}{% endif %}
     {%- endif %}
     {%- endif %}
     {%- endfor %}
 
 
 class Update{{ CN }}Request(BaseModel):
-    {{ c_n }}: Update{{ CN }}
+    {{ c_n }}: Update{{ CN }} = Field(alias="{{ cN }}")
 
 
 class BatchGet{{ CNs }}Response(BaseModel):
-    {{ c_ns }}: list[{{ CN }}Detail]
+    {{ c_ns }}: list[{{ CN }}Detail] = Field(default_factory=list, alias="{{ cNs }}")
 
 
 class BatchCreate{{ CNs }}Request(BaseModel):
-    {{ c_ns }}: list[Create{{ CN }}]
+    {{ c_ns }}: list[Create{{ CN }}] = Field(default_factory=list, alias="{{ cNs }}")
 
 
 class BatchCreate{{ CNs }}Response(BaseModel):
-    {{ c_ns }}: list[{{ CN }}]
+    {{ c_ns }}: list[{{ CN }}] = Field(default_factory=list, alias="{{ cNs }}")
 
 
 class BatchUpdate{{ CN }}(BaseModel):
-    {%- for field in fields %}
-    {%- if field.gen_field.batch_updatable == 1  %}
-    {%- if field.gen_field.html_type == "checkbox" %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[List[{{ field.gen_field.field_type }}]] = {{ field.gen_field.default }}{% else %}List[{{ field.gen_field.field_type }}]{% endif %}
+    {%- for context in fields %}
+    {%- if context.field.batch_updatable == 1  %}
+    {%- if context.field.html_type == "checkbox" %}
+    {{ context.field.field_name }}: {% if context.field.nullable %}Optional[List[{{ context.field.field_type }}]] = {{ context.field.default }}{% else %}List[{{ context.field.field_type }}]{% endif %}
     {%- else %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {{ context.field.field_name }}: {% if context.field.nullable %}Optional[{{ context.field.field_type }}] = {{ context.field.default }}{% else %}{{ context.field.field_type }}{% endif %}
     {%- endif %}
     {%- endif %}
     {%- endfor %}
@@ -90,15 +93,15 @@ class BatchUpdate{{ CN }}(BaseModel):
 
 class BatchUpdate{{ CNs }}Request(BaseModel):
     {{ pks }}: list[int]
-    {{ c_n }}: BatchUpdate{{ CN }}
+    {{ c_n }}: BatchUpdate{{ CN }} = Field(alias="{{ cN }}")
 
 
 class BatchPatch{{ CNs }}Request(BaseModel):
-    {{ c_ns }}: list[Update{{ CN }}]
+    {{ c_ns }}: list[Update{{ CN }}] = Field(default_factory=list, alias="{{ cNs }}")
 
 
 class BatchUpdate{{ CNs }}Response(BaseModel):
-     {{ c_ns }}: list[{{ CN }}]
+     {{ c_ns }}: list[{{ CN }}] = Field(default_factory=list, alias="{{ cNs }}")
 
 
 class BatchDelete{{ CNs }}Request(BaseModel):
@@ -106,12 +109,12 @@ class BatchDelete{{ CNs }}Request(BaseModel):
 
 
 class Export{{ CN }}({{ CN }}):
-    {%- for field in fields %}
-    {%- if field.gen_field.exportable == 1  %}
-    {%- if field.gen_field.html_type == "checkbox" %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[List[{{ field.gen_field.field_type }}]] = {{ field.gen_field.default }}{% else %}List[{{ field.gen_field.field_type }}]{% endif %}
+    {%- for context in fields %}
+    {%- if context.field.exportable == 1  %}
+    {%- if context.field.html_type == "checkbox" %}
+    {{ context.field.field_name }}: {% if context.field.nullable %}Optional[List[{{ context.field.field_type }}]] = {{ context.field.default }}{% else %}List[{{ context.field.field_type }}]{% endif %}
     {%- else %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {{ context.field.field_name }}: {% if context.field.nullable %}Optional[{{ context.field.field_type }}] = {{ context.field.default }}{% else %}{{ context.field.field_type }}{% endif %}
     {%- endif %}
     {%- endif %}
     {%- endfor %}
@@ -131,4 +134,4 @@ class Import{{ CN }}(Create{{ CN }}):
 
 
 class Import{{ CNs }}Response(BaseModel):
-    {{ c_ns }}: list[Import{{ CN }}]
+    {{ c_ns }}: list[Import{{ CN }}] = Field(default_factory=list, alias="{{ cNs }}")

@@ -25,12 +25,12 @@
 {%- set _ = components.update({'treeselect': True}) %}
 {%- endif %}
 
-{%- for field in fields %}
-    {%- set html_type = field.gen_field.html_type %}
+{%- for context in fields %}
+    {%- set html_type = context.field.html_type %}
     {%- if html_type in components %}
         {%- set _ = components.update({html_type: True}) %}
     {%- endif %}
-    {%- if field.dict_type != "" %}
+    {%- if context.field.dict_type != "" %}
         {%- set _ = components.update({'dict_type': True}) %}
     {%- endif %}
 {%- endfor %}
@@ -100,7 +100,7 @@ const Create{{ CN }}Component: React.FC<Create{{ CN }}Props> = ({
 }) => {
 {%- if components.treeselect %}
   const treeSelectDataTransform = [{ name: '根目录', id: 0, children: treeSelectDataSource }];
-  const treeSelectData = TreeSelectUtil.transform(treeSelectDataTransform as any);
+  const treeSelectData = TreeSelectUtil.convert(treeSelectDataTransform as any);
 {%- endif %}
   const footerButtons = useMemo(
     () => [
@@ -137,24 +137,24 @@ const Create{{ CN }}Component: React.FC<Create{{ CN }}Props> = ({
           onFinish={onCreate{{ CN }}Finish}
           className="grid grid-cols-1 lg:grid-cols-2 gap-y-0 gap-x-2 pt-4"
         >
-          {%- for field in fields %}
+          {%- for context in fields %}
           {%- set comment = "" %}
-          {%- if field.gen_field.creatable == 1 and field.gen_field.field_name != primary_key %}
-          {%- if field.field.comment and field.field.comment != "" %}
-              {%- set parentheseIndex_en = field.field.comment.find("(") %}
-              {%- set parentheseIndex_cn = field.field.comment.find("（") %}
+          {%- if context.field.creatable == 1 and context.field.field_name != primary_key %}
+          {%- if context.field.comment and context.field.comment != "" %}
+              {%- set parentheseIndex_en = context.field.comment.find("(") %}
+              {%- set parentheseIndex_cn = context.field.comment.find("（") %}
               {%- if parentheseIndex_en!= -1 %}
-                  {%- set comment = field.field.comment[:parentheseIndex_en] %}
+                  {%- set comment = context.field.comment[:parentheseIndex_en] %}
               {%- elif parentheseIndex_cn!= -1 %}
-                  {%- set comment = field.field.comment[:parentheseIndex_cn] %}
+                  {%- set comment = context.field.comment[:parentheseIndex_cn] %}
               {%- else %}
-                  {%- set comment = field.field.comment %}
+                  {%- set comment = context.field.comment %}
               {%- endif %}
           {%- endif %}
-          {%- set field_name = field.gen_field.field_name %}
-          {%- set html_type = field.gen_field.html_type %}
-          {%- set dict_type = field.gen_field.dict_type %}
-          <Form.Item name="{{ field_name }}" label="{% if comment %}{{ comment }}{% else %}{{ field.gen_field.field_name }}{% endif %}" rules={[{ required: false, message: '请输入{{ comment }}' }]}>
+          {%- set field_name = context.field.field_name %}
+          {%- set html_type = context.field.html_type %}
+          {%- set dict_type = context.field.dict_type %}
+          <Form.Item name="{{ field_name }}" label="{% if comment %}{{ comment }}{% else %}{{ context.field.field_name }}{% endif %}" rules={[{ required: false, message: '请输入{{ comment }}' }]}>
             {%- if field_name == tree_parent_code and "" != tree_parent_code %}
             <TreeSelect
               placeholder="请选择{{comment}}"

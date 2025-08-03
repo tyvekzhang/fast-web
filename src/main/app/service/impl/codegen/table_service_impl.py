@@ -203,7 +203,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
         meta_id_field_dict = {
             field_record.db_field_id: field_record for field_record in field_records
         }
-        meta_field_list = []
+        field_list = []
         primary_key = ""
         for meta_field in meta_field_records:
             mapped_field: FieldModel = meta_id_field_dict.get(meta_field.id)
@@ -215,8 +215,8 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
                 )
                 primary_key = meta_field_record.name
             field_data = GenField(meta_field=meta_field, field=mapped_field)
-            meta_field_list.append(field_data)
-        gen_context: GenContext = GenContext(table=table_record, gen_fields=meta_field_list)
+            field_list.append(field_data)
+        gen_context: GenContext = GenContext(table=table_record, gen_fields=field_list)
         gen_context.pk_field = primary_key
         return table_record, gen_context
 

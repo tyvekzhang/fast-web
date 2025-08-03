@@ -70,7 +70,7 @@ class FieldBase(SQLModel):
     queryable: Optional[int] = Field(
         default=0, sa_column=Column(SmallInteger, comment="查询字段(0否,1是)")
     )
-    critical: Optional[int] = Field(
+    listable: Optional[int] = Field(
         default=0, sa_column=Column(SmallInteger, comment="列表字段(0否,1是)")
     )
     detailable: Optional[int] = Field(

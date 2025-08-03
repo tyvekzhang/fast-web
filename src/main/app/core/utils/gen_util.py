@@ -127,7 +127,7 @@ class GenUtils:
 
         # Page field
         if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_PAGE, field_name):
-            gen_field.critical = GenConstants.REQUIRE
+            gen_field.listable = GenConstants.REQUIRE
 
         # Detail field
         if (
@@ -173,8 +173,8 @@ class GenUtils:
         return package_name.split(".")[-1]
 
     @staticmethod
-    def get_business_name(table_name) -> str:
-        return table_name.split("_")[-1]
+    def get_business_name(class_name: str) -> str:
+        return class_name
 
     @staticmethod
     def convert_class_name(table_name: str) -> str:

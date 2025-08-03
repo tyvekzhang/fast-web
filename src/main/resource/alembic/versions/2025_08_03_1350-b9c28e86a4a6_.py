@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: d907907bc6b3
+Revision ID: b9c28e86a4a6
 Revises: 07b069d14db5
-Create Date: 2025-07-29 17:32:11.059804
+Create Date: 2025-08-03 13:50:05.614924
 
 """
 
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = "d907907bc6b3"
+revision = "b9c28e86a4a6"
 down_revision = "07b069d14db5"
 branch_labels = None
 depends_on = None
@@ -112,6 +112,18 @@ def upgrade():
         op.f("ix_db_meta_tables_database_id"), "db_meta_tables", ["database_id"], unique=False
     )
     op.create_table(
+        "dict_type",
+        sa.Column("id", sa.BigInteger(), nullable=False, comment="主键"),
+        sa.Column("name", sa.String(length=64), nullable=True, comment="字典名称"),
+        sa.Column("type", sa.String(length=64), nullable=True, comment="字典类型"),
+        sa.Column("status", sa.Integer(), nullable=True, comment="状态(1正常 0停用)"),
+        sa.Column("comment", sa.String(length=255), nullable=True, comment="备注"),
+        sa.Column("create_time", sa.DateTime(), nullable=True, comment="创建时间"),
+        sa.Column("update_time", sa.DateTime(), nullable=True, comment="更新时间"),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("type", name="dict_type"),
+    )
+    op.create_table(
         "gen_fields",
         sa.Column("id", sa.BigInteger(), nullable=False, comment="主键"),
         sa.Column("db_table_id", sa.BigInteger(), nullable=False, comment="数据库表ID"),
@@ -128,7 +140,7 @@ def upgrade():
         sa.Column("nullable", sa.SmallInteger(), nullable=True, comment="允许为空(0否,1是)"),
         sa.Column("creatable", sa.SmallInteger(), nullable=True, comment="创建字段(0否,1是)"),
         sa.Column("queryable", sa.SmallInteger(), nullable=True, comment="查询字段(0否,1是)"),
-        sa.Column("critical", sa.SmallInteger(), nullable=True, comment="列表字段(0否,1是)"),
+        sa.Column("listable", sa.SmallInteger(), nullable=True, comment="列表字段(0否,1是)"),
         sa.Column("detailable", sa.SmallInteger(), nullable=True, comment="详情字段(0否,1是)"),
         sa.Column("updatable", sa.SmallInteger(), nullable=True, comment="修改字段(0否,1是)"),
         sa.Column("batch_updatable", sa.SmallInteger(), nullable=True, comment="批量修改(0否,1是)"),
@@ -255,6 +267,7 @@ def downgrade():
     op.drop_index(op.f("ix_gen_fields_db_table_id"), table_name="gen_fields")
     op.drop_index(op.f("ix_gen_fields_db_field_id"), table_name="gen_fields")
     op.drop_table("gen_fields")
+    op.drop_table("dict_type")
     op.drop_index(op.f("ix_db_meta_tables_database_id"), table_name="db_meta_tables")
     op.drop_table("db_meta_tables")
     op.drop_index(op.f("ix_db_meta_fields_table_id"), table_name="db_meta_fields")

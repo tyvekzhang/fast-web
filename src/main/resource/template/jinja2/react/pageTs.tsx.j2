@@ -25,10 +25,10 @@
 {%- set _ = components.update({'treeselect': True}) %}
 {%- endif %}
 'use client';
+import SvgIcon from '@/components/assist/svg-icon';
 import ActionButtonComponent from '@/components/base/action-button';
 import { PaginatedTable } from '@/components/base/paginated-table';
 import TransitionWrapper from '@/components/base/transition-wrapper';
-import SvgIcon from '@/components/svg-icon';
 import {
   batchCreate{{ CNs }},
   batchDelete{{ CN }},
@@ -36,31 +36,30 @@ import {
   create{{ CN }},
   delete{{ CN }},
   export{{ CN }},
-  get{{ CN }},
   import{{ CN }},
-  list{{ CNs }},
   update{{ CN }},
+  use{{ CN }},
+  use{{ CNs }},
 } from '@/service/{{ c_kebab_n }}';
-import { BaseQueryImpl } from '@/types';
+import { createPaginationRequest } from '@/types';
 import {
   BatchUpdate{{ CN }},
   Create{{ CN }},
   List{{ CNs }}Request,
   {{ CN }},
-  {{ CN }}Detail,
   Update{{ CN }},
 } from '@/types/{{ c_kebab_n }}';
-import { Form, message } from 'antd';
+import { Form, message, Popconfirm } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import dayjs from 'dayjs';
 import { Eye, MoreHorizontal, PenLine, Trash2 } from 'lucide-react';
 import type { RcFile } from 'rc-upload/lib/interface';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import BatchUpdate{{ CN }}Component from './components/batch-update-{{ c_kebab_n }}';
 import Create{{ CN }}Component from './components/create-{{ c_kebab_n }}';
 import Import{{ CN }}Component from './components/import-{{ c_kebab_n }}';
 import {{ CN }}DetailComponent from './components/{{ c_kebab_n }}-detail';
-import {{ CN }}QueryComponent from './components/query-{{ c_kebab_n }}';
+import Query{{ CN }}Component from './components/query-{{ c_kebab_n }}';
 import Update{{ CN }}Component from './components/update-{{ c_kebab_n }}';
 
 const {{ CN }}Page: React.FC = () => {
@@ -75,47 +74,80 @@ const {{ CN }}Page: React.FC = () => {
   const showMore = false;
 
   // 查询模块
-  const [is{{ CN }}QueryShow, setIs{{ CN }}QueryShow] = useState<boolean>(true);
-  const [{{ cN }}PageDataSource, set{{ CN }}PageDataSource] = useState<{{ CN }}[]>([]);
-  const [{{ cN }}PageTotalCount, set{{ CN }}PageTotalCount] = useState(0);
+  const [isQuery{{ CN }}Show, setIsQuery{{ CN }}Show] = useState<boolean>(true);
   const [current, setCurrent] = useState(1);
-  const [page_size, setpage_size] = useState(10);
-  const on{{ CN }}QueryShow = () => {
-    setIs{{ CN }}QueryShow((prevState) => !prevState);
-  };
-  useEffect(() => {
-    const fetchData = async () => {
-      const {{ cN }}Query =
-        (await {{ cN }}QueryForm.validateFields()) as List{{ CNs }}Request;
-      const pageData = BaseQueryImpl.create(current, page_size);
-      const resp = await list{{ CNs }}({ ...pageData, ...{{ cN }}Query });
-      set{{ CN }}PageDataSource(resp.records);
-      set{{ CN }}PageTotalCount(resp.total);
-    };
-    fetchData().then(() => {});
-  }, [current, page_size]);
+  const [pageSize, setPageSize] = useState(10);
 
-  const handlePaginationChange = (newPage: number, newpage_size: number) => {
-    setCurrent(newPage);
-    setpage_size(newpage_size);
+  const [query{{ CN }}Form] = Form.useForm();
+  const [{{ cN }}QueryParams, set{{ CN }}QueryParams] = useState<List{{ CNs }}Request>();
+
+  // 用 use{{ CNs }} 获取菜单列表数据
+  const {
+    {{ cNs }}: {{ cN }}ListDataSource,
+    total,
+    isLoading: is{{ CN }}ListLoading,
+    mutate{{ CNs }},
+  } = use{{ CNs }}({
+    ...{{ cN }}QueryParams,
+    ...createPaginationRequest(current, pageSize),
+  });
+
+  const onQuery{{ CN }}Show = () => {
+    setIsQuery{{ CN }}Show((prevState) => !prevState);
   };
+
+  const handlePaginationChange = (newPage: number, newPageSize: number) => {
+    setCurrent(newPage);
+    setPageSize(newPageSize);
+  };
+
   const resetPagination = () => {
     setCurrent(1);
-    setpage_size(10);
+    setPageSize(10);
+  };
+
+  const handleQuery{{ CN }}Reset = () => {
+    resetPagination();
+    query{{ CN }}Form.resetFields();
+    mutate{{ CNs }}();
+  };
+
+  const onQuery{{ CN }}Finish = async () => {
+    const values = query{{ CN }}Form.getFieldsValue();
+    const { create_time } = values;
+    if (create_time) {
+      const [startDate, endDate] = create_time;
+      values.create_time = [
+        startDate.format('YYYY-MM-DD'),
+        endDate.format('YYYY-MM-DD'),
+      ];
+    }
+    const query{{ CN }} = values as List{{ CNs }}Request;
+    const filteredQuery{{ CN }} = Object.fromEntries(
+      Object.entries(query{{ CN }}).filter(
+        ([, value]) => value !== undefined && value !== null && value !== '',
+      ),
+    );
+    resetPagination();
+    set{{ CN }}QueryParams(filteredQuery{{ CN }} as List{{ CNs }}Request);
   };
 
   // 详情模块
   const [is{{ CN }}DetailDrawerVisible, setIs{{ CN }}DetailDrawerVisible] =
-    useState<boolean>(false);
-  const [{{ cN }}Detail, set{{ CN }}Detail] = useState<{{ CN }}Detail | null>(null);
-  const on{{ CN }}Detail = async ({{ cN }}: {{ CN }}) => {
+    useState(false);
+  const [selected{{ CN }}Id, setSelected{{ CN }}Id] = useState<string | null>(null);
+
+  const { {{ cN }}: {{ cN }}Detail, isLoading: is{{ CN }}DetailLoading } = use{{ CN }}(
+    selected{{ CN }}Id || '',
+  );
+
+  const on{{ CN }}Detail = ({{ cN }}: {{ CN }}) => {
+    setSelected{{ CN }}Id({{ cN }}.id);
     setIs{{ CN }}DetailDrawerVisible(true);
-    const id = {{ cN }}.id;
-    await get{{ CN }}(id).then(set{{ CN }}Detail);
   };
 
-  const on{{ CN }}DetailClose = async () => {
-    set{{ CN }}Detail(null);
+  const on{{ CN }}DetailClose = () => {
+    setSelected{{ CN }}Id(null);
     setIs{{ CN }}DetailDrawerVisible(false);
   };
 
@@ -134,31 +166,31 @@ const {{ CN }}Page: React.FC = () => {
       render: (_: number, _record: {{CN}}, rowIndex: number) => rowIndex + 1,
       width: "8%",
     },
-    {%- for field in fields %}
-    {%- set dict_type = field.gen_field.dict_type %}
+    {%- for context in fields %}
+    {%- set dict_type = context.field.dict_type %}
     {%- set comment = "" -%}
-    {%- if field.gen_field.critical == 1 and field.gen_field.field_name != primary_key -%}
-        {%- if field.field.comment and field.field.comment != "" -%}
-            {%- set parentheseIndex_en = field.field.comment.find("(") -%}
-            {%- set parentheseIndex_cn = field.field.comment.find("（") -%}
+    {%- if context.field.listable == 1 and context.field.field_name != primary_key -%}
+        {%- if context.field.comment and context.field.comment != "" -%}
+            {%- set parentheseIndex_en = context.field.comment.find("(") -%}
+            {%- set parentheseIndex_cn = context.field.comment.find("（") -%}
             {%- if parentheseIndex_en!= -1 -%}
-                {% set comment = field.field.comment[:parentheseIndex_en] %}
+                {% set comment = context.field.comment[:parentheseIndex_en] %}
             {%- elif parentheseIndex_cn!= -1 -%}
-                {% set comment = field.field.comment[:parentheseIndex_cn] %}
+                {% set comment = context.field.comment[:parentheseIndex_cn] %}
             {%- else -%}
-                {%- set comment = field.field.comment -%}
+                {%- set comment = context.field.comment -%}
             {%- endif -%}
         {%- endif %}
     {
-      title: "{% if comment %}{{ comment }}{% else %}{{ field.gen_field.field_name }}{% endif %}",
-      dataIndex: "{{ field.gen_field.field_name }}",
-      key: "{{ field.gen_field.field_name }}",
-      {%- if "Time" in field.gen_field.field_name or "Date" in field.gen_field.field_name or "time" in field.gen_field.field_name or "date" in field.gen_field.field_name or "day" in field.gen_field.field_name %}
+      title: "{% if comment %}{{ comment }}{% else %}{{ context.field.field_name }}{% endif %}",
+      dataIndex: "{{ context.field.field_name }}",
+      key: "{{ context.field.field_name }}",
+      {%- if "Time" in context.field.field_name or "Date" in context.field.field_name or "time" in context.field.field_name or "date" in context.field.field_name or "day" in context.field.field_name %}
       render: (text: string) => (
         text ? <span>{dayjs(text).format('YYYY-MM-DD HH:mm:ss')}</span>: "-"
       ),
       width: "14%",
-      {%- elif field.gen_field.html_type == "imageUpload" %}
+      {%- elif context.field.html_type == "imageUpload" %}
       render: (text) => (text ? <ImagePreview src={text} width="100%" /> : "-"),
       {%- elif dict_type %}
       render: (text) => {
@@ -176,13 +208,13 @@ const {{ CN }}Page: React.FC = () => {
               return null;
           });
       },
-      {% elif field.gen_field.js_type == "string" %}
+      {% elif context.field.js_type == "string" %}
       render: (text) => (text ? text : "-"),
       width: "12%",
       {%- endif %}
-      {%- if field.gen_field.js_type == "string" %}
+      {%- if context.field.js_type == "string" %}
       ellipsis: true,
-      {%- elif field.gen_field.js_type == "number" %}
+      {%- elif context.field.js_type == "number" %}
       width: "6%",
       {%- endif %}
     },
@@ -210,14 +242,21 @@ const {{ CN }}Page: React.FC = () => {
             <PenLine className="w-3 h-3" />
             编辑
           </button>
-          <button
-            type="button"
-            className="flex items-center gap-0.5 text-xs btn-remove"
-            onClick={ () => handleDelete{{ CN }}(record)}
+          <Popconfirm
+            title="确认删除"
+            description="确定删除吗? 删除后将无法找回"
+            onConfirm={() => handleDelete{{ CN }}(record)}
+            okText="确认"
+            cancelText="取消"
           >
-            <Trash2 className="w-3 h-3" />
-            删除
-          </button>
+            <button
+              type="button"
+              className="flex items-center gap-0.5 text-xs btn-remove"
+            >
+              <Trash2 className="w-3 h-3" />
+              删除
+            </button>
+          </Popconfirm>
 
           {showMore && (
             <button type="button" className="flex items-center gap-0.5 text-xs btn-operation">
@@ -246,46 +285,12 @@ const {{ CN }}Page: React.FC = () => {
     visibleColumns.includes(col.key),
   );
 
-  const [{{ cN }}QueryForm] = Form.useForm();
-  const handle{{ CN }}QueryReset = () => {
-    resetPagination();
-    {{ cN }}QueryForm.resetFields();
-    on{{ CN }}QueryFinish();
-  };
-  const on{{ CN }}QueryFinish = async () => {
-    const values = {{ cN }}QueryForm.getFieldsValue();
-    const { create_time } = values;
-    if (create_time) {
-      const [startDate, endDate] = create_time;
-      values.create_time = [
-        startDate.format('YYYY-MM-DD'),
-        endDate.format('YYYY-MM-DD'),
-      ];
-    }
-    const {{ cN }}Query = values as List{{ CNs }}Request;
-    const filtered{{ CN }}Query = Object.fromEntries(
-      Object.entries({{ cN }}Query).filter(
-        ([, value]) => value !== undefined && value !== null && value !== '',
-      ),
-    );
-    resetPagination();
-    await handle{{ CN }}QueryFinish(filtered{{ CN }}Query as List{{ CNs }}Request);
-  };
-  const handle{{ CN }}QueryFinish = async ({{ cN }}: List{{ CNs }}Request) => {
-    await list{{ CNs }}({
-      ...BaseQueryImpl.create(current, page_size),
-      ...{{ cN }},
-    }).then((resp) => {
-      set{{ CN }}PageDataSource(resp.records);
-      set{{ CN }}PageTotalCount(resp.total);
-    });
-  };
-
   // 新增模块
   const [isCreate{{ CN }}ModalVisible, setIsCreate{{ CN }}ModalVisible] =
     useState(false);
   const [isCreate{{ CN }}Loading, setIsCreate{{ CN }}Loading] = useState(false);
   const [create{{ CN }}Form] = Form.useForm();
+
   const onCreate{{ CN }} = () => {
     setIsCreate{{ CN }}ModalVisible(true);
   };
@@ -299,18 +304,18 @@ const {{ CN }}Page: React.FC = () => {
       await create{{ CN }}({ {{ cN }}: data });
       message.success('新增成功');
       create{{ CN }}Form.resetFields();
-      await on{{ CN }}QueryFinish();
+      setIsCreate{{ CN }}ModalVisible(false);
+      mutate{{ CNs }}();
     } finally {
       setIsCreate{{ CN }}Loading(false);
-      setIsCreate{{ CN }}ModalVisible(false);
     }
   };
 
   // 单个删除模块
   const handleDelete{{ CN }} = async ({{ cN }}: {{ CN }}) => {
     await delete{{ CN }}({{ cN }}.id);
-    message.success("删除成功")
-    await on{{ CN }}QueryFinish();
+    message.success('删除成功');
+    mutate{{ CNs }}();
   };
 
   // 批量删除模块
@@ -318,10 +323,12 @@ const {{ CN }}Page: React.FC = () => {
     useState<boolean>(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [selectedRows, setSelectedRows] = useState<{{ CN }}[]>([]);
+
   const resetSelectedRows = () => {
     setSelectedRowKeys([]);
     setSelectedRows([]);
   };
+
   const handleSelectionChange = (
     selectedRowKeys: React.Key[],
     selectedRows: {{ CN }}[],
@@ -329,6 +336,7 @@ const {{ CN }}Page: React.FC = () => {
     setSelectedRows(selectedRows);
     setSelectedRowKeys(selectedRowKeys);
   };
+
   const handle{{ CN }}BatchRemove = async () => {
     if (selectedRowKeys.length === 0) {
       message.warning('请先选择要删除的项目');
@@ -337,13 +345,14 @@ const {{ CN }}Page: React.FC = () => {
     try {
       setIsBatchRemoveLoading(true);
       await batchDelete{{ CN }}({ ids: selectedRows.map((row) => row.id) });
-      message.success("删除成功")
-      await on{{ CN }}QueryFinish();
+      message.success('删除成功');
+      mutate{{ CNs }}();
       resetSelectedRows();
     } finally {
       setIsBatchRemoveLoading(false);
     }
   };
+
   const handle{{ CN }}BatchRemoveCancel = async () => {
     resetSelectedRows();
     message.info('操作已取消');
@@ -355,6 +364,7 @@ const {{ CN }}Page: React.FC = () => {
   const [isUpdate{{ CN }}Loading, setIsUpdate{{ CN }}Loading] =
     useState<boolean>(false);
   const [update{{ CN }}Form] = Form.useForm();
+
   const onUpdate{{ CN }} = ({{ cN }}: {{ CN }}) => {
     setIsUpdate{{ CN }}ModalVisible(true);
     setSelectedRowKeys([{{ cN }}.id]);
@@ -367,16 +377,17 @@ const {{ CN }}Page: React.FC = () => {
     update{{ CN }}Form.resetFields();
     setIsUpdate{{ CN }}ModalVisible(false);
   };
+
   const handleUpdate{{ CN }}Finish = async () => {
     const update{{ CN }}Data =
       (await update{{ CN }}Form.validateFields()) as Update{{ CN }};
-    const updateData = { ...update{{ CN }}Data, id: selectedRows[0].id };
+    const req = { ...update{{ CN }}Data, id: selectedRows[0].id };
     setIsUpdate{{ CN }}Loading(true);
     try {
-      await update{{ CN }}({ {{ cN }}: updateData });
+      await update{{ CN }}({ {{ cN }}: req });
       update{{ CN }}Form.resetFields();
       message.success('更新成功');
-      await on{{ CN }}QueryFinish();
+      mutate{{ CNs }}();
       resetSelectedRows();
     } finally {
       setIsUpdate{{ CN }}Loading(false);
@@ -390,25 +401,27 @@ const {{ CN }}Page: React.FC = () => {
       setIsUpdate{{ CN }}ModalVisible(true);
       update{{ CN }}Form.setFieldsValue({ ...selectedRows[0] });
     } else {
-      setIs{{ CN }}BatchModifyModalVisible(true);
-      {{ cN }}BatchModifyForm.resetFields();
+      setIsBatchUpdate{{ CNs }}ModalVisible(true);
+      batchUpdate{{ CNs }}Form.resetFields();
     }
   };
-  const [is{{ CN }}BatchModifyModalVisible, setIs{{ CN }}BatchModifyModalVisible] =
+  const [isBatchUpdate{{ CNs }}ModalVisible, setIsBatchUpdate{{ CNs }}ModalVisible] =
     useState<boolean>(false);
-  const [is{{ CN }}BatchModifyLoading, setIs{{ CN }}BatchModifyLoading] =
+  const [isBatchUpdate{{ CNs }}Loading, setIsBatchUpdate{{ CNs }}Loading] =
     useState<boolean>(false);
-  const [{{ cN }}BatchModifyForm] = Form.useForm();
-  const handle{{ CN }}BatchModifyCancel = async () => {
-    {{ cN }}BatchModifyForm.resetFields();
-    setIs{{ CN }}BatchModifyModalVisible(false);
+  const [batchUpdate{{ CNs }}Form] = Form.useForm();
+
+  const handleBatchUpdate{{ CNs }}Cancel = async () => {
+    batchUpdate{{ CNs }}Form.resetFields();
+    setIsBatchUpdate{{ CNs }}ModalVisible(false);
     resetSelectedRows();
     message.info('操作已取消');
   };
-  const handle{{ CN }}BatchModifyFinish = async () => {
+
+  const handleBatchUpdate{{ CNs }}Finish = async () => {
     const {{ cN }}BatchModify =
-      (await {{ cN }}BatchModifyForm.validateFields()) as BatchUpdate{{ CN }};
-    setIs{{ CN }}BatchModifyLoading(true);
+      (await batchUpdate{{ CNs }}Form.validateFields()) as BatchUpdate{{ CN }};
+    setIsBatchUpdate{{ CNs }}Loading(true);
     if (selectedRows === null || selectedRows.length === 0) {
       message.warning('请选择要更新的项目');
       return;
@@ -416,13 +429,13 @@ const {{ CN }}Page: React.FC = () => {
     try {
       const ids = selectedRows.map((row) => row.id);
       await batchUpdate{{ CNs }}({ ids: ids, {{ cN }}: {{ cN }}BatchModify });
-      {{ cN }}BatchModifyForm.resetFields();
+      batchUpdate{{ CNs }}Form.resetFields();
       message.success('更新成功');
-      await on{{ CN }}QueryFinish();
+      mutate{{ CNs }}();
       resetSelectedRows();
     } finally {
-      setIs{{ CN }}BatchModifyLoading(false);
-      setIs{{ CN }}BatchModifyModalVisible(false);
+      setIsBatchUpdate{{ CNs }}Loading(false);
+      setIsBatchUpdate{{ CNs }}ModalVisible(false);
     }
   };
 
@@ -436,9 +449,11 @@ const {{ CN }}Page: React.FC = () => {
   const onImport{{ CN }} = () => {
     setIsImport{{ CN }}ModalVisible(true);
   };
+
   const handleImport{{ CN }}Cancel = () => {
     setIsImport{{ CN }}ModalVisible(false);
   };
+
   const onImport{{ CN }}Finish = async (fileList: RcFile[]) => {
     try {
       setIsImport{{ CN }}Loading(true);
@@ -456,7 +471,7 @@ const {{ CN }}Page: React.FC = () => {
       await batchCreate{{ CNs }}({ {{ cNs }}: create{{ CN }}List });
       message.success('导入成功');
       setIsImport{{ CN }}ModalVisible(false);
-      await on{{ CN }}QueryFinish();
+      mutate{{ CNs }}();
     } finally {
       setIsImport{{ CN }}Loading(false);
       setCreate{{ CN }}List([]);
@@ -481,23 +496,23 @@ const {{ CN }}Page: React.FC = () => {
 
   return (
     <div className="w-full mx-auto px-4 bg-white">
-      <TransitionWrapper show={is{{ CN }}QueryShow}>
-        <{{ CN }}QueryComponent
-          on{{ CN }}QueryFinish={on{{ CN }}QueryFinish}
-          on{{ CN }}QueryReset={handle{{ CN }}QueryReset}
-          {{ cN }}QueryForm={ {{ cN }}QueryForm}
+      <TransitionWrapper show={isQuery{{ CN }}Show}>
+        <Query{{ CN }}Component
+          onQuery{{ CN }}Finish={onQuery{{ CN }}Finish}
+          onQuery{{ CN }}Reset={handleQuery{{ CN }}Reset}
+          onQuery{{ CN }}Form={query{{ CN }}Form}
         />
       </TransitionWrapper>
       <div>
         <ActionButtonComponent
-          onCreate={onCreate{{ CN }}}
-          onImport={onImport{{ CN }}}
+          onCreate={onCreate{{ CN }} }
+          onImport={onImport{{ CN }} }
           onExport={on{{ CN }}Export}
           onBatchModify={on{{ CN }}BatchModify}
           onConfirmBatchRemove={handle{{ CN }}BatchRemove}
           onConfirmBatchRemoveCancel={handle{{ CN }}BatchRemoveCancel}
-          isQueryShow={is{{ CN }}QueryShow}
-          onQueryShow={on{{ CN }}QueryShow}
+          isQueryShow={isQuery{{ CN }}Show}
+          onQueryShow={onQuery{{ CN }}Show}
           isExportDisabled={selectedRowKeys.length === 0}
           isBatchModifyDisabled={selectedRowKeys.length === 0}
           isBatchRemoveDisabled={selectedRowKeys.length === 0}
@@ -513,14 +528,15 @@ const {{ CN }}Page: React.FC = () => {
       <div>
         <PaginatedTable<{{ CN }}>
           columns={filtered{{ CN }}Columns}
-          dataSource={ {{ cN }}PageDataSource}
-          total={ {{ cN }}PageTotalCount}
+          dataSource={ {{ cN }}ListDataSource || []}
+          total={total || 0}
           current={current}
-          page_size={page_size}
+          page_size={pageSize}
           onPaginationChange={handlePaginationChange}
           onSelectionChange={handleSelectionChange}
           selectedRowKeys={selectedRowKeys}
           rowKey="id"
+          loading={is{{ CN }}ListLoading}
         />
       </div>
       <div>
@@ -532,7 +548,7 @@ const {{ CN }}Page: React.FC = () => {
             isCreate{{ CN }}Loading={isCreate{{ CN }}Loading}
             create{{ CN }}Form={create{{ CN }}Form}
             {%- if components.treeselect %}
-            treeSelectDataSource={ {{ cN }}PageDataSource}
+            treeSelectDataSource={ {{ cN }}ListDataSource}
             {%- endif %}
           />
         </div>
@@ -541,6 +557,7 @@ const {{ CN }}Page: React.FC = () => {
             is{{ CN }}DetailDrawerVisible={is{{ CN }}DetailDrawerVisible}
             on{{ CN }}DetailClose={on{{ CN }}DetailClose}
             {{ cN }}Detail={ {{ cN }}Detail}
+            loading={is{{ CN }}DetailLoading}
           />
         </div>
         <div>
@@ -551,29 +568,27 @@ const {{ CN }}Page: React.FC = () => {
             isUpdate{{ CN }}Loading={isUpdate{{ CN }}Loading}
             update{{ CN }}Form={update{{ CN }}Form}
             {%- if components.treeselect %}
-            treeSelectDataSource={ {{ cN }}PageDataSource}
+            treeSelectDataSource={ {{ cN }}ListDataSource}
             {%- endif %}
           />
         </div>
         <div>
           <BatchUpdate{{ CN }}Component
-            isBatchUpdate{{ CNs }}ModalVisible={is{{ CN }}BatchModifyModalVisible}
-            onBatchUpdate{{ CNs }}Cancel={handle{{ CN }}BatchModifyCancel}
-            onBatchUpdate{{ CNs }}Finish={handle{{ CN }}BatchModifyFinish}
-            isBatchUpdate{{ CNs }}Loading={is{{ CN }}BatchModifyLoading}
-            batchUpdate{{ CNs }}Form={ {{ cN }}BatchModifyForm}
-            {%- if components.treeselect %}
-            treeSelectDataSource={ {{ cN }}PageDataSource}
-            {%- endif %}
+            isBatchUpdate{{ CNs }}ModalVisible={isBatchUpdate{{ CNs }}ModalVisible}
+            onBatchUpdate{{ CNs }}Cancel={handleBatchUpdate{{ CNs }}Cancel}
+            onBatchUpdate{{ CNs }}Finish={handleBatchUpdate{{ CNs }}Finish}
+            isBatchUpdate{{ CNs }}Loading={isBatchUpdate{{ CNs }}Loading}
+            batchUpdate{{ CNs }}Form={ batchUpdate{{ CNs }}Form}
           />
         </div>
+
         <div>
           <Import{{ CN }}Component
             isImport{{ CN }}ModalVisible={isImport{{ CN }}ModalVisible}
             isImport{{ CN }}Loading={isImport{{ CN }}Loading}
             onImport{{ CN }}Finish={onImport{{ CN }}Finish}
             onImport{{ CN }}Cancel={handleImport{{ CN }}Cancel}
-            handleImport{{ CN }}={handleImport{{ CN }}}
+            handleImport{{ CN }}={handleImport{{ CN }} }
           />
         </div>
       </div>

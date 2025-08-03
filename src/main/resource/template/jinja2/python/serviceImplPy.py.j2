@@ -18,9 +18,9 @@ from src.main.app.core.utils import excel_util
 from src.main.app.core.utils.validate_util import ValidateService
 from src.main.app.enums import BusinessErrorCode
 from src.main.app.exception.biz_exception import BusinessException
-from src.main.app.mapper.{{ c_n }}_mapper import {{ CN }}Mapper
-from src.main.app.model.{{ c_n }}_model import {{ CN }}Model
-from src.main.app.schema.{{ c_n }}_schema import (
+from src.main.app.mapper.{{ module_name }}.{{ c_n }}_mapper import {{ CN }}Mapper
+from src.main.app.model.{{ module_name }}.{{ c_n }}_model import {{ CN }}Model
+from src.main.app.schema.{{ module_name }}.{{ c_n }}_schema import (
     List{{ CNs }}Request,
     {{ CN }},
     Create{{ CN }}Request,
@@ -37,7 +37,7 @@ from src.main.app.schema.{{ c_n }}_schema import (
     BatchPatch{{ CNs }}Request,
     BatchUpdate{{ CN }},
 )
-from src.main.app.service.{{ c_n }}_service import {{ CN }}Service
+from src.main.app.service.{{ module_name }}.{{ c_n }}_service import {{ CN }}Service
 
 
 class {{ CN }}ServiceImpl(BaseServiceImpl[{{ CN }}Mapper, {{ CN }}Model], {{ CN }}Service):
@@ -78,10 +78,10 @@ class {{ CN }}ServiceImpl(BaseServiceImpl[{{ CN }}Mapper, {{ CN }}Model], {{ CN 
             FilterOperators.BETWEEN: {},
             FilterOperators.LIKE: {},
         }
-        {%- for field in fields %}
-        {%- if field.gen_field.queryable == 1  %}
-        {%- set field_name=field.gen_field.field_name %}
-        {%- set query_type=field.gen_field.query_type %}
+        {%- for context in fields %}
+        {%- if context.field.queryable == 1  %}
+        {%- set field_name=context.field.field_name %}
+        {%- set query_type=context.field.query_type %}
         {%- if query_type == "EQ" %}
         if req.{{ field_name }} is not None and req.{{ field_name }} != "":
             filters[FilterOperators.EQ]["{{ field_name }}"] = req.{{ field_name }}

@@ -2,6 +2,7 @@
 """{{ CN }} data model"""
 
 from __future__ import annotations
+
 from datetime import datetime
 from typing import Optional
 from sqlmodel import (
@@ -18,41 +19,42 @@ from sqlmodel import (
     {{ sql_model_type }},
 {%- endfor %}
 )
+
 from src.main.app.core.utils.snowflake_util import snowflake_id
 
 
 class {{ CN }}Base(SQLModel):
-    {% for field in fields %}
-    {%-  if field.gen_field.field_name == "id" %}
-    id: int = Field(
+    {% for context in fields %}
+    {%-  if context.field.primary_key == 1 %}
+    {{ context.field.field_name }}: int = Field(
         default_factory=snowflake_id,
         primary_key=True,
         nullable=False,
         sa_type=BigInteger,
-        {%- if field.gen_field.comment %}sa_column_kwargs={"comment": "{{ field.gen_field.comment }}"}{% endif %}
+        {%- if context.field.comment %}sa_column_kwargs={"comment": "{{ context.field.comment }}"}{% endif %}
     )
-    {%- elif field.gen_field.field_name == "create_time" %}
-    create_time: Optional[datetime] = Field(
+    {%- elif context.field.field_name == "create_time" or context.field.field_name == "create_at" %}
+    {{ context.field.field_name }}: Optional[datetime] = Field(
         sa_type=DateTime,
         default_factory=datetime.utcnow,
-        {%- if field.gen_field.comment %}sa_column_kwargs={"comment": "{{ field.gen_field.comment }}"}{% endif %}
+        {%- if context.field.comment %}sa_column_kwargs={"comment": "{{ context.field.comment }}"}{% endif %}
     )
-    {%- elif field.gen_field.field_name == "update_time" %}
-    update_time: Optional[datetime] = Field(
+    {%- elif context.field.field_name == "update_time" or context.field.field_name == "update_at" %}
+    {{ context.field.field_name }}: Optional[datetime] = Field(
         sa_type=DateTime,
         default_factory=datetime.utcnow,
         sa_column_kwargs={
             "onupdate": datetime.utcnow,
-            {%- if field.gen_field.comment %}"comment": "{{ field.gen_field.comment }}",{% endif %}
+            {%- if context.field.comment %}"comment": "{{ context.field.comment }}",{% endif %}
         },
     )
     {%- else %}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}]{% else %}{{ field.gen_field.field_type }}{% endif %} = Field(
+    {{ context.field.field_name }}: {% if context.field.nullable %}Optional[{{ context.field.field_type }}]{% else %}{{ context.field.field_type }}{% endif %} = Field(
         sa_column=Column(
-            {{ field.gen_field.sql_model_type }}{% if field.gen_field.length %}({{ field.gen_field.length }}){% elif field.gen_field.scale %}({{ field.gen_field.length }}, {{ field.gen_field.scale }}){% endif %},
-            {% if field.gen_field.nullable %}nullable=True{% else %}nullable=False{% endif %},
-            {% if field.default is not none and field.gen_field.default != ""%}default={{ field.gen_field.default }},{% endif %}
-            {%- if field.gen_field.comment %}comment="{{ field.gen_field.comment }}"{% endif %}
+            {{ context.field.sql_model_type }}{% if context.field.length %}({{ context.field.length }}){% elif context.field.scale %}({{ context.field.length }}, {{ context.field.scale }}){% endif %},
+            {% if context.field.nullable %}nullable=True{% else %}nullable=False{% endif %},
+            {% if context.field.default is not none and context.field.default != ""%}default={{ context.field.default }},{% endif %}
+            {%- if context.field.comment %}comment="{{ context.field.comment }}"{% endif %}
         )
     )
     {%- endif %}
@@ -65,11 +67,11 @@ class {{ CN }}Model({{ CN }}Base, table=True):
         {%- if index_metadata %}
         {%- for index in index_metadata %}
         {%- if index.type == "unique" %}
-        UniqueConstraint({{ index.field  }}, name="{{ index.name }}"){% if not loop.last or comment %},{% endif %}
+        UniqueConstraint({{ index.field  }}, name="{{ index.name }}"),
         {%- elif index.type == "primary" %}
-        PrimaryKeyConstraint({{ index.field  }}, name="{{ index.name }}"){% if not loop.last or comment %},{% endif %}
+        PrimaryKeyConstraint({{ index.field  }}, name="{{ index.name }}"),
         {%- else %}
-        Index("{{ index.name }}", {{ index.field  }}){% if not loop.last or comment %},{% endif %}
+        Index("{{ index.name }}", {{ index.field  }}),
         {%- endif %}
         {%- endfor %}
         {%- endif %}

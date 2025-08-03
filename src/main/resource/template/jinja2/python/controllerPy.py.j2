@@ -7,9 +7,9 @@ from fastapi import APIRouter, Query, Form
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.schema import ListResult
-from src.main.app.mapper.{{ c_n }}_mapper import {{ cN }}Mapper
-from src.main.app.model.{{ c_n }}_model import {{ CN }}Model
-from src.main.app.schema.{{ c_n }}_schema import (
+from src.main.app.mapper.{{ module_name }}.{{ c_n }}_mapper import {{ cN }}Mapper
+from src.main.app.model.{{ module_name }}.{{ c_n }}_model import {{ CN }}Model
+from src.main.app.schema.{{ module_name }}.{{ c_n }}_schema import (
     List{{ CNs }}Request,
     {{ CN }},
     Create{{ CN }}Request,
@@ -26,8 +26,8 @@ from src.main.app.schema.{{ c_n }}_schema import (
     Import{{ CNs }}Request,
     Import{{ CN }}, BatchPatch{{ CNs }}Request,
 )
-from src.main.app.service.impl.{{ c_n }}_service_impl import {{ CN }}ServiceImpl
-from src.main.app.service.{{ c_n }}_service import {{ CN }}Service
+from src.main.app.service.impl.{{ module_name }}.{{ c_n }}_service_impl import {{ CN }}ServiceImpl
+from src.main.app.service.{{ module_name }}.{{ c_n }}_service import {{ CN }}Service
 
 {{ c_n }}_router = APIRouter()
 {{ c_n }}_service: {{ CN }}Service = {{ CN }}ServiceImpl(mapper={{ cN }}Mapper)

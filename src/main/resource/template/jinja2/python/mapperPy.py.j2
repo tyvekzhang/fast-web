@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 from src.main.app.core.mapper.impl.base_mapper_impl import SqlModelMapper
-from src.main.app.model.{{ c_n }}_model import {{ CN }}Model
+from src.main.app.model.{{ module_name }}.{{ c_n }}_model import {{ CN }}Model
 
 
 class {{ CN }}Mapper(SqlModelMapper[{{ CN }}Model]):

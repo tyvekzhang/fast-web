@@ -41,7 +41,7 @@ security:
 
 gen:
   author: "Fast web"
-  package_name: ""
+  package_name: "src.main.app.system"
   auto_remove_pre: True
-  table_prefix: "gen, read, db"
+  table_prefix: "gen, read, db, sys"
   add_license: True

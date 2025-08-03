@@ -16,10 +16,7 @@ class HTTPException(Exception):
     """
 
     def __init__(
-        self,
-        code: ExceptionCode,
-        message: Optional[str] = None,
-        details: Optional[Any] = None
+        self, code: ExceptionCode, message: Optional[str] = None, details: Optional[Any] = None
     ):
         """
         Initialize the HTTPException.

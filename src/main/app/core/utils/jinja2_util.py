@@ -76,7 +76,7 @@ class Jinja2Utils:
         class_name = converter.to_snake(raw_class_name)
         class_names = converter.to_plural(raw_class_name)
         classNames = converter.to_camel(class_names)  # noqa
-        ClassNames = converter.to_pascal(
+        ClassNames = converter.to_pascal(  # noqa
             class_names,
         )  # noqa
 
@@ -93,6 +93,7 @@ class Jinja2Utils:
             "license": license,
             "licenseTs": license_ts,
             "package_name": package_name,
+            "module_name": module_name,
             "import_list": import_list,
             "function_name": function_name,
             "author": author,
@@ -107,7 +108,7 @@ class Jinja2Utils:
             "CNs": ClassNames,
             "pk": primary_key,
             "pks": primary_keys,
-            "gen_fields": fields,
+            "fields": fields,
             "index_metadata": index_metadata,
             "business_name": business_name,
             "tree_parent_code": constant.PARENT_ID,
@@ -126,7 +127,6 @@ class Jinja2Utils:
         #     Jinja2Utils.set_tree_context(context, table)
         # elif tpl_category == "sub":
         #     Jinja2Utils.set_sub_context(context, table)
-
         return context
 
     @staticmethod
@@ -271,17 +271,17 @@ class Jinja2Utils:
         py_file_name = converter.to_snake(kebab_case_class_name)
 
         if "controllerPy.py.j2" in template:
-            file_name = f"{py_path}/controller/{py_file_name}_controller.py"
+            file_name = f"{py_path}/controller/{module_name}/{py_file_name}_controller.py"
         elif "servicePy.py.j2" in template:
-            file_name = f"{py_path}/service/{py_file_name}_service.py"
+            file_name = f"{py_path}/service/{module_name}/{py_file_name}_service.py"
         elif "serviceImplPy.py.j2" in template:
-            file_name = f"{py_path}/service/impl/{py_file_name}_service_impl.py"
+            file_name = f"{py_path}/service/impl/{module_name}/{py_file_name}_service_impl.py"
         elif "mapperPy.py.j2" in template:
-            file_name = f"{py_path}/mapper/{py_file_name}_mapper.py"
+            file_name = f"{py_path}/mapper/{module_name}/{py_file_name}_mapper.py"
         elif "schemaPy.py.j2" in template:
-            file_name = f"{py_path}/schema/{py_file_name}_schema.py"
+            file_name = f"{py_path}/schema/{module_name}/{py_file_name}_schema.py"
         elif "modelPy.py.j2" in template:
-            file_name = f"{py_path}/model/{py_file_name}_model.py"
+            file_name = f"{py_path}/model/{module_name}/{py_file_name}_model.py"
         elif "sql.vm" in template:
             file_name = f"{business_name}Menu.sql"
         elif "pageTs.tsx.j2" in template:

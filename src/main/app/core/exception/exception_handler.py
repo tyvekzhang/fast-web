@@ -155,10 +155,10 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
     return JSONResponse(content={"error": {"code": code, "message": str(exc.errors())}})
 
 
-def is_auth_errors_code(exc: HTTPException):
-    code, _ = exc.code.value
-    if code == HTTPStatus.UNAUTHORIZED:
+def is_auth_errors_code(error_code: int):
+    if error_code == HTTPStatus.UNAUTHORIZED.value:
         return True
+    return False
 
 
 async def custom_exception_handler(request: Request, exc: HTTPException):
@@ -175,17 +175,18 @@ async def custom_exception_handler(request: Request, exc: HTTPException):
 
     # ✅ 记录日志
     log_exception(exc, request_info)
-
-    if is_auth_errors_code(exc):
+    error_info = exc.code
+    error_code = error_info.code
+    if is_auth_errors_code(error_code):
         return JSONResponse(
             status_code=HTTPStatus.UNAUTHORIZED.value,
             content={"code": exc.code, "message": exc.message},
         )
-    code, _ = exc.code.value
+
     return JSONResponse(
         content={
             "error": {
-                "code": code.value,
+                "code": error_code,
                 "message": exc.message,
             }
         }

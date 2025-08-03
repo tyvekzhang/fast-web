@@ -2,17 +2,17 @@
 import {PaginationRequest} from '.';
 
 export interface List{{ CNs }}Request extends PaginationRequest {
-    {% for field in fields %}
-    {%- if field.gen_field.queryable == 1  %}
-    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
+    {% for context in fields %}
+    {%- if context.field.queryable == 1  %}
+    {{ context.field.field_name }}: {% if 'id' in context.field.field_name %}string{% else %}{{ context.field.js_type }}{% endif %};
     {% endif -%}
     {% endfor %}
 }
 
 export interface {{ CN }} {
-    {% for field in fields %}
-    {%- if field.gen_field.critical == 1  %}
-    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
+    {% for context in fields %}
+    {%- if context.field.listable == 1  %}
+    {{ context.field.field_name }}: {% if 'id' in context.field.field_name %}string{% else %}{{ context.field.js_type }}{% endif %};
     {% endif -%}
     {% endfor %}
 }
@@ -22,9 +22,9 @@ export interface {{ CN }}Detail extends {{ CN }} {
 }
 
 export interface Create{{ CN }} {
-    {% for field in fields %}
-    {%- if field.gen_field.creatable == 1  %}
-    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
+    {% for context in fields %}
+    {%- if context.field.creatable == 1  %}
+    {{ context.field.field_name }}: {% if 'id' in context.field.field_name %}string{% else %}{{ context.field.js_type }}{% endif %};
     {% endif -%}
     {% endfor %}
 }
@@ -34,9 +34,9 @@ export interface Create{{ CN }}Request {
 }
 
 export interface Update{{ CN }} {
-    {% for field in fields %}
-    {%- if field.gen_field.updatable == 1  %}
-    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
+    {% for context in fields %}
+    {%- if context.field.updatable == 1  %}
+    {{ context.field.field_name }}: {% if 'id' in context.field.field_name %}string{% else %}{{ context.field.js_type }}{% endif %};
     {% endif -%}
     {% endfor %}
 }
@@ -58,9 +58,9 @@ export interface BatchCreate{{ CN }}Response {
 }
 
 export interface BatchUpdate{{ CN }} {
-    {% for field in fields %}
-    {%- if field.gen_field.batch_updatable == 1 %}
-    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
+    {% for context in fields %}
+    {%- if context.field.batch_updatable == 1 %}
+    {{ context.field.field_name }}: {% if 'id' in context.field.field_name %}string{% else %}{{ context.field.js_type }}{% endif %};
     {% endif -%}
     {% endfor %}
 }
