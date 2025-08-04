@@ -21,9 +21,9 @@ from fastapi import APIRouter, Query, Form
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.schema import ListResult
-from src.main.app.mapper.system.role_menu_mapper import roleMenuMapper
-from src.main.app.model.system.role_menu_model import RoleMenuModel
-from src.main.app.schema.system.role_menu_schema import (
+from src.main.app.mapper.role_menu_mapper import roleMenuMapper
+from src.main.app.model.role_menu_model import RoleMenuModel
+from src.main.app.schema.role_menu_schema import (
     ListRoleMenusRequest,
     RoleMenu,
     CreateRoleMenuRequest,
@@ -41,8 +41,8 @@ from src.main.app.schema.system.role_menu_schema import (
     ImportRoleMenu,
     BatchPatchRoleMenusRequest,
 )
-from src.main.app.service.impl.system.role_menu_service_impl import RoleMenuServiceImpl
-from src.main.app.service.system.role_menu_service import RoleMenuService
+from src.main.app.service.impl.role_menu_service_impl import RoleMenuServiceImpl
+from src.main.app.service.role_menu_service import RoleMenuService
 
 role_menu_router = APIRouter()
 role_menu_service: RoleMenuService = RoleMenuServiceImpl(mapper=roleMenuMapper)

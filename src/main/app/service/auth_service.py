@@ -23,7 +23,7 @@ from typing import Set
 from src.main.app.core.schema import UserCredential
 from src.main.app.model.role_model import RoleModel
 from src.main.app.schema.menu_schema import Menu
-from src.main.app.schema.user_schema import (
+from src.main.app.schema.auth_schema import (
     SignInWithEmailAndPasswordRequest,
 )
 

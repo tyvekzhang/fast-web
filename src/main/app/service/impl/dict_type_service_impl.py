@@ -31,9 +31,9 @@ from src.main.app.core.utils import excel_util
 from src.main.app.core.utils.validate_util import ValidateService
 from src.main.app.enums import BusinessErrorCode
 from src.main.app.exception.biz_exception import BusinessException
-from src.main.app.mapper.codegen.dict_type_mapper import DictTypeMapper
-from src.main.app.model.codegen.dict_type_model import DictTypeModel
-from src.main.app.schema.codegen.dict_type_schema import (
+from src.main.app.mapper.dict_type_mapper import DictTypeMapper
+from src.main.app.model.dict_type_model import DictTypeModel
+from src.main.app.schema.dict_type_schema import (
     ListDictTypesRequest,
     DictType,
     CreateDictTypeRequest,
@@ -50,7 +50,7 @@ from src.main.app.schema.codegen.dict_type_schema import (
     BatchPatchDictTypesRequest,
     BatchUpdateDictType,
 )
-from src.main.app.service.codegen.dict_type_service import DictTypeService
+from src.main.app.service.dict_type_service import DictTypeService
 
 
 class DictTypeServiceImpl(BaseServiceImpl[DictTypeMapper, DictTypeModel], DictTypeService):

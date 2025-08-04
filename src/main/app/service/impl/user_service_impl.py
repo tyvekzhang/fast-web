@@ -12,35 +12,43 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""User domain service impl"""
+"""domain service impl"""
 
 from __future__ import annotations
 
 import io
 import json
-from datetime import timedelta
-from typing import Optional
-from typing import Union
+from typing import Type, Any
 
 import pandas as pd
-from fastapi import UploadFile
+from loguru import logger
+from pydantic import ValidationError
 from starlette.responses import StreamingResponse
 
-from src.main.app.core import security
-from src.main.app.core.config import config_manager
 from src.main.app.core.constant import FilterOperators
-from src.main.app.core.enums import TokenTypeEnum
-from src.main.app.core.schema import ListResult, UserCredential, CurrentUser
 from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.core.utils import excel_util
 from src.main.app.core.utils.validate_util import ValidateService
+from src.main.app.enums import BusinessErrorCode
+from src.main.app.exception.biz_exception import BusinessException
 from src.main.app.mapper.user_mapper import UserMapper
 from src.main.app.model.user_model import UserModel
 from src.main.app.schema.user_schema import (
-    UserQuery,
-    UserPage,
-    UserDetail,
+    ListUsersRequest,
+    User,
     CreateUserRequest,
+    UpdateUserRequest,
+    BatchDeleteUsersRequest,
+    ExportUsersRequest,
+    BatchCreateUsersRequest,
+    CreateUser,
+    BatchUpdateUsersRequest,
+    UpdateUser,
+    ImportUsersRequest,
+    ImportUser,
+    ExportUser,
+    BatchPatchUsersRequest,
+    BatchUpdateUser,
 )
 from src.main.app.service.user_service import UserService
 
@@ -60,157 +68,167 @@ class UserServiceImpl(BaseServiceImpl[UserMapper, UserModel], UserService):
         super().__init__(mapper=mapper)
         self.mapper = mapper
 
-    async def create_user(
-        self,
-        create_user: CreateUserRequest,
-    ) -> UserModel:
-        user: UserModel = UserModel(**create_user.model_dump())
-        return await self.save(data=user)
-
-    @classmethod
-    async def generate_tokens(cls, user_id: int) -> UserCredential:
-        security_config = config_manager.load_security_config()
-
-        access_token = security.create_token(subject=user_id, token_type=TokenTypeEnum.access)
-
-        # generate refresh token
-        refresh_token_expires = timedelta(minutes=security_config.refresh_token_expire_minutes)
-        refresh_token = security.create_token(
-            subject=user_id,
-            token_type=TokenTypeEnum.refresh,
-            expires_delta=refresh_token_expires,
-        )
-
-        return UserCredential(
-            access_token=access_token,
-            refresh_token=refresh_token,
-        )
-
-    async def find_by_id(self, id: int) -> Optional[UserPage]:
-        """
-        Retrieve a user by ID.
-
-        Args:
-            id (int): The user ID to retrieve.
-
-        Returns:
-            Optional[UserQuery]: The user query object if found, None otherwise.
-        """
-        user_record = await self.mapper.select_by_id(id=id)
-        return UserPage(**user_record.model_dump()) if user_record else None
-
-    async def get_user_by_page(
-        self, user_query: UserQuery, current_user: CurrentUser
-    ) -> ListResult:
-        sort_list = None
-        sort_str = user_query.sort_str
-        if sort_str is not None:
-            sort_list = json.loads(sort_str)
-        eq = {}
-        ne = {}
-        gt = {}
-        ge = {}
-        lt = {}
-        le = {}
-        between = {}
-        like = {}
-        if user_query.id is not None and user_query.id != "":
-            eq["id"] = user_query.id
-        if user_query.username is not None and user_query.username != "":
-            like["username"] = user_query.username
-        if user_query.password is not None and user_query.password != "":
-            eq["password"] = user_query.password
-        if user_query.nickname is not None and user_query.nickname != "":
-            like["nickname"] = user_query.nickname
-        if user_query.avatar_url is not None and user_query.avatar_url != "":
-            eq["avatar_url"] = user_query.avatar_url
-        if user_query.status is not None and user_query.status != "":
-            eq["status"] = user_query.status
-        if user_query.remark is not None and user_query.remark != "":
-            eq["remark"] = user_query.remark
-        if user_query.create_time is not None and user_query.create_time != "":
-            eq["create_time"] = user_query.create_time
-        filters = {
-            FilterOperators.EQ: eq,
-            FilterOperators.NE: ne,
-            FilterOperators.GT: gt,
-            FilterOperators.GE: ge,
-            FilterOperators.LT: lt,
-            FilterOperators.LE: le,
-            FilterOperators.BETWEEN: between,
-            FilterOperators.LIKE: like,
-        }
-        records, total = await self.mapper.select_by_ordered_page(
-            current=user_query.current,
-            page_size=user_query.page_size,
-            count=user_query.count,
-            sort_list=sort_list,
-            **filters,
-        )
-        if total == 0 and user_query.count:
-            return ListResult(records=[], total=total)
-        records = [UserPage(**record.model_dump()) for record in records]
-        return ListResult(records=records, total=total)
-
-    async def get_user_detail(self, *, id: int, current_user: CurrentUser) -> Optional[UserDetail]:
-        user_do: UserModel = await self.mapper.select_by_id(id=id)
-        if user_do is None:
-            return None
-        return UserDetail(**user_do.model_dump())
-
-    async def export_user_page(
-        self, *, ids: list[int], current_user: CurrentUser
-    ) -> Optional[StreamingResponse]:
-        if ids is None or len(ids) == 0:
-            return None
-        user_list: list[UserModel] = await self.retrieve_by_ids(ids=ids)
-        if user_list is None or len(user_list) == 0:
-            return None
-        user_page_list = [UserPage(**user.model_dump()) for user in user_list]
-        return await excel_util.export_excel(
-            schema=UserPage,
-            file_name="user_data_export",
-            data_list=user_page_list,
-        )
-
-    async def batch_create_user(
+    async def get_user(
         self,
         *,
-        user_create_list: list[CreateUserRequest],
-        current_user: CurrentUser,
-    ) -> list[int]:
-        user_list: list[UserModel] = [
-            UserModel(**user_create.model_dump()) for user_create in user_create_list
-        ]
-        await self.batch_save(data_list=user_list)
-        return [user.id for user in user_list]
+        id: int,
+    ) -> UserModel:
+        user_record: UserModel = await self.mapper.select_by_id(id=id)
+        if user_record is None:
+            raise BusinessException(BusinessErrorCode.RESOURCE_NOT_FOUND)
+        return user_record
 
-    @staticmethod
-    async def import_user(
-        *, file: UploadFile, current_user: CurrentUser
-    ) -> Union[list[CreateUserRequest], None]:
+    async def list_users(self, req: ListUsersRequest) -> tuple[list[UserModel], int]:
+        filters = {
+            FilterOperators.EQ: {},
+            FilterOperators.NE: {},
+            FilterOperators.GT: {},
+            FilterOperators.GE: {},
+            FilterOperators.LT: {},
+            FilterOperators.LE: {},
+            FilterOperators.BETWEEN: {},
+            FilterOperators.LIKE: {},
+        }
+        if req.id is not None and req.id != "":
+            filters[FilterOperators.EQ]["id"] = req.id
+        if req.username is not None and req.username != "":
+            filters[FilterOperators.LIKE]["username"] = req.username
+        if req.password is not None and req.password != "":
+            filters[FilterOperators.EQ]["password"] = req.password
+        if req.nickname is not None and req.nickname != "":
+            filters[FilterOperators.LIKE]["nickname"] = req.nickname
+        if req.avatar_url is not None and req.avatar_url != "":
+            filters[FilterOperators.EQ]["avatar_url"] = req.avatar_url
+        if req.status is not None and req.status != "":
+            filters[FilterOperators.EQ]["status"] = req.status
+        if req.remark is not None and req.remark != "":
+            filters[FilterOperators.EQ]["remark"] = req.remark
+        if req.create_time is not None and req.create_time != "":
+            filters[FilterOperators.EQ]["create_time"] = req.create_time
+        sort_list = None
+        sort_str = req.sort_str
+        if sort_str is not None:
+            sort_list = json.loads(sort_str)
+        return await self.mapper.select_by_ordered_page(
+            current=req.current,
+            page_size=req.page_size,
+            count=req.count,
+            **filters,
+            sort_list=sort_list,
+        )
+
+    async def get_children_recursively(
+        self, *, parent_data: list[UserModel], schema_class: Type[User]
+    ) -> list[User]:
+        if not parent_data:
+            return []
+        user_list = [User(**record.model_dump()) for record in parent_data]
+        return await self.mapper.get_children_recursively(
+            parent_data=user_list, schema_class=schema_class
+        )
+
+    async def create_user(self, req: CreateUserRequest) -> UserModel:
+        user: UserModel = UserModel(**req.user.model_dump())
+        return await self.save(data=user)
+
+    async def update_user(self, req: UpdateUserRequest) -> UserModel:
+        user_record: UserModel = await self.retrieve_by_id(id=req.user.id)
+        if user_record is None:
+            raise BusinessException(BusinessErrorCode.RESOURCE_NOT_FOUND)
+        user_model = UserModel(**req.user.model_dump(exclude_unset=True))
+        await self.modify_by_id(data=user_model)
+        merged_data = {**user_record.model_dump(), **user_model.model_dump()}
+        return UserModel(**merged_data)
+
+    async def delete_user(self, id: int) -> None:
+        user_record: UserModel = await self.retrieve_by_id(id=id)
+        if user_record is None:
+            raise BusinessException(BusinessErrorCode.RESOURCE_NOT_FOUND)
+        await self.mapper.delete_by_id(id=id)
+
+    async def batch_get_users(self, ids: list[int]) -> list[UserModel]:
+        user_records = list[UserModel] = await self.retrieve_by_ids(ids=ids)
+        if user_records is None:
+            raise BusinessException(BusinessErrorCode.RESOURCE_NOT_FOUND)
+        if len(user_records) != len(ids):
+            not_exits_ids = [id for id in ids if id not in user_records]
+            raise BusinessException(
+                BusinessErrorCode.RESOURCE_NOT_FOUND,
+                f"{BusinessErrorCode.RESOURCE_NOT_FOUND.message}: {str(user_records)} != {str(not_exits_ids)}",
+            )
+        return user_records
+
+    async def batch_create_users(
+        self,
+        *,
+        req: BatchCreateUsersRequest,
+    ) -> list[UserModel]:
+        user_list: list[CreateUser] = req.users
+        if not user_list:
+            raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
+        data_list = [UserModel(**user.model_dump()) for user in user_list]
+        await self.mapper.batch_insert(data_list=data_list)
+        return data_list
+
+    async def batch_update_users(self, req: BatchUpdateUsersRequest) -> list[UserModel]:
+        user: BatchUpdateUser = req.user
+        ids: list[int] = req.ids
+        if not user or not ids:
+            raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
+        await self.mapper.batch_update_by_ids(ids=ids, data=user.model_dump(exclude_none=True))
+        return await self.mapper.select_by_ids(ids=ids)
+
+    async def batch_patch_users(self, req: BatchPatchUsersRequest) -> list[UserModel]:
+        users: list[UpdateUser] = req.users
+        if not users:
+            raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
+        update_data: list[dict[str, Any]] = [user.model_dump(exclude_unset=True) for user in users]
+        await self.mapper.batch_update(items=update_data)
+        user_ids: list[int] = [user.id for user in users]
+        return await self.mapper.select_by_ids(ids=user_ids)
+
+    async def batch_delete_users(self, req: BatchDeleteUsersRequest):
+        ids: list[int] = req.ids
+        await self.mapper.batch_delete_by_ids(ids=ids)
+
+    async def export_users_template(self) -> StreamingResponse:
+        file_name = "user_import_tpl"
+        return await excel_util.export_excel(schema=CreateUser, file_name=file_name)
+
+    async def export_users(self, req: ExportUsersRequest) -> StreamingResponse:
+        ids: list[int] = req.ids
+        user_list: list[UserModel] = await self.mapper.select_by_ids(ids=ids)
+        if user_list is None or len(user_list) == 0:
+            logger.error(f"No users found with ids {ids}")
+            raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
+        user_page_list = [ExportUser(**user.model_dump()) for user in user_list]
+        file_name = "user_data_export"
+        return await excel_util.export_excel(
+            schema=ExportUser, file_name=file_name, data_list=user_page_list
+        )
+
+    async def import_users(self, req: ImportUsersRequest) -> list[ImportUser]:
+        file = req.file
         contents = await file.read()
         import_df = pd.read_excel(io.BytesIO(contents))
         import_df = import_df.fillna("")
         user_records = import_df.to_dict(orient="records")
         if user_records is None or len(user_records) == 0:
-            return None
+            raise BusinessException(BusinessErrorCode.PARAMETER_ERROR)
         for record in user_records:
             for key, value in record.items():
                 if value == "":
                     record[key] = None
-        user_create_list = []
+        user_import_list = []
         for user_record in user_records:
             try:
-                user_create = CreateUserRequest(**user_record)
-                user_create_list.append(user_create)
-            except Exception as e:
-                valid_data = {
-                    k: v for k, v in user_record.items() if k in CreateUserRequest.model_fields
-                }
-                user_create = CreateUserRequest.model_construct(**valid_data)
+                user_create = ImportUser(**user_record)
+                user_import_list.append(user_create)
+            except ValidationError as e:
+                valid_data = {k: v for k, v in user_record.items() if k in ImportUser.model_fields}
+                user_create = ImportUser.model_construct(**valid_data)
                 user_create.err_msg = ValidateService.get_validate_err_msg(e)
-                user_create_list.append(user_create)
-                return user_create_list
+                user_import_list.append(user_create)
+                return user_import_list
 
-        return user_create_list
+        return user_import_list

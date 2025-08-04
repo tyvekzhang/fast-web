@@ -15,15 +15,18 @@
 """REST Controller"""
 
 from __future__ import annotations
+
 from typing import Annotated
 
 from fastapi import APIRouter, Query, Form
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.schema import ListResult
-from src.main.app.mapper.codegen.dict_datum_mapper import dictDatumMapper
-from src.main.app.model.codegen.dict_datum_model import DictDatumModel
-from src.main.app.schema.codegen.dict_datum_schema import (
+from src.main.app.enums import BusinessErrorCode
+from src.main.app.exception import BusinessException
+from src.main.app.mapper.dict_datum_mapper import dictDatumMapper
+from src.main.app.model.dict_datum_model import DictDatumModel
+from src.main.app.schema.dict_datum_schema import (
     ListDictDataRequest,
     DictDatum,
     CreateDictDatumRequest,
@@ -39,10 +42,10 @@ from src.main.app.schema.codegen.dict_datum_schema import (
     BatchGetDictDataResponse,
     ImportDictDataRequest,
     ImportDictDatum,
-    BatchPatchDictDataRequest,
+    BatchPatchDictDataRequest, DictDataOption, DictDataOptionItem,
 )
-from src.main.app.service.impl.codegen.dict_datum_service_impl import DictDatumServiceImpl
-from src.main.app.service.codegen.dict_datum_service import DictDatumService
+from src.main.app.service.dict_datum_service import DictDatumService
+from src.main.app.service.impl.dict_datum_service_impl import DictDatumServiceImpl
 
 dict_datum_router = APIRouter()
 dict_datum_service: DictDatumService = DictDatumServiceImpl(mapper=dictDatumMapper)
@@ -91,6 +94,62 @@ async def list_dict_data(
     """
     dict_datum_records, total = await dict_datum_service.list_dict_data(req=req)
     return ListResult(records=dict_datum_records, total=total)
+
+
+@dict_datum_router.get("/dictData:all")
+async def get_all_dict_data() -> DictDataOption:
+    """Get all dictionary data.
+
+    Returns:
+
+        DictDataOption: Structured dictionary data object.
+
+    Raises:
+
+        HTTPException: 403 Forbidden if user doesn't have access rights.
+    """
+    dict_data_records: list[DictDatumModel] = await dict_datum_service.get_all_dict_data()
+
+    grouped_data = {}
+    for record in dict_data_records:
+        if record.type not in grouped_data:
+            grouped_data[record.type] = []
+        grouped_data[record.type].append(
+            DictDataOptionItem(label=record.label, value=record.value)
+        )
+
+    return DictDataOption(options=grouped_data)
+
+
+@dict_datum_router.get("/dictData:options")
+async def get_dict_options(
+    req: list[str] = Query(..., description="List of dict type to get options for")
+) -> DictDataOption:
+    """
+    Get dictionary options for the given dict types.
+
+    Args:
+
+        req: List of dict keys to retrieve options for.
+
+    Returns:
+
+        DictDataOption: Structured dictionary data object.
+
+    Raises:
+
+        HTTPException: 403 Forbidden if user doesn't have access rights.
+    """
+    dict_data_records: list[DictDatumModel] = await dict_datum_service.get_dict_options(req=req)
+    grouped_data = {}
+    for record in dict_data_records:
+        if record.type not in grouped_data:
+            grouped_data[record.type] = []
+        grouped_data[record.type].append(
+            DictDataOptionItem(label=record.label, value=record.value)
+        )
+
+    return DictDataOption(options=grouped_data)
 
 
 @dict_datum_router.post("/dictData")

@@ -31,9 +31,9 @@ from src.main.app.core.utils import excel_util
 from src.main.app.core.utils.validate_util import ValidateService
 from src.main.app.enums import BusinessErrorCode
 from src.main.app.exception.biz_exception import BusinessException
-from src.main.app.mapper.codegen.dict_datum_mapper import DictDatumMapper
-from src.main.app.model.codegen.dict_datum_model import DictDatumModel
-from src.main.app.schema.codegen.dict_datum_schema import (
+from src.main.app.mapper.dict_datum_mapper import DictDatumMapper
+from src.main.app.model.dict_datum_model import DictDatumModel
+from src.main.app.schema.dict_datum_schema import (
     ListDictDataRequest,
     DictDatum,
     CreateDictDatumRequest,
@@ -50,7 +50,7 @@ from src.main.app.schema.codegen.dict_datum_schema import (
     BatchPatchDictDataRequest,
     BatchUpdateDictDatum,
 )
-from src.main.app.service.codegen.dict_datum_service import DictDatumService
+from src.main.app.service.dict_datum_service import DictDatumService
 
 
 class DictDatumServiceImpl(BaseServiceImpl[DictDatumMapper, DictDatumModel], DictDatumService):
@@ -107,15 +107,25 @@ class DictDatumServiceImpl(BaseServiceImpl[DictDatumMapper, DictDatumModel], Dic
             sort_list=sort_list,
         )
 
-    async def get_children_recursively(
-        self, *, parent_data: list[DictDatumModel], schema_class: Type[DictDatum]
-    ) -> list[DictDatum]:
-        if not parent_data:
-            return []
-        dict_datum_list = [DictDatum(**record.model_dump()) for record in parent_data]
-        return await self.mapper.get_children_recursively(
-            parent_data=dict_datum_list, schema_class=schema_class
-        )
+    async def get_all_dict_data(self) -> list[DictDatumModel]:
+        result = []
+        current = 1
+        page_size = 1000
+
+        while True:
+            items, total = await self.mapper.select_by_ordered_page(
+                current=current,
+                page_size=page_size,
+            )
+            result.extend(items)
+            if len(items) == total:
+                break
+            current += 1
+
+        return result
+
+    async def get_dict_options(self, req: list[str]) -> list[DictDatumModel]:
+        return await self.mapper.select_by_types(data=req)
 
     async def create_dict_datum(self, req: CreateDictDatumRequest) -> DictDatumModel:
         dict_datum: DictDatumModel = DictDatumModel(**req.dict_datum.model_dump())

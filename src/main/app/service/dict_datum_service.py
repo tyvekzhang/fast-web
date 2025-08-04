@@ -15,17 +15,16 @@
 """Service"""
 
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Type
 
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.service.base_service import BaseService
-from src.main.app.model.codegen.dict_datum_model import DictDatumModel
-from src.main.app.schema.codegen.dict_datum_schema import (
+from src.main.app.model.dict_datum_model import DictDatumModel
+from src.main.app.schema.dict_datum_schema import (
     ListDictDataRequest,
     CreateDictDatumRequest,
-    DictDatum,
     UpdateDictDatumRequest,
     BatchDeleteDictDataRequest,
     ExportDictDataRequest,
@@ -51,9 +50,10 @@ class DictDatumService(BaseService[DictDatumModel], ABC):
     ) -> tuple[list[DictDatumModel], int]: ...
 
     @abstractmethod
-    async def get_children_recursively(
-        self, *, parent_data: list[DictDatumModel], schema_class: Type[DictDatum]
-    ) -> list[DictDatum]: ...
+    async def get_all_dict_data(self) -> list[DictDatumModel]: ...
+
+    @abstractmethod
+    async def get_dict_options(self, req: list[str]) -> list[DictDatumModel]: ...
 
     @abstractmethod
     async def create_dict_datum(self, *, req: CreateDictDatumRequest) -> DictDatumModel: ...

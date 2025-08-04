@@ -21,9 +21,9 @@ from fastapi import APIRouter, Query, Form
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.schema import ListResult
-from src.main.app.mapper.codegen.dict_type_mapper import dictTypeMapper
-from src.main.app.model.codegen.dict_type_model import DictTypeModel
-from src.main.app.schema.codegen.dict_type_schema import (
+from src.main.app.mapper.dict_type_mapper import dictTypeMapper
+from src.main.app.model.dict_type_model import DictTypeModel
+from src.main.app.schema.dict_type_schema import (
     ListDictTypesRequest,
     DictType,
     CreateDictTypeRequest,
@@ -41,8 +41,8 @@ from src.main.app.schema.codegen.dict_type_schema import (
     ImportDictType,
     BatchPatchDictTypesRequest,
 )
-from src.main.app.service.impl.codegen.dict_type_service_impl import DictTypeServiceImpl
-from src.main.app.service.codegen.dict_type_service import DictTypeService
+from src.main.app.service.impl.dict_type_service_impl import DictTypeServiceImpl
+from src.main.app.service.dict_type_service import DictTypeService
 
 dict_type_router = APIRouter()
 dict_type_service: DictTypeService = DictTypeServiceImpl(mapper=dictTypeMapper)

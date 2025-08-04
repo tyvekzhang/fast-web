@@ -21,8 +21,8 @@ from typing import Type
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.service.base_service import BaseService
-from src.main.app.model.system.role_menu_model import RoleMenuModel
-from src.main.app.schema.system.role_menu_schema import (
+from src.main.app.model.role_menu_model import RoleMenuModel
+from src.main.app.schema.role_menu_schema import (
     ListRoleMenusRequest,
     CreateRoleMenuRequest,
     RoleMenu,
@@ -50,10 +50,6 @@ class RoleMenuService(BaseService[RoleMenuModel], ABC):
         self, *, req: ListRoleMenusRequest
     ) -> tuple[list[RoleMenuModel], int]: ...
 
-    @abstractmethod
-    async def get_children_recursively(
-        self, *, parent_data: list[RoleMenuModel], schema_class: Type[RoleMenu]
-    ) -> list[RoleMenu]: ...
 
     @abstractmethod
     async def create_role_menu(self, *, req: CreateRoleMenuRequest) -> RoleMenuModel: ...

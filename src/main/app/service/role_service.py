@@ -21,8 +21,8 @@ from typing import Type
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.service.base_service import BaseService
-from src.main.app.model.system.role_model import RoleModel
-from src.main.app.schema.system.role_schema import (
+from src.main.app.model.role_model import RoleModel
+from src.main.app.schema.role_schema import (
     ListRolesRequest,
     CreateRoleRequest,
     Role,
@@ -47,11 +47,6 @@ class RoleService(BaseService[RoleModel], ABC):
 
     @abstractmethod
     async def list_roles(self, *, req: ListRolesRequest) -> tuple[list[RoleModel], int]: ...
-
-    @abstractmethod
-    async def get_children_recursively(
-        self, *, parent_data: list[RoleModel], schema_class: Type[Role]
-    ) -> list[Role]: ...
 
     @abstractmethod
     async def create_role(self, *, req: CreateRoleRequest) -> RoleModel: ...

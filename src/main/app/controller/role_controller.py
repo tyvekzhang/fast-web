@@ -21,9 +21,9 @@ from fastapi import APIRouter, Query, Form
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.schema import ListResult
-from src.main.app.mapper.system.role_mapper import roleMapper
-from src.main.app.model.system.role_model import RoleModel
-from src.main.app.schema.system.role_schema import (
+from src.main.app.mapper.role_mapper import roleMapper
+from src.main.app.model.role_model import RoleModel
+from src.main.app.schema.role_schema import (
     ListRolesRequest,
     Role,
     CreateRoleRequest,
@@ -41,8 +41,8 @@ from src.main.app.schema.system.role_schema import (
     ImportRole,
     BatchPatchRolesRequest,
 )
-from src.main.app.service.impl.system.role_service_impl import RoleServiceImpl
-from src.main.app.service.system.role_service import RoleService
+from src.main.app.service.impl.role_service_impl import RoleServiceImpl
+from src.main.app.service.role_service import RoleService
 
 role_router = APIRouter()
 role_service: RoleService = RoleServiceImpl(mapper=roleMapper)
@@ -90,10 +90,7 @@ async def list_roles(
         HTTPException(403 Forbidden): If user don't have access rights.
     """
     role_records, total = await role_service.list_roles(req=req)
-    role_records_with_children: list[Role] = await role_service.get_children_recursively(
-        parent_data=role_records, schema_class=Role
-    )
-    return ListResult(records=role_records_with_children, total=total)
+    return ListResult(records=role_records, total=total)
 
 
 @role_router.post("/roles")

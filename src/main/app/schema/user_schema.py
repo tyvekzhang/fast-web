@@ -14,183 +14,130 @@
 #
 """User schema"""
 
+from __future__ import annotations
+
 from datetime import datetime
-from typing import Optional, Set
+from typing import Optional
+from fastapi import UploadFile
 from pydantic import BaseModel, Field
+
 from src.main.app.core.schema import PaginationRequest
-from src.main.app.schema.menu_schema import Menu
 
 
-class SignInWithEmailAndPasswordRequest(BaseModel):
-    username: str
-    password: str
 
-
-class UserPage(BaseModel):
-    """
-    用户信息分页信息
-    """
-
-    # 主键
-    id: int
-    # 用户名
-    username: str
-    # 昵称
-    nickname: str
-    # 头像地址
-    avatar_url: Optional[str] = None
-    # 状态(0:停用,1:待审核,2:正常,3:已注销)
-    status: Optional[int] = None
-    # 备注
-    remark: Optional[str] = None
-    # 创建时间
-    create_time: Optional[datetime] = None
-
-
-class UserInfo(BaseModel):
-    """
-    用户信息
-    """
-
-    # 主键
-    id: int
-    # 用户名
-    username: str
-    # 昵称
-    nickname: str
-    # 头像地址
-    avatar_url: Optional[str] = None
-    # 状态(0:停用,1:待审核,2:正常,3:已注销)
-    status: Optional[int] = None
-    # 备注
-    remark: Optional[str] = None
-    # 创建时间
-    create_time: Optional[datetime] = None
-    # 角色集合
-    roles: Optional[Set[str]] = None
-    # 权限集合
-    permissions: Optional[list[str]] = None
-    # 菜单集合
-    menus: Optional[list[Menu]] = None
-
-    @staticmethod
-    def is_admin(user_id: int) -> bool:
-        if user_id is not None and user_id == 9:
-            return True
-        return False
-
-
-class UserQuery(PaginationRequest):
-    """
-    用户信息查询参数
-    """
-
-    # 主键
+class ListUsersRequest(PaginationRequest):
     id: Optional[int] = None
-    # 用户名
     username: Optional[str] = None
-    # 密码
     password: Optional[str] = None
-    # 昵称
     nickname: Optional[str] = None
-    # 头像地址
     avatar_url: Optional[str] = None
-    # 状态(0:停用,1:待审核,2:正常,3:已注销)
     status: Optional[int] = None
-    # 备注
     remark: Optional[str] = None
-    # 创建时间
     create_time: Optional[datetime] = None
 
 
-class CreateUserRequest(BaseModel):
-    """
-    用户信息新增
-    """
-
-    # 用户名
-    username: str
-    # 密码
-    password: str
-    # 昵称
-    nickname: str
-    # 头像地址
-    avatar_url: Optional[str] = None
-    # 状态(0:停用,1:待审核,2:正常,3:已注销)
-    status: Optional[int] = None
-    # 备注
-    remark: Optional[str] = None
-    # 错误信息
-    err_msg: Optional[str] = Field(None, alias="errMsg")
-
-
-class UserModify(BaseModel):
-    """
-    用户信息更新
-    """
-
-    # 主键
+class User(BaseModel):
     id: int
-    # 用户名
     username: str
-    # 密码
     password: str
-    # 昵称
     nickname: str
-    # 头像地址
     avatar_url: Optional[str] = None
-    # 状态(0:停用,1:待审核,2:正常,3:已注销)
     status: Optional[int] = None
-    # 备注
     remark: Optional[str] = None
-
-
-class UserBatchModify(BaseModel):
-    """
-    用户信息批量更新
-    """
-
-    ids: list[int]
-    # 用户名
-    username: str
-    # 密码
-    password: str
-    # 昵称
-    nickname: str
-    # 头像地址
-    avatar_url: Optional[str] = None
-    # 状态(0:停用,1:待审核,2:正常,3:已注销)
-    status: Optional[int] = None
-    # 备注
-    remark: Optional[str] = None
+    create_time: Optional[datetime] = None
 
 
 class UserDetail(BaseModel):
-    """
-    用户信息详情
-    """
-
-    # 主键
     id: int
-    # 用户名
     username: str
-    # 密码
     password: str
-    # 昵称
     nickname: str
-    # 头像地址
     avatar_url: Optional[str] = None
-    # 状态(0:停用,1:待审核,2:正常,3:已注销)
     status: Optional[int] = None
-    # 备注
     remark: Optional[str] = None
-    # 创建时间
     create_time: Optional[datetime] = None
 
 
-class Ids(BaseModel):
-    """
-    Ids schema
-    """
+class CreateUser(BaseModel):
+    username: str
+    password: str
+    nickname: str
+    avatar_url: Optional[str] = None
+    status: Optional[int] = None
+    remark: Optional[str] = None
 
+
+class CreateUserRequest(BaseModel):
+    user: CreateUser = Field(alias="user")
+
+
+class UpdateUser(BaseModel):
+    id: int
+    username: str
+    password: str
+    nickname: str
+    avatar_url: Optional[str] = None
+    status: Optional[int] = None
+    remark: Optional[str] = None
+
+
+class UpdateUserRequest(BaseModel):
+    user: UpdateUser = Field(alias="user")
+
+
+class BatchGetUsersResponse(BaseModel):
+    users: list[UserDetail] = Field(default_factory=list, alias="users")
+
+
+class BatchCreateUsersRequest(BaseModel):
+    users: list[CreateUser] = Field(default_factory=list, alias="users")
+
+
+class BatchCreateUsersResponse(BaseModel):
+    users: list[User] = Field(default_factory=list, alias="users")
+
+
+class BatchUpdateUser(BaseModel):
+    username: str
+    password: str
+    nickname: str
+    avatar_url: Optional[str] = None
+    status: Optional[int] = None
+    remark: Optional[str] = None
+
+
+class BatchUpdateUsersRequest(BaseModel):
     ids: list[int]
+    user: BatchUpdateUser = Field(alias="user")
+
+
+class BatchPatchUsersRequest(BaseModel):
+    users: list[UpdateUser] = Field(default_factory=list, alias="users")
+
+
+class BatchUpdateUsersResponse(BaseModel):
+    users: list[User] = Field(default_factory=list, alias="users")
+
+
+class BatchDeleteUsersRequest(BaseModel):
+    ids: list[int]
+
+
+class ExportUser(User):
+    pass
+
+
+class ExportUsersRequest(BaseModel):
+    ids: list[int]
+
+
+class ImportUsersRequest(BaseModel):
+    file: UploadFile
+
+
+class ImportUser(CreateUser):
+    err_msg: Optional[str] = Field(None, alias="errMsg")
+
+
+class ImportUsersResponse(BaseModel):
+    users: list[ImportUser] = Field(default_factory=list, alias="users")

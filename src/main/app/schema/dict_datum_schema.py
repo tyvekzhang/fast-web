@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import Optional
+
 from fastapi import UploadFile
 from pydantic import BaseModel, Field
 
@@ -28,6 +29,15 @@ class ListDictDataRequest(PaginationRequest):
     label: Optional[str] = None
     value: Optional[str] = None
     type: Optional[str] = None
+
+
+class DictDataOptionItem(BaseModel):
+    label: Optional[str] = None
+    value: Optional[str] = None
+
+
+class DictDataOption(BaseModel):
+    options: dict[str, list[DictDataOptionItem]]
 
 
 class DictDatum(BaseModel):

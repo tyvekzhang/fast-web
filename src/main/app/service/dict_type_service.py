@@ -21,8 +21,8 @@ from typing import Type
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.service.base_service import BaseService
-from src.main.app.model.codegen.dict_type_model import DictTypeModel
-from src.main.app.schema.codegen.dict_type_schema import (
+from src.main.app.model.dict_type_model import DictTypeModel
+from src.main.app.schema.dict_type_schema import (
     ListDictTypesRequest,
     CreateDictTypeRequest,
     DictType,
@@ -50,10 +50,6 @@ class DictTypeService(BaseService[DictTypeModel], ABC):
         self, *, req: ListDictTypesRequest
     ) -> tuple[list[DictTypeModel], int]: ...
 
-    @abstractmethod
-    async def get_children_recursively(
-        self, *, parent_data: list[DictTypeModel], schema_class: Type[DictType]
-    ) -> list[DictType]: ...
 
     @abstractmethod
     async def create_dict_type(self, *, req: CreateDictTypeRequest) -> DictTypeModel: ...

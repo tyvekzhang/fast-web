@@ -31,9 +31,9 @@ from src.main.app.core.utils import excel_util
 from src.main.app.core.utils.validate_util import ValidateService
 from src.main.app.enums import BusinessErrorCode
 from src.main.app.exception.biz_exception import BusinessException
-from src.main.app.mapper.system.role_mapper import RoleMapper
-from src.main.app.model.system.role_model import RoleModel
-from src.main.app.schema.system.role_schema import (
+from src.main.app.mapper.role_mapper import RoleMapper
+from src.main.app.model.role_model import RoleModel
+from src.main.app.schema.role_schema import (
     ListRolesRequest,
     Role,
     CreateRoleRequest,
@@ -50,7 +50,7 @@ from src.main.app.schema.system.role_schema import (
     BatchPatchRolesRequest,
     BatchUpdateRole,
 )
-from src.main.app.service.system.role_service import RoleService
+from src.main.app.service.role_service import RoleService
 
 
 class RoleServiceImpl(BaseServiceImpl[RoleMapper, RoleModel], RoleService):

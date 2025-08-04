@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""UserRole mapper"""
+"""DictType mapper"""
 
 from __future__ import annotations
 from src.main.app.core.mapper.impl.base_mapper_impl import SqlModelMapper
-from src.main.app.model.system.user_role_model import UserRoleModel
+from src.main.app.model.dict_type_model import DictTypeModel
 
 
-class UserRoleMapper(SqlModelMapper[UserRoleModel]):
+class DictTypeMapper(SqlModelMapper[DictTypeModel]):
     pass
 
 
-userRoleMapper = UserRoleMapper(UserRoleModel)
+dictTypeMapper = DictTypeMapper(DictTypeModel)

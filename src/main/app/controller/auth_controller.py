@@ -21,12 +21,12 @@ from src.main.app.core.security import get_current_user
 from src.main.app.core.utils.tree_util import list_to_tree
 from src.main.app.mapper.menu_mapper import menuMapper
 from src.main.app.mapper.user_mapper import userMapper
-from src.main.app.schema.menu_schema import Menu
-from src.main.app.schema.user_schema import (
+from src.main.app.schema.auth_schema import (
     SignInWithEmailAndPasswordRequest,
     UserPage,
     UserInfo,
 )
+from src.main.app.schema.menu_schema import Menu
 from src.main.app.service.auth_service import AuthService
 from src.main.app.service.impl.auth_service_impl import AuthServiceImpl
 from src.main.app.service.impl.menu_service_impl import MenuServiceImpl

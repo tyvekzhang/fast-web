@@ -31,9 +31,9 @@ from src.main.app.core.utils import excel_util
 from src.main.app.core.utils.validate_util import ValidateService
 from src.main.app.enums import BusinessErrorCode
 from src.main.app.exception.biz_exception import BusinessException
-from src.main.app.mapper.system.user_role_mapper import UserRoleMapper
-from src.main.app.model.system.user_role_model import UserRoleModel
-from src.main.app.schema.system.user_role_schema import (
+from src.main.app.mapper.user_role_mapper import UserRoleMapper
+from src.main.app.model.user_role_model import UserRoleModel
+from src.main.app.schema.user_role_schema import (
     ListUserRolesRequest,
     UserRole,
     CreateUserRoleRequest,
@@ -50,7 +50,7 @@ from src.main.app.schema.system.user_role_schema import (
     BatchPatchUserRolesRequest,
     BatchUpdateUserRole,
 )
-from src.main.app.service.system.user_role_service import UserRoleService
+from src.main.app.service.user_role_service import UserRoleService
 
 
 class UserRoleServiceImpl(BaseServiceImpl[UserRoleMapper, UserRoleModel], UserRoleService):

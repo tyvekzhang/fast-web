@@ -31,9 +31,9 @@ from src.main.app.core.utils import excel_util
 from src.main.app.core.utils.validate_util import ValidateService
 from src.main.app.enums import BusinessErrorCode
 from src.main.app.exception.biz_exception import BusinessException
-from src.main.app.mapper.system.role_menu_mapper import RoleMenuMapper
-from src.main.app.model.system.role_menu_model import RoleMenuModel
-from src.main.app.schema.system.role_menu_schema import (
+from src.main.app.mapper.role_menu_mapper import RoleMenuMapper
+from src.main.app.model.role_menu_model import RoleMenuModel
+from src.main.app.schema.role_menu_schema import (
     ListRoleMenusRequest,
     RoleMenu,
     CreateRoleMenuRequest,
@@ -50,7 +50,7 @@ from src.main.app.schema.system.role_menu_schema import (
     BatchPatchRoleMenusRequest,
     BatchUpdateRoleMenu,
 )
-from src.main.app.service.system.role_menu_service import RoleMenuService
+from src.main.app.service.role_menu_service import RoleMenuService
 
 
 class RoleMenuServiceImpl(BaseServiceImpl[RoleMenuMapper, RoleMenuModel], RoleMenuService):
