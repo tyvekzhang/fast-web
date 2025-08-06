@@ -13,12 +13,19 @@
 # limitations under the License.
 #
 """Field main schema"""
+from typing import Optional
 
 from pydantic import BaseModel
 
 from src.main.app.core.schema import PaginationRequest
 from src.main.app.model.codegen.field_model import FieldModel
 from src.main.app.model.codegen.meta_field_model import MetaFieldModel
+
+
+class FieldResponse(BaseModel):
+    id: int
+    field_name: str
+    comment: Optional[str] = None
 
 
 class GenTableColumnAdd(BaseModel):

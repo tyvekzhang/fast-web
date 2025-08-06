@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import io
 import json
+import time
 from typing import Type, Any
 
 import pandas as pd
@@ -27,7 +28,7 @@ from starlette.responses import StreamingResponse
 
 from src.main.app.core.constant import FilterOperators
 from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
-from src.main.app.core.utils import excel_util
+from src.main.app.core.utils import excel_util, thread_util
 from src.main.app.core.utils.validate_util import ValidateService
 from src.main.app.enums import BusinessErrorCode
 from src.main.app.exception.biz_exception import BusinessException
@@ -121,6 +122,7 @@ class DictDatumServiceImpl(BaseServiceImpl[DictDatumMapper, DictDatumModel], Dic
             if len(items) == total:
                 break
             current += 1
+            thread_util.sleep()
 
         return result
 

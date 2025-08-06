@@ -21,4 +21,6 @@ from src.main.app.model.codegen.field_model import FieldModel
 
 
 class FieldService(BaseService[FieldModel], ABC):
-    pass
+
+    @staticmethod
+    async def get_all_fields_by_table_id(self, id: int): ...

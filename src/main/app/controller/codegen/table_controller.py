@@ -21,6 +21,7 @@ from fastapi import APIRouter, Query
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.schema import ListResult
+from src.main.app.core.utils import thread_util
 from src.main.app.core.utils.time_util import get_date_time
 from src.main.app.enums import BusinessErrorCode
 from src.main.app.exception import BusinessException
@@ -28,10 +29,12 @@ from src.main.app.mapper.codegen.field_mapper import fieldMapper
 from src.main.app.mapper.codegen.meta_field_mapper import metaFieldMapper
 from src.main.app.mapper.codegen.meta_table_mapper import metaTableMapper
 from src.main.app.mapper.codegen.table_mapper import tableMapper
+from src.main.app.model.codegen.field_model import FieldModel
 from src.main.app.model.codegen.table_model import TableModel
+from src.main.app.schema.codegen.field_schema import FieldResponse
 from src.main.app.schema.codegen.meta_field_schema import ListFieldsRequest
 from src.main.app.schema.codegen.meta_table_schema import ListMetaTablesRequest
-from src.main.app.schema.codegen.table_schema import ListTablesRequest, ImportTable, TableDetail
+from src.main.app.schema.codegen.table_schema import ListTablesRequest, ImportTable, TableDetail, Table, TableOption
 from src.main.app.service.codegen.field_service import FieldService
 from src.main.app.service.codegen.meta_field_service import MetaFieldService
 from src.main.app.service.codegen.meta_table_service import MetaTableService
@@ -78,6 +81,57 @@ async def list_tables(
     table_records, total_count = await table_service.list_tables(req=req)
     results = await table_service.build_tables(tables=table_records)
     return ListResult(records=results, total=total_count)
+
+
+@table_router.get("/tables:all")
+async def get_all_tables(
+) -> list[TableOption]:
+    """
+    Retrieve all available tables with pagination.
+
+    Returns:
+
+        List of all table options.
+
+    Raises:
+
+        HTTPException(403 Forbidden): If user don't have access rights.
+    """
+    tables = []
+    current = 1
+    page_size = 1000
+    while True:
+        req = ListTablesRequest(current=current, page_size=page_size)
+        items, total = await table_service.list_tables(req=req)
+        tables.extend(items)
+        if len(items) == total:
+            break
+        current += 1
+        thread_util.sleep()
+    return [TableOption(**item.model_dump()) for item in tables]
+
+
+@table_router.get("/tables:fields/{id}")
+async def get_all_fields_by_table_id(
+    id: int,
+) -> list[FieldResponse]:
+    """
+    Get all fields associated with a specific table ID.
+
+    Args:
+
+        id: The table ID to fetch fields for.
+
+    Returns:
+
+        List of field responses for the specified table.
+
+    Raises:
+
+        HTTPException(403 Forbidden): If user don't have access rights.
+    """
+    field_records: list[FieldModel] = await field_service.get_all_fields_by_table_id(id=id)
+    return [FieldResponse(**item.model_dump()) for item in field_records]
 
 
 @table_router.post("/tables:import")

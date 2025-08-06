@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 """Field domain service impl"""
-
+from src.main.app.core.constant import FilterOperators
 from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.mapper.codegen.field_mapper import FieldMapper
 from src.main.app.model.codegen.field_model import FieldModel
@@ -24,3 +24,11 @@ class FieldServiceImpl(BaseServiceImpl[FieldMapper, FieldModel], FieldService):
     def __init__(self, mapper: FieldMapper):
         super().__init__(mapper=mapper)
         self.mapper = mapper
+
+    async def get_all_fields_by_table_id(self, id: int) -> list[FieldModel]:
+        filters = {
+            FilterOperators.EQ: {},
+        }
+        filters[FilterOperators.EQ]["db_table_id"] = id
+        field_records, _ = await self.mapper.select_by_ordered_page(**filters)
+        return field_records

@@ -43,6 +43,13 @@ class Table(BaseModel):
     create_time: datetime
 
 
+class TableOption(BaseModel):
+    id: int
+    db_table_id: int
+    table_name: str
+    comment: Optional[str] = None
+
+
 class ImportTable(BaseModel):
     database_id: int
     table_ids: List[int]
