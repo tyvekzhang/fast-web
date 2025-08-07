@@ -55,13 +55,13 @@ class GenTable:
         self.parent_menu_name = parent_menu_name
 
     def is_sub(self) -> bool:
-        return self.tpl_category == "sub"
+        return self.tpl_category == "2"
 
     def is_tree(self) -> bool:
-        return self.tpl_category == "tree"
+        return self.tpl_category == "3"
 
     def is_crud(self) -> bool:
-        return self.tpl_category == "crud"
+        return self.tpl_category == "1"
 
     def is_super_column(self, java_field: str) -> bool:
         base_entity_fields = {

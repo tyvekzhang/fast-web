@@ -22,7 +22,7 @@ from src.main.app.schema.codegen.table_schema import (
     Table,
     TableDetail,
     ListTablesRequest,
-    ImportTable,
+    ImportTable, UpdateTable,
 )
 
 
@@ -46,6 +46,6 @@ class TableService(BaseService[TableModel], ABC):
     async def get_table_detail(self, *, id: int) -> TableDetail: ...
 
     @abstractmethod
-    async def update_table(self, req: TableDetail) -> None: ...
+    async def update_table(self, req: UpdateTable) -> None: ...
 
     async def delete_table(self, id: int) -> None: ...

@@ -2,9 +2,9 @@ class GenConstants:
     """Constants for code generation."""
 
     # Template types
-    TPL_CRUD = "crud"
-    TPL_TREE = "tree"
-    TPL_SUB = "sub"
+    TPL_CRUD = "1"
+    TPL_TREE = "3"
+    TPL_SUB = "2"
 
     # Tree-related gen_fields
     TREE_CODE = "treeCode"

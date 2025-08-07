@@ -73,6 +73,33 @@ class TableDetail(BaseModel):
     fields: List[FieldModel]
 
 
+class RelationTable(BaseModel):
+    tableId: int
+    relationField: str
+
+
+class TreeTable(BaseModel):
+    tree_code: Optional[str] = None
+    tree_parent_code: Optional[str] = None
+    tree_name: Optional[str] = None
+
+
+class UpdateTableOption(BaseModel):
+    tpl_category: str
+    module_name: str
+    business_name: str
+    function_name: str
+    package_name: str
+
+    relationTables: Optional[List[RelationTable]] = None
+    treeTable: Optional[TreeTable] = None
+
+
+class UpdateTable(BaseModel):
+    table: UpdateTableOption
+    fields: List[FieldModel]
+
+
 class TableExecute(BaseModel):
     database_id: int
     sql_statement: str

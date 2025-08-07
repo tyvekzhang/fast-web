@@ -221,7 +221,7 @@ class SqlModelMapper(BaseMapper, Generic[ModelType]):
                 )
         else:
             # Default to primary key descending
-            query = query.order_by(self.model.id.desc())
+            query = query.order_by(self.model.id.asc())
 
         # Apply pagination
         query = query.offset((current - 1) * page_size).limit(page_size)

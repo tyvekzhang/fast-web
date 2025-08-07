@@ -47,8 +47,8 @@ class TableBase(SQLModel):
     )
     backend: Optional[str] = Field(default=None, sa_column=Column(String(16), comment="后端语言"))
     tpl_category: Optional[str] = Field(
-        default="crud",
-        sa_column=Column(String(64), comment="使用的模板（crud单表操作 tree树表操作）"),
+        default="1",
+        sa_column=Column(String(64), comment="使用的模板（1.单表 2.关联表 3.树形表）"),
     )
     tpl_web_type: Optional[str] = Field(
         default="", sa_column=Column(String(32), comment="前端模板类型")

@@ -34,7 +34,8 @@ from src.main.app.model.codegen.table_model import TableModel
 from src.main.app.schema.codegen.field_schema import FieldResponse
 from src.main.app.schema.codegen.meta_field_schema import ListFieldsRequest
 from src.main.app.schema.codegen.meta_table_schema import ListMetaTablesRequest
-from src.main.app.schema.codegen.table_schema import ListTablesRequest, ImportTable, TableDetail, Table, TableOption
+from src.main.app.schema.codegen.table_schema import ListTablesRequest, ImportTable, TableDetail, Table, TableOption, \
+    UpdateTable
 from src.main.app.service.codegen.field_service import FieldService
 from src.main.app.service.codegen.meta_field_service import MetaFieldService
 from src.main.app.service.codegen.meta_table_service import MetaTableService
@@ -231,7 +232,7 @@ async def get_table_detail(
 
 @table_router.put("/tables")
 async def update_table(
-    req: TableDetail,
+    req: UpdateTable,
 ) -> None:
     """
     Update table information.

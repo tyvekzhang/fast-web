@@ -181,7 +181,7 @@ def upgrade():
             "tpl_category",
             sa.String(length=64),
             nullable=True,
-            comment="使用的模板（crud单表操作 tree树表操作）",
+            comment="使用的模板（1.单表 2.关联表 3.树形表）",
         ),
         sa.Column("tpl_web_type", sa.String(length=32), nullable=True, comment="前端模板类型"),
         sa.Column("tpl_backend_type", sa.String(length=32), nullable=True, comment="后端模板类型"),

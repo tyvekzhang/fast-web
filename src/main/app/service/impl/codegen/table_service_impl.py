@@ -15,6 +15,7 @@
 """Table domain service impl"""
 
 import io
+import json
 import zipfile
 from collections import OrderedDict
 from typing import List
@@ -45,7 +46,7 @@ from src.main.app.schema.codegen.table_schema import (
     TableDetail,
     ListTablesRequest,
     ImportTable,
-    GenContext,
+    GenContext, UpdateTable, UpdateTableOption,
 )
 from src.main.app.service.codegen.table_service import TableService
 
@@ -275,9 +276,19 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
         # 返回最终详情
         return TableDetail(table=table_record, fields=fields)
 
-    async def update_table(self, req: TableDetail) -> None:
-        gen_table: TableModel = req.table
-        await self.mapper.update_by_id(data=gen_table)
+    async def update_table(self, req: UpdateTable) -> None:
+        table_option: UpdateTableOption = req.table
+        update_table_data = TableModel(**UpdateTableOption.model_dump())
+        options = None
+        if update_table_data.tpl_category == 2:
+            options = json.dumps(
+                [table.model_dump() for table in table_option.relationTables],
+                ensure_ascii=False
+            )
+        elif update_table_data.tpl_category == 3:
+            options = table_option.treeTable.model_dump_json()
+        update_table_data.options = options
+        await self.mapper.update_by_id(data=update_table_data)
         gen_fields: List[FieldModel] = req.fields
         for gen_field in gen_fields:
             await fieldMapper.update_by_id(data=gen_field)
