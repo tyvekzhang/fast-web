@@ -24,7 +24,6 @@ from pydantic import BaseModel, Field
 from src.main.app.core.schema import PaginationRequest
 
 
-
 class ListUsersRequest(PaginationRequest):
     id: Optional[int] = None
     username: Optional[str] = None

@@ -26,8 +26,9 @@ from src.main.app.model.dict_datum_model import DictDatumModel
 
 
 class DictDatumMapper(SqlModelMapper[DictDatumModel]):
-    async def select_by_types(self, data: list[str], db_session: Union[AsyncSession, None] = None) -> list[
-        DictDatumModel]:
+    async def select_by_types(
+        self, data: list[str], db_session: Union[AsyncSession, None] = None
+    ) -> list[DictDatumModel]:
         db_session = db_session or self.db.session
         db_response = await db_session.exec(select(self.model).where(self.model.type.in_(data)))
         return db_response.all()

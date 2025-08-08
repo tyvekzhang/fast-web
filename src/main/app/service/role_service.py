@@ -16,7 +16,6 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Type
 
 from starlette.responses import StreamingResponse
 
@@ -25,7 +24,6 @@ from src.main.app.model.role_model import RoleModel
 from src.main.app.schema.role_schema import (
     ListRolesRequest,
     CreateRoleRequest,
-    Role,
     UpdateRoleRequest,
     BatchDeleteRolesRequest,
     ExportRolesRequest,

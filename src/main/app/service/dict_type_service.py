@@ -16,7 +16,6 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Type
 
 from starlette.responses import StreamingResponse
 
@@ -25,7 +24,6 @@ from src.main.app.model.dict_type_model import DictTypeModel
 from src.main.app.schema.dict_type_schema import (
     ListDictTypesRequest,
     CreateDictTypeRequest,
-    DictType,
     UpdateDictTypeRequest,
     BatchDeleteDictTypesRequest,
     ExportDictTypesRequest,
@@ -49,7 +47,6 @@ class DictTypeService(BaseService[DictTypeModel], ABC):
     async def list_dict_types(
         self, *, req: ListDictTypesRequest
     ) -> tuple[list[DictTypeModel], int]: ...
-
 
     @abstractmethod
     async def create_dict_type(self, *, req: CreateDictTypeRequest) -> DictTypeModel: ...

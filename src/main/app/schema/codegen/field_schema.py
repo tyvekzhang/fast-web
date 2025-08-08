@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 """Field main schema"""
+
 from typing import Optional
 
 from pydantic import BaseModel

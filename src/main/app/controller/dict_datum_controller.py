@@ -22,8 +22,6 @@ from fastapi import APIRouter, Query, Form
 from starlette.responses import StreamingResponse
 
 from src.main.app.core.schema import ListResult
-from src.main.app.enums import BusinessErrorCode
-from src.main.app.exception import BusinessException
 from src.main.app.mapper.dict_datum_mapper import dictDatumMapper
 from src.main.app.model.dict_datum_model import DictDatumModel
 from src.main.app.schema.dict_datum_schema import (
@@ -42,7 +40,9 @@ from src.main.app.schema.dict_datum_schema import (
     BatchGetDictDataResponse,
     ImportDictDataRequest,
     ImportDictDatum,
-    BatchPatchDictDataRequest, DictDataOption, DictDataOptionItem,
+    BatchPatchDictDataRequest,
+    DictDataOption,
+    DictDataOptionItem,
 )
 from src.main.app.service.dict_datum_service import DictDatumService
 from src.main.app.service.impl.dict_datum_service_impl import DictDatumServiceImpl
@@ -114,16 +114,14 @@ async def get_all_dict_data() -> DictDataOption:
     for record in dict_data_records:
         if record.type not in grouped_data:
             grouped_data[record.type] = []
-        grouped_data[record.type].append(
-            DictDataOptionItem(label=record.label, value=record.value)
-        )
+        grouped_data[record.type].append(DictDataOptionItem(label=record.label, value=record.value))
 
     return DictDataOption(options=grouped_data)
 
 
 @dict_datum_router.get("/dictData:options")
 async def get_dict_options(
-    req: list[str] = Query(..., description="List of dict type to get options for")
+    req: list[str] = Query(..., description="List of dict type to get options for"),
 ) -> DictDataOption:
     """
     Get dictionary options for the given dict types.
@@ -145,9 +143,7 @@ async def get_dict_options(
     for record in dict_data_records:
         if record.type not in grouped_data:
             grouped_data[record.type] = []
-        grouped_data[record.type].append(
-            DictDataOptionItem(label=record.label, value=record.value)
-        )
+        grouped_data[record.type].append(DictDataOptionItem(label=record.label, value=record.value))
 
     return DictDataOption(options=grouped_data)
 

@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 """Field domain service impl"""
+
 from src.main.app.core.constant import FilterOperators
 from src.main.app.core.service.impl.base_service_impl import BaseServiceImpl
 from src.main.app.mapper.codegen.field_mapper import FieldMapper

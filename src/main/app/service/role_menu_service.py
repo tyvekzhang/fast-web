@@ -16,7 +16,6 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Type
 
 from starlette.responses import StreamingResponse
 
@@ -25,7 +24,6 @@ from src.main.app.model.role_menu_model import RoleMenuModel
 from src.main.app.schema.role_menu_schema import (
     ListRoleMenusRequest,
     CreateRoleMenuRequest,
-    RoleMenu,
     UpdateRoleMenuRequest,
     BatchDeleteRoleMenusRequest,
     ExportRoleMenusRequest,
@@ -49,7 +47,6 @@ class RoleMenuService(BaseService[RoleMenuModel], ABC):
     async def list_role_menus(
         self, *, req: ListRoleMenusRequest
     ) -> tuple[list[RoleMenuModel], int]: ...
-
 
     @abstractmethod
     async def create_role_menu(self, *, req: CreateRoleMenuRequest) -> RoleMenuModel: ...

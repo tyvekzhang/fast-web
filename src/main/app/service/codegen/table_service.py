@@ -22,7 +22,8 @@ from src.main.app.schema.codegen.table_schema import (
     Table,
     TableDetail,
     ListTablesRequest,
-    ImportTable, UpdateTable,
+    ImportTable,
+    UpdateTable,
 )
 
 

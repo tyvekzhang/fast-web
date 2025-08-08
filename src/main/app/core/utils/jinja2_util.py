@@ -3,12 +3,15 @@ from datetime import datetime
 from typing import List
 
 from src.main.app.core.constant import constant
+from src.main.app.core.enums.enum import TableTypeEnum
 from src.main.app.core.gen.gen_constants import GenConstants
 from src.main.app.core.utils.converter_util import ClassNameConverter
 from src.main.app.core.utils.gen_util import GenUtils, gen_config
 from src.main.app.core.utils.string_util import StringUtils
+from src.main.app.mapper.codegen.table_mapper import tableMapper
 from src.main.app.model.codegen.index_model import IndexModel
-from src.main.app.schema.codegen.table_schema import GenContext
+from src.main.app.model.codegen.table_model import TableModel
+from src.main.app.schema.codegen.table_schema import GenContext, TreeTable
 
 APACHE_V2 = """
 # Copyright (c) 2025 {} and/or its affiliates. All rights reserved.
@@ -88,6 +91,14 @@ class Jinja2Utils:
             pass
         business_name = gen_table.business_name
         tpl_category = gen_table.tpl_category
+        tree_parent_code = None
+        if tpl_category == TableTypeEnum.TREE.value:
+            table_record: TableModel = tableMapper.select_by_id(id=gen_table.id)
+            try:
+                options: TreeTable = json.loads(table_record.options)
+                tree_parent_code = options.tree_parent_code
+            except:
+                tree_parent_code = constant.PARENT_ID
 
         context = {
             "license": license,
@@ -111,7 +122,7 @@ class Jinja2Utils:
             "fields": fields,
             "index_metadata": index_metadata,
             "business_name": business_name,
-            "tree_parent_code": constant.PARENT_ID,
+            "tree_parent_code": tree_parent_code,
             # "tpl_category": tpl_category,
             # "module_name": module_name,
             # "business_name": Jinja2Utils.capitalize(business_name),

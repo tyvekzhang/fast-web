@@ -46,7 +46,9 @@ from src.main.app.schema.codegen.table_schema import (
     TableDetail,
     ListTablesRequest,
     ImportTable,
-    GenContext, UpdateTable, UpdateTableOption, RelationTable,
+    GenContext,
+    UpdateTable,
+    UpdateTableOption,
 )
 from src.main.app.service.codegen.table_service import TableService
 
@@ -284,7 +286,7 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
             relation_tables = table_option.relationTables
             options = json.dumps(
                 [table.model_dump(exclude_none=True) for table in relation_tables],
-                ensure_ascii=False
+                ensure_ascii=False,
             )
         elif table_option.tpl_category == "3":
             options = table_option.treeTable.model_dump_json()

@@ -1,5 +1,5 @@
 {{ license }}
-"""{{ ClassName }} Service"""
+"""{{ CN }} Service"""
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
@@ -37,10 +37,12 @@ class {{ CN }}Service(BaseService[{{ CN }}Model], ABC):
         self, *, req: List{{ CNs }}Request
     ) -> tuple[list[{{ CN }}Model], int]: ...
 
+    {% if tree_parent_code %}
     @abstractmethod
     async def get_children_recursively(
         self, *, parent_data: list[{{ CN }}Model], schema_class: Type[{{ CN }}]
     ) -> list[{{ CN }}]: ...
+    {%- endif %}
 
     @abstractmethod
     async def create_{{ c_n }}(self, *, req: Create{{ CN }}Request) -> {{ CN }}Model: ...

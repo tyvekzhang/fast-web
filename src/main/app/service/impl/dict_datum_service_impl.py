@@ -18,8 +18,7 @@ from __future__ import annotations
 
 import io
 import json
-import time
-from typing import Type, Any
+from typing import Any
 
 import pandas as pd
 from loguru import logger
@@ -36,7 +35,6 @@ from src.main.app.mapper.dict_datum_mapper import DictDatumMapper
 from src.main.app.model.dict_datum_model import DictDatumModel
 from src.main.app.schema.dict_datum_schema import (
     ListDictDataRequest,
-    DictDatum,
     CreateDictDatumRequest,
     UpdateDictDatumRequest,
     BatchDeleteDictDataRequest,

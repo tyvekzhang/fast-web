@@ -16,7 +16,6 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Type
 
 from starlette.responses import StreamingResponse
 
@@ -25,7 +24,6 @@ from src.main.app.model.user_role_model import UserRoleModel
 from src.main.app.schema.user_role_schema import (
     ListUserRolesRequest,
     CreateUserRoleRequest,
-    UserRole,
     UpdateUserRoleRequest,
     BatchDeleteUserRolesRequest,
     ExportUserRolesRequest,
@@ -49,7 +47,6 @@ class UserRoleService(BaseService[UserRoleModel], ABC):
     async def list_user_roles(
         self, *, req: ListUserRolesRequest
     ) -> tuple[list[UserRoleModel], int]: ...
-
 
     @abstractmethod
     async def create_user_role(self, *, req: CreateUserRoleRequest) -> UserRoleModel: ...

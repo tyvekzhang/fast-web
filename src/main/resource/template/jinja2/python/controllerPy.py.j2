@@ -1,5 +1,5 @@
 {{ license }}
-"""{{ ClassName }} REST Controller"""
+"""{{ CN }} REST Controller"""
 from __future__ import annotations
 from typing import Annotated
 
@@ -75,12 +75,14 @@ async def list_{{ c_ns }}(
         HTTPException(403 Forbidden): If user don't have access rights.
     """
     {{ c_n }}_records, total = await {{ c_n }}_service.list_{{ c_ns }}(req=req)
-    {{ c_n }}_records_with_children: list[
+    {%- if tree_parent_code %}
+    {{ c_n }}_records: list[
         {{ CN }}
     ] = await {{ c_n }}_service.get_children_recursively(
         parent_data={{ c_n }}_records, schema_class={{ CN }}
     )
-    return ListResult(records={{ c_n }}_records_with_children, total=total)
+    {%- endif %}
+    return ListResult(records={{ c_n }}_records, total=total)
 
 
 @{{ c_n }}_router.post("/{{ cNs }}")

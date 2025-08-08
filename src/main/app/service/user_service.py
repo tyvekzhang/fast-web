@@ -16,7 +16,6 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Type
 
 from starlette.responses import StreamingResponse
 
@@ -25,7 +24,6 @@ from src.main.app.model.user_model import UserModel
 from src.main.app.schema.user_schema import (
     ListUsersRequest,
     CreateUserRequest,
-    User,
     UpdateUserRequest,
     BatchDeleteUsersRequest,
     ExportUsersRequest,

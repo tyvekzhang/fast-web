@@ -47,6 +47,14 @@ class MediaTypeEnum(str, Enum):
     JSON = ".json"
 
 
+class TableTypeEnum(str, Enum):
+    """Enumeration for table types."""
+
+    SAMPLE = "1"
+    RELATION = "2"
+    TREE = "3"
+
+
 class CommonErrorCode:
     """Error codes for core domain."""
 

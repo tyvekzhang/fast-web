@@ -1,5 +1,5 @@
 {{ license }}
-"""{{ ClassName }} domain service impl"""
+"""{{ CN }} domain service impl"""
 
 from __future__ import annotations
 
@@ -121,6 +121,7 @@ class {{ CN }}ServiceImpl(BaseServiceImpl[{{ CN }}Mapper, {{ CN }}Model], {{ CN 
             sort_list=sort_list,
         )
 
+    {% if tree_parent_code %}
     async def get_children_recursively(
         self, *, parent_data: list[{{ CN }}Model], schema_class: Type[{{ CN }}]
     ) -> list[{{ CN }}]:
@@ -130,6 +131,7 @@ class {{ CN }}ServiceImpl(BaseServiceImpl[{{ CN }}Mapper, {{ CN }}Model], {{ CN 
         return await self.mapper.get_children_recursively(
             parent_data={{ c_n }}_list, schema_class=schema_class
         )
+    {%- endif %}
 
     async def create_{{ c_n }}(self, req: Create{{ CN }}Request) -> {{ CN }}Model:
         {{ c_n }}: {{ CN }}Model = {{ CN }}Model(**req.{{ c_n }}.model_dump())
