@@ -2,12 +2,46 @@
 """{{ CN }} mapper"""
 
 from __future__ import annotations
+
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
+
 from src.main.app.core.mapper.impl.base_mapper_impl import SqlModelMapper
 from src.main.app.model.{{ module_name }}.{{ c_n }}_model import {{ CN }}Model
 
 
 class {{ CN }}Mapper(SqlModelMapper[{{ CN }}Model]):
+{%- if index_metadata %}
+{%- for index in index_metadata %}
+{% set field_name = index.field.split('.')[-1] %}
+{%- set method_suffix = field_name | capitalize %}
+    async def select_by_{{ field_name }}(
+        self, *, {{ field_name }}: str, db_session: Optional[AsyncSession] = None
+    ) -> Optional[{{ CN }}Model]:
+        """
+        Retrieve a record by {{ field_name }}.
+        """
+        db_session = db_session or self.db.session
+        result = await db_session.exec(
+            select(self.model).where(self.model.{{ field_name }} == {{ field_name }})
+        )
+        return result.one_or_none()
+
+    async def select_by_{{ field_name }}_list(
+        self, *, {{ field_name }}_list: List[str], db_session: Optional[AsyncSession] = None
+    ) -> List[{{ CN }}Model]:
+        """
+        Retrieve records by list of {{ field_name }}.
+        """
+        db_session = db_session or self.db.session
+        result = await db_session.exec(
+            select(self.model).where(self.model.{{ field_name }}.in_({{ field_name }}_list))
+        )
+        return result.all()
+{% endfor %}
+{%- else %}
     pass
+{%- endif %}
 
 
 {{ cN }}Mapper = {{ CN }}Mapper({{ CN }}Model)
