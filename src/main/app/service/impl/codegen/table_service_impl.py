@@ -46,7 +46,7 @@ from src.main.app.schema.codegen.table_schema import (
     TableDetail,
     ListTablesRequest,
     ImportTable,
-    GenContext, UpdateTable, UpdateTableOption,
+    GenContext, UpdateTable, UpdateTableOption, RelationTable,
 )
 from src.main.app.service.codegen.table_service import TableService
 
@@ -278,14 +278,15 @@ class TableServiceImpl(BaseServiceImpl[TableMapper, TableModel], TableService):
 
     async def update_table(self, req: UpdateTable) -> None:
         table_option: UpdateTableOption = req.table
-        update_table_data = TableModel(**UpdateTableOption.model_dump())
+        update_table_data = TableModel(**table_option.model_dump())
         options = None
-        if update_table_data.tpl_category == 2:
+        if table_option.tpl_category == "2":
+            relation_tables = table_option.relationTables
             options = json.dumps(
-                [table.model_dump() for table in table_option.relationTables],
+                [table.model_dump(exclude_none=True) for table in relation_tables],
                 ensure_ascii=False
             )
-        elif update_table_data.tpl_category == 3:
+        elif table_option.tpl_category == "3":
             options = table_option.treeTable.model_dump_json()
         update_table_data.options = options
         await self.mapper.update_by_id(data=update_table_data)

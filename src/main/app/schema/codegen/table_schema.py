@@ -76,6 +76,7 @@ class TableDetail(BaseModel):
 class RelationTable(BaseModel):
     tableId: int
     relationField: str
+    tableName: Optional[str] = None
 
 
 class TreeTable(BaseModel):
@@ -85,6 +86,7 @@ class TreeTable(BaseModel):
 
 
 class UpdateTableOption(BaseModel):
+    id: int
     tpl_category: str
     module_name: str
     business_name: str
